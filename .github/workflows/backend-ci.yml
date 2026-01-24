@@ -39,18 +39,46 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: test
-        run: ./gradlew test --no-daemon --stacktrace
+      - name: Run lint check
+        run: ./gradlew checkstyleMain checkstyleTest
+        continue-on-error: true # 체크스타일 실패해도 리포트를 보여주기 위해 계속 진행
 
-      # 테스트 결과 아티팩트에 업로드
-      - name: Upload test reports
+      - name: Upload checkstyle report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: test-reports
-          path: |
-            build/reports/tests/test/index.html
-            build/reports/tests/test/css/
+          name: checkstyle-report
+          path: build/reports/checkstyle/
+
+      - name: test
+        run: ./gradlew test --no-daemon --stacktrace
+
+      ## ===========
+      ## 테스트 결과를 GitHub Checks UI에 업로드
+      ## - if: always() → 성공, 실패 여부와 관계없이 실행
+      ## - files → JUnit XML 결과 파일 경로
+      ## - check_name → Checks 탭에 표시될 이름
+      ## - check_run_annotations: none → 코드 줄 옆 ❌ 표시 비활성화
+      ## - comment_mode: off → PR 코멘트 남기지 않고 Checks UI에만 표시
+      ## ===========
+      - name: Publish Unit Test Results
+        if: always()
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        with:
+          files: build/test-results/test/TEST-*.xml
+          check_name: '테스트 결과 🛠️'
+          check_run_annotations: 'none'
+          comment_mode: 'off'
+
+        # 3. 빌드된 Jar 파일 보관 (성공했을 때만)
+        #      - name: Upload Build Artifact
+        #        uses: actions/upload-artifact@v4
+        #        if: success()
+        #        with:
+        #          name: backend-build-jar
+        #          path: build/libs/*.jar
+        #          retention-days: 5 # 5일 뒤 자동 삭제
+        #
 
         # NOTE: The Gradle Wrapper is the default and recommended way to run Gradle (https://docs.gradle.org/current/userguide/gradle_wrapper.html).
         # If your project does not have the Gradle Wrapper configured, you can use the following configuration to run Gradle with a specified version.

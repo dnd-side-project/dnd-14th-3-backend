@@ -2,11 +2,15 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.4.13'
     id 'io.spring.dependency-management' version '1.1.7'
+    id 'checkstyle'
 }
 
 jar {
     enabled = false
 }
+
+compileJava.options.encoding = 'UTF-8'
+compileTestJava.options.encoding = 'UTF-8'
 
 group = 'com.dnd'
 version = '0.0.1-SNAPSHOT'
@@ -41,5 +45,20 @@ tasks.named('test') {
     testLogging {
         events "passed", "skipped", "failed"
         showStandardStreams = true // 테스트 실패 시 상세 로그 출력
+    }
+}
+
+checkstyle {
+    configFile = file("${rootProject.projectDir}/checkstyle/naver-checkstyle-rules.xml") // 규칙 파일 위치
+    configProperties = ["suppressionFile": "${rootProject.projectDir}/checkstyle/naver-checkstyle-suppressions.xml"]
+}
+
+tasks.withType(Checkstyle).configureEach {
+    exclude("**/generated/**")
+    exclude("**/build/**")
+
+    reports {
+        xml.required = true
+        html.required = true
     }
 }
