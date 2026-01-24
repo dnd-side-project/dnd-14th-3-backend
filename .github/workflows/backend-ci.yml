@@ -50,7 +50,7 @@ jobs:
           name: test-reports
           path: |
             build/reports/tests/test/index.html
-            build/test-results/test/css/
+            build/reports/tests/test/css/
 
         # NOTE: The Gradle Wrapper is the default and recommended way to run Gradle (https://docs.gradle.org/current/userguide/gradle_wrapper.html).
         # If your project does not have the Gradle Wrapper configured, you can use the following configuration to run Gradle with a specified version.
