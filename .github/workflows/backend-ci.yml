@@ -22,7 +22,9 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-
+      checks: write      # 체크 결과(테스트 리포트)를 기록하기 위해 필수
+      pull-requests: write # PR에 코멘트를 남기거나 상태를 업데이트하기 위해 필요
+          
     steps:
       - uses: actions/checkout@v4
       - name: Set up JDK 17
