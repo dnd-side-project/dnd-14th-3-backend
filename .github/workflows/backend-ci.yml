@@ -17,14 +17,14 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  test:
 
     runs-on: ubuntu-latest
     permissions:
       contents: read
       checks: write      # 체크 결과(테스트 리포트)를 기록하기 위해 필수
       pull-requests: write # PR에 코멘트를 남기거나 상태를 업데이트하기 위해 필요
-          
+
     steps:
       - uses: actions/checkout@v4
       - name: Set up JDK 17
@@ -74,7 +74,22 @@ jobs:
         if: always()
         with:
           report_paths: 'build/test-results/test/TEST-*.xml'
-        
+
+
+      # PR에 JaCoCo 커버리지 코멘트 남기기
+      - name: Jacoco Report to PR
+        id: jacoco
+        uses: madrapps/jacoco-report@v1.6.1
+        with:
+          paths: '${{ github.workspace }}/build/reports/jacoco/test/jacocoTestReport.xml'
+          token: '${{ secrets.GITHUB_TOKEN }}'
+          min-coverage-overall: 80
+          min-coverage-changed-files: 80
+          debug-mode: false
+          title: Code Coverage
+          update-comment: true
+
+
         # 3. 빌드된 Jar 파일 보관 (성공했을 때만)
         #      - name: Upload Build Artifact
         #        uses: actions/upload-artifact@v4
@@ -94,4 +109,5 @@ jobs:
         #     gradle-version: '8.9'
         #
         # - name: Build with Gradle 8.9
+
       #   run: gradle build
