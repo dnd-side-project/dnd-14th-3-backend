@@ -3,6 +3,7 @@ plugins {
     id 'org.springframework.boot' version '3.4.13'
     id 'io.spring.dependency-management' version '1.1.7'
     id 'checkstyle'
+    id 'jacoco'
 }
 
 jar {
@@ -20,6 +21,10 @@ java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(17)
     }
+}
+
+jacoco {
+    toolVersion = "0.8.14"
 }
 
 configurations {
@@ -60,5 +65,59 @@ tasks.withType(Checkstyle).configureEach {
     reports {
         xml.required = true
         html.required = true
+    }
+}
+
+test {
+    jacoco {
+        destinationFile = layout.buildDirectory.file('jacoco/jacocoTest.exec').get().asFile
+        classDumpDir = layout.buildDirectory.dir('jacoco/classpathdumps').get().asFile
+    }
+
+    finalizedBy 'jacocoTestReport'
+}
+
+def jacocoExcludes = [
+        '**/config/**',
+        '**/dto/**',
+        '**/generated/**',
+        '**/*Application*',
+        '**/*Exception*',
+        '**/*Request*',
+        '**/*Response*'
+]
+
+jacocoTestReport {
+    dependsOn test
+
+    reports {
+        xml.required = true
+        csv.required = false
+        html.outputLocation = layout.buildDirectory.dir('jacocoHtml')
+    }
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect { dir ->
+            fileTree(dir: dir, exclude: jacocoExcludes)
+        }))
+    }
+}
+
+jacocoTestCoverageVerification {
+    dependsOn test
+
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect { dir ->
+            fileTree(dir: dir, exclude: jacocoExcludes)
+        }))
+    }
+
+    violationRules {
+//        rule {
+//            limit {
+//                counter = 'LINE'
+//                value = 'COVEREDRATIO'
+//                minimum = 0.70
+//            }
+//        }
     }
 }
