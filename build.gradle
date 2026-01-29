@@ -15,7 +15,7 @@ compileTestJava.options.encoding = 'UTF-8'
 
 group = 'com.dnd'
 version = '0.0.1-SNAPSHOT'
-description = 'Demo project for Spring Boot'
+description = '소중한 순간을 기록하고 공유하는 서비스, 찍어줄게(Jjigeojulge) 백엔드 서버'
 
 java {
     toolchain {
