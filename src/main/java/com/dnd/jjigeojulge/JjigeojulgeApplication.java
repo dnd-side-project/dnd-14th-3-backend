@@ -1,13 +1,13 @@
-package com.dnd.donghaeng;
+package com.dnd.jjigeojulge;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class DonghaengApplication {
+public class JjigeojulgeApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(DonghaengApplication.class, args);
+		SpringApplication.run(JjigeojulgeApplication.class, args);
 	}
 
 }
