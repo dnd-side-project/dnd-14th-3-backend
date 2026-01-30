@@ -11,4 +11,4 @@ spring:
 
 logging:
   level:
-    com.dnd.donghaeng: info
+    com.dnd.jjigeojulge: info

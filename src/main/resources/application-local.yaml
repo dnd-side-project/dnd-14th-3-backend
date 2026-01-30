@@ -9,9 +9,8 @@ spring:
     properties:
       format_sql: true
       dialect: org.hibernate.dialect.PostgreSQLDialect
-      
 
 logging:
   level:
-    com.dnd.donghaeng: debug
+    com.dnd.jjigeojulge: debug
     org.hibernate.type.descriptor.sql: trace  # query parameter(?) 값 추적 설정
