@@ -2,6 +2,9 @@ spring:
   application:
     name: Jjigeojulge
 
+  config:
+    import: optional:file:.env[.properties]
+
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:local}
 
@@ -20,4 +23,4 @@ logging:
 security:
   jwt:
     secret: ${JWT_SECRET}
-    expire: ${JWT_EXPIRE}
+    expire: ${JWT_EXPIRATION}
