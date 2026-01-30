@@ -1,0 +1,14 @@
+spring:
+  datasource:
+    url: ${PROD_DB_URL}
+    username: ${PROD_DB_USERNAME}
+    password: ${PROD_DB_PASSWORD}
+
+  jpa:
+    show-sql: false
+    properties:
+      dialect: org.hibernate.dialect.PostgreSQLDialect
+
+logging:
+  level:
+    com.dnd.donghaeng: info
