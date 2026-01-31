@@ -1,5 +1,7 @@
 package com.dnd.jjigeojulge.dto;
 
+import com.dnd.jjigeojulge.exception.ErrorCode;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,6 +15,7 @@ public class ApiResponse<T> {
 	private final boolean success;
 	@Schema(description = "비즈니스 메시지", requiredMode = Schema.RequiredMode.REQUIRED)
 	private final String message;
+	private final String code;
 	@Schema(description = "요청에 따른 응답 데이터", requiredMode = Schema.RequiredMode.AUTO)
 	private final T data;
 
@@ -24,8 +27,8 @@ public class ApiResponse<T> {
 		return of(true, message, data);
 	}
 
-	public static <T> ApiResponse<T> failure(String message, T data) {
-		return of(false, message, data);
+	public static <T> ApiResponse<T> failure(ErrorCode errorCode) {
+		return new ApiResponse<>(false, errorCode.getMessage(), errorCode.name(), null);
 	}
 
 }
