@@ -97,7 +97,8 @@ def jacocoExcludes = [
         '**/*Application*',
         '**/*Exception*',
         '**/*Request*',
-        '**/*Response*'
+        '**/*Response*',
+        '**/example/**'
 ]
 
 jacocoTestReport {
