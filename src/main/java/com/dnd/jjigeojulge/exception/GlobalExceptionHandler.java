@@ -43,7 +43,8 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(HttpRequestMethodNotSupportedException.class)
 	public ResponseEntity<ApiResponse<Object>> handleHttpRequestMethodNotSupportedException(
 		HttpRequestMethodNotSupportedException exception) {
-		log.warn("HTTP method not supported", exception);
+		String method = exception.getMethod();
+		log.warn("HTTP Request method '{}' is not supported", method);
 		return buildResponseEntity(ErrorCode.METHOD_NOT_ALLOWED);
 	}
 
