@@ -49,6 +49,11 @@ jobs:
             sudo docker run -d --name jjigeojulge-server \
               --env-file .env \
               -e TZ=Asia/Seoul \
+              --log-driver=awslogs \
+              --log-opt awslogs-region=ap-northeast-2 \
+              --log-opt awslogs-group=/aws/ec2/jjigeojulge-server \
+              --log-opt awslogs-create-group=true \
+              --log-opt awslogs-stream-prefix=backend \
               -p 8080:8080 \
               ${{ secrets.DOCKER_USERNAME }}/jjigeojulge-server:latest
 
