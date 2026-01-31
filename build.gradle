@@ -92,10 +92,11 @@ test {
 
 def jacocoExcludes = [
         '**/config/**',
-        '**/dto/**',
         '**/generated/**',
         '**/*Application*',
+        '**/exception/**',
         '**/*Exception*',
+        '**/dto/**',
         '**/*Request*',
         '**/*Response*',
         '**/example/**'

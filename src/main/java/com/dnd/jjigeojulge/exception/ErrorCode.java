@@ -28,7 +28,7 @@ public enum ErrorCode {
 	CONFLICT(HttpStatus.CONFLICT, "요청이 현재 서버 상태와 충돌합니다."),
 
 	// ===== 500 Internal Server Error =====
-	INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 내부 오류가 발생했습니다. 관리자에게 문의하세요.");;
+	INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 내부 오류가 발생했습니다. 관리자에게 문의하세요.");
 
 	private final HttpStatus status;
 	private final String message;

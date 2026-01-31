@@ -28,7 +28,11 @@ public class ApiResponse<T> {
 	}
 
 	public static <T> ApiResponse<T> failure(ErrorCode errorCode) {
-		return new ApiResponse<>(false, errorCode.getMessage(), errorCode.name(), null);
+		return ApiResponse.<T>builder()
+			.success(false)
+			.message(errorCode.getMessage())
+			.code(errorCode.name())
+			.build();
 	}
 
 }
