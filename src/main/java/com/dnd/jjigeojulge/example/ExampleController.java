@@ -34,4 +34,9 @@ public class ExampleController {
 
 		return ResponseEntity.ok(ApiResponse.success("Example endpoint reached successfully", dto));
 	}
+
+	@GetMapping("/hello")
+	public String hello() {
+		throw new RuntimeException("Runtime exception occurred");
+	}
 }
