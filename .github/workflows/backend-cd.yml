@@ -42,8 +42,8 @@ jobs:
 
             echo "${{ secrets.ENV_FILE }}" > .env
             
-            docker compose pull
-            docker compose up -d --remove-orphans
+            docker-compose pull
+            docker-compose up -d --remove-orphans
 
             rm .env
             sudo docker image prune -f
