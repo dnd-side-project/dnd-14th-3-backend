@@ -5,16 +5,20 @@ FROM eclipse-temurin:17-jdk AS builder
 
 WORKDIR /app
 
-COPY . .
+COPY gradle ./gradle
+COPY gradlew ./gradlew
+COPY build.gradle settings.gradle ./
 
 RUN chmod +x ./gradlew
 
+COPY src ./src
+RUN ./gradlew dependencies
 RUN ./gradlew clean build -x test
 
 # ==========================================
 # 2. Run Stage (실행 단계)
 # ==========================================
-FROM eclipse-temurin:17-jre
+FROM eclipse-temurin:17-jre-alpine-3.23
 
 WORKDIR /app
 

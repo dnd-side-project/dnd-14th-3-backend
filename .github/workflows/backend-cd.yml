@@ -39,22 +39,11 @@ jobs:
           key: ${{ secrets.EC2_KEY }}
           port: 22
           script: |
-            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/jjigeojulge-server:latest
-
-            sudo docker stop jjigeojulge-server || true
-            sudo docker rm jjigeojulge-server || true
 
             echo "${{ secrets.ENV_FILE }}" > .env
             
-            sudo docker run -d --name jjigeojulge-server \
-              --env-file .env \
-              -e TZ=Asia/Seoul \
-              --log-driver=awslogs \
-              --log-opt awslogs-region=ap-northeast-2 \
-              --log-opt awslogs-group=/aws/ec2/jjigeojulge-server \
-              --log-opt awslogs-create-group=true \
-              -p 8080:8080 \
-              ${{ secrets.DOCKER_USERNAME }}/jjigeojulge-server:latest
+            docker compose pull
+            docker compose up -d --remove-orphans
 
             rm .env
             sudo docker image prune -f
