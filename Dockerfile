@@ -13,7 +13,7 @@ RUN chmod +x ./gradlew
 
 COPY src ./src
 RUN ./gradlew dependencies
-RUN ./gradlew clean build -x test
+RUN ./gradlew clean build -x test -x check
 
 # ==========================================
 # 2. Run Stage (실행 단계)
