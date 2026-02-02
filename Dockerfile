@@ -9,10 +9,10 @@ COPY gradle ./gradle
 COPY gradlew ./gradlew
 COPY build.gradle settings.gradle ./
 
-RUN ./gradlew dependencies
 RUN chmod +x ./gradlew
 
 COPY src ./src
+RUN ./gradlew dependencies
 RUN ./gradlew clean build -x test
 
 # ==========================================
