@@ -1,0 +1,68 @@
+# =========================
+# Git / VCS
+# =========================
+.git
+.gitignore
+.gitattributes
+
+# =========================
+# Build outputs
+# =========================
+build
+out
+target
+
+# =========================
+# Gradle
+# =========================
+.gradle
+**/.gradle
+gradle-app.setting
+
+# =========================
+# IDE
+# =========================
+.idea
+*.iml
+*.ipr
+*.iws
+.vscode
+.settings
+.classpath
+.project
+
+# =========================
+# OS / Editor
+# =========================
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# =========================
+# Logs / Runtime files
+# =========================
+logs
+*.log
+*.pid
+
+# =========================
+# Env / Secrets (절대 포함 X)
+# =========================
+.env
+.env.*
+*.pem
+*.key
+
+# =========================
+# Test / Docs (운영 이미지에 불필요)
+# =========================
+**/src/test
+docs
+README.md
+
+# =========================
+# Docker / CI related (선택)
+# =========================
+docker-compose.yml
+.github

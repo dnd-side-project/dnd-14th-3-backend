@@ -1,0 +1,20 @@
+services:
+  app:
+    image: rhlanfwlghks/jjigeojulge-server:latest
+    container_name: jjigeojulge-server
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      TZ: Asia/Seoul
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./logs:/app/.logs
+    logging:
+      driver: awslogs
+      options:
+        awslogs-region: ap-northeast-2
+        awslogs-group: /aws/ec2/jjigeojulge-server
+        awslogs-create-group: "true"
+        awslogs-multiline-pattern: '^\d{4}-\d{2}-\d{2}'
