@@ -1,7 +1,8 @@
 services:
   reverse-proxy:
-    image: nginx:latest
+    image: nginx:1.29.5-alpine
     container_name: reverse-proxy
+    restart: unless-stopped
     depends_on:
       - backend
     ports:
