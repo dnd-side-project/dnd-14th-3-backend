@@ -1,14 +1,27 @@
 services:
-  app:
+  reverse-proxy:
+    image: nginx:1.29.5-alpine
+    container_name: reverse-proxy
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl/snapforyou.cloud.pem:/etc/ssl/certs/snapforyou.cloud.pem:ro
+      - ./nginx/ssl/snapforyou.cloud.key:/etc/ssl/private/snapforyou.cloud.key:ro
+
+  backend:
     image: rhlanfwlghks/jjigeojulge-server:latest
-    container_name: jjigeojulge-server
     restart: unless-stopped
     env_file:
       - .env
     environment:
       TZ: Asia/Seoul
-    ports:
-      - "8080:8080"
+    expose:
+      - 8080
     volumes:
       - ./logs:/app/.logs
     logging:

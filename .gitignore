@@ -42,3 +42,9 @@ out/
 .env.test.local
 .env.production.local
 .env.local
+
+# TLS / SSL
+nginx/ssl/*.key
+nginx/ssl/*.pem
+*.key
+*.pem
