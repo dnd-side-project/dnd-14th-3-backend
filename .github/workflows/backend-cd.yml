@@ -32,7 +32,7 @@ jobs:
           tags: ${{ secrets.DOCKER_USERNAME }}/jjigeojulge-server:latest
 
       - name: 서버로 docker-compose 파일 전송
-        uses: appleboy/scp-action@v0.1.4
+        uses: appleboy/scp-action@v1.0.0
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
