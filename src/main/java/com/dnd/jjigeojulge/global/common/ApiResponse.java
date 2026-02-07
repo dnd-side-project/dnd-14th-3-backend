@@ -1,6 +1,6 @@
-package com.dnd.jjigeojulge.dto;
+package com.dnd.jjigeojulge.global.common;
 
-import com.dnd.jjigeojulge.exception.ErrorCode;
+import com.dnd.jjigeojulge.global.exception.ErrorCode;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;

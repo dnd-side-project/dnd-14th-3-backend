@@ -1,4 +1,4 @@
-package com.dnd.jjigeojulge.exception;
+package com.dnd.jjigeojulge.global.exception;
 
 import lombok.Getter;
 

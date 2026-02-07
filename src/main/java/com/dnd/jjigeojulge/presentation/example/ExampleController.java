@@ -1,4 +1,4 @@
-package com.dnd.jjigeojulge.example;
+package com.dnd.jjigeojulge.presentation.example;
 
 import java.util.List;
 
@@ -7,7 +7,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.dnd.jjigeojulge.dto.ApiResponse;
+import com.dnd.jjigeojulge.global.common.ApiResponse;
+import com.dnd.jjigeojulge.presentation.example.response.ExampleDtoRecord;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
