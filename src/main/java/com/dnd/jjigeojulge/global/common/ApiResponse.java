@@ -15,6 +15,7 @@ public class ApiResponse<T> {
 	private final boolean success;
 	@Schema(description = "비즈니스 메시지", requiredMode = Schema.RequiredMode.REQUIRED)
 	private final String message;
+	@Schema(description = "에러 코드", requiredMode = Schema.RequiredMode.AUTO)
 	private final String code;
 	@Schema(description = "요청에 따른 응답 데이터", requiredMode = Schema.RequiredMode.AUTO)
 	private final T data;
@@ -25,6 +26,10 @@ public class ApiResponse<T> {
 
 	public static <T> ApiResponse<T> success(String message, T data) {
 		return of(true, message, data);
+	}
+
+	public static <T> ApiResponse<T> success(T data) {
+		return success("요청에 성공했습니다.", data);
 	}
 
 	public static <T> ApiResponse<T> failure(ErrorCode errorCode) {
