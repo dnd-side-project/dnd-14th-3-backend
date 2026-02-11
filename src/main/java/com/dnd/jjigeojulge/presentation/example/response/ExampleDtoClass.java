@@ -1,4 +1,4 @@
-package com.dnd.jjigeojulge.example;
+package com.dnd.jjigeojulge.presentation.example.response;
 
 import java.time.LocalDateTime;
 import java.util.List;

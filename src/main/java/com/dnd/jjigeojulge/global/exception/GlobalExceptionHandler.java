@@ -1,4 +1,6 @@
-package com.dnd.jjigeojulge.exception;
+package com.dnd.jjigeojulge.global.exception;
+
+import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
@@ -10,7 +12,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
-import com.dnd.jjigeojulge.dto.ApiResponse;
+import com.dnd.jjigeojulge.global.common.ApiResponse;
 
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
@@ -62,10 +64,16 @@ public class GlobalExceptionHandler {
 	}
 
 	@ExceptionHandler(MethodArgumentNotValidException.class)
-	public ResponseEntity<ApiResponse<Object>> handleValidationException(
-		MethodArgumentNotValidException exception) {
+	public ResponseEntity<ApiResponse<Object>> handleValidationException(MethodArgumentNotValidException exception) {
 		log.warn("Validation failed for method argument", exception);
-		return buildResponseEntity(ErrorCode.VALIDATION_FAILED);
+		List<ValidationErrorResponse.FieldErrorItem> fieldErrors = exception.getBindingResult()
+			.getFieldErrors()
+			.stream()
+			.map(ValidationErrorResponse.FieldErrorItem::from)
+			.toList();
+		ValidationErrorResponse validationErrorResponse = new ValidationErrorResponse(fieldErrors);
+		return ResponseEntity.status(ErrorCode.VALIDATION_FAILED.getStatus())
+			.body(ApiResponse.failure(ErrorCode.VALIDATION_FAILED, validationErrorResponse));
 	}
 
 	@ExceptionHandler(BusinessException.class)
