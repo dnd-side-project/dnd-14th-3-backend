@@ -93,17 +93,3 @@ public class GlobalExceptionHandler {
 	}
 
 }
-
-/*
-TODO validation error example
-org.springframework.web.bind.MethodArgumentNotValidException: Validation failed for argument [1] in public org.springframework.http.ResponseEntity<com.dnd.jjigeojulge.global.common.ApiResponse<com.dnd.jjigeojulge.presentation.user.response.ProfileDto>> com.dnd.jjigeojulge.presentation.user.UserController.update(java.lang.Long,com.dnd.jjigeojulge.presentation.user.request.UserUpdateRequest,org.springframework.web.multipart.MultipartFile): [Field error in object 'request' on field 'newUsername': rejected value [a]; codes [Size.request.newUsername,Size.newUsername,Size.java.lang.String,Size]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [request.newUsername,newUsername]; arguments []; default message [newUsername],50,2]; default message [사용자 이름은 3자 이상 50자 이하여야 합니다]]
-	at org.springframework.web.servlet.mvc.method.annotation.RequestPartMethodArgumentResolver.resolveArgument(RequestPartMethodArgumentResolver.java:148)
-	at org.springframework.web.method.support.HandlerMethodArgumentResolverComposite.resolveArgument(HandlerMethodArgumentResolverComposite.java:122)
-	at org.springframework.web.method.support.InvocableHandlerMethod.getMethodArgumentValues(InvocableHandlerMethod.java:227)
-	at org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:181)
-	at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:118)
-	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:991)
-	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:896)
-	at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:87)
-
- */

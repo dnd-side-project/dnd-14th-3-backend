@@ -15,6 +15,7 @@ import com.dnd.jjigeojulge.presentation.example.response.ExampleDtoRecord;
 @RequestMapping("/api/v1/examples")
 public class ExampleController implements ExampleApi {
 
+	@Override
 	@GetMapping
 	public ResponseEntity<ApiResponse<ExampleDtoRecord>> exampleEndpoint() {
 		ExampleDtoRecord dto = new ExampleDtoRecord(1L, "example@google.com",

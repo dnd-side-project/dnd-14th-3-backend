@@ -22,7 +22,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 public interface UserApi {
 
 	@Operation(summary = "닉네임 사용 가능 여부 확인", description = """
-		입력된 이메일이 **회원 가입에 사용 가능한지** 확인합니다.
+		입력된 닉네임이 **회원 가입에 사용 가능한지** 확인합니다.
 		
 		- `data=true`  : 사용 가능 (중복 아님)
 		- `data=false` : 사용 불가 (이미 사용 중)
@@ -137,7 +137,8 @@ public interface UserApi {
 					  "code": "",
 					  "data": {
 					    "notificationAllowed": true,
-					    "locationAllowed": true
+					    "locationAllowed": true,
+					    "updatedAt": "yyyy-MM-dd HH:mm:ss"
 					  }
 					}
 					""")

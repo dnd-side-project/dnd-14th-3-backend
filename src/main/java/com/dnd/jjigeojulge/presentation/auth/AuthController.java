@@ -1,6 +1,7 @@
 package com.dnd.jjigeojulge.presentation.auth;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,7 +22,9 @@ public class AuthController implements AuthApi {
 
 	@Override
 	@GetMapping("me")
-	public ResponseEntity<String> me(String refreshToken) {
+	public ResponseEntity<String> me(
+		@CookieValue(value = "refresh_token") String refreshToken
+	) {
 		return ResponseEntity.ok("accessToken");
 	}
 
