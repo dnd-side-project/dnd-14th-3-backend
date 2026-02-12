@@ -7,6 +7,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.dnd.jjigeojulge.global.common.ApiResponse;
 import com.dnd.jjigeojulge.presentation.user.data.ConsentDto;
 import com.dnd.jjigeojulge.presentation.user.data.ProfileDto;
+import com.dnd.jjigeojulge.presentation.user.request.UserCheckNicknameRequest;
 import com.dnd.jjigeojulge.presentation.user.request.UserConsentUpdateRequest;
 import com.dnd.jjigeojulge.presentation.user.request.UserUpdateRequest;
 
@@ -47,7 +48,10 @@ public interface UserApi {
 		)
 	})
 	ResponseEntity<ApiResponse<Boolean>> checkNicknameAvailability(
-		@Parameter(required = true, description = "검사할 닉네임", example = "사진수집가") String nickname
+		@Parameter(
+			required = true, description = "검사할 닉네임",
+			content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)
+		) UserCheckNicknameRequest request
 	);
 
 	@Operation(summary = "User 프로필 조회", description = "프로필 조회 API")
@@ -62,7 +66,9 @@ public interface UserApi {
 					  "code": "",
 					  "data": {
 					    "nickname": "홍길동",
-					    "profileImageUrl": "https://example.com/profile.jpg"
+					    "profileImageUrl": "https://example.com/profile.jpg",
+						"email": "hong@mail.com",
+					    "phoneNumber": "010-1234-5678"
 					  }
 					}
 					""")
@@ -96,7 +102,9 @@ public interface UserApi {
 					  "code": "",
 					  "data": {
 					    "nickname": "홍길동",
-					    "profileImageUrl": "https://example.com/updated_profile.jpg"
+					    "profileImageUrl": "https://example.com/updated_profile.jpg",
+					    "email": "hong@mail.com",
+					    "phoneNumber": "010-1234-5678"
 					  }
 					}
 					"""))

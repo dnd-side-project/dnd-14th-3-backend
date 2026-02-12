@@ -1,0 +1,60 @@
+package com.dnd.jjigeojulge.domain.user;
+
+import com.dnd.jjigeojulge.domain.base.BaseUpdatableEntity;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+@Entity
+@Table(name = "users")
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class User extends BaseUpdatableEntity {
+
+	@Column(length = 30, nullable = false, unique = true)
+	private String nickname;
+
+	@Column(nullable = false, unique = true)
+	private String kakaoUserEmail;
+
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false, length = 10)
+	private Gender gender;
+
+	@Column(length = 512)
+	private String profileImageUrl;
+
+	@Column(length = 20)
+	private String phoneNumber;
+
+	@Builder
+	public User(String nickname, String kakaoUserEmail, Gender gender, String profileImageUrl, String phoneNumber) {
+		this.nickname = nickname;
+		this.kakaoUserEmail = kakaoUserEmail;
+		this.gender = gender;
+		this.profileImageUrl = profileImageUrl;
+		this.phoneNumber = phoneNumber;
+	}
+
+	public void update(String newNickname, Gender newGender, String newProfileImageUrl, String newPhoneNumber) {
+		if (newNickname != null && !newNickname.equals(this.nickname)) {
+			this.nickname = newNickname;
+		}
+		if (newGender != null && !newGender.equals(this.gender)) {
+			this.gender = newGender;
+		}
+		if (newProfileImageUrl != null && !newProfileImageUrl.equals(this.profileImageUrl)) {
+			this.profileImageUrl = newProfileImageUrl;
+		}
+		if (newPhoneNumber != null && !newPhoneNumber.equals(this.phoneNumber)) {
+			this.phoneNumber = newPhoneNumber;
+		}
+	}
+}
