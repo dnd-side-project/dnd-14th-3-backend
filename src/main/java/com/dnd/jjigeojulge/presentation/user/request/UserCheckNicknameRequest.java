@@ -4,9 +4,9 @@ import com.dnd.jjigeojulge.presentation.user.validation.Nickname;
 
 import jakarta.validation.constraints.NotBlank;
 
-public record UserUpdateRequest(
-	@NotBlank(message = "사용자 이름은 비어 있을 수 없습니다")
+public record UserCheckNicknameRequest(
+	@NotBlank
 	@Nickname
-	String newUsername
+	String nickname
 ) {
 }
