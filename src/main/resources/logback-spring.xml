@@ -6,7 +6,7 @@
     <property name="APP_NAME" value="jjigeojulge"/>
 
     <property name="CONSOLE_LOG_PATTERN"
-              value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %clr(%5level) %clr(${PID:-}){magenta} %clr(---){faint} %clr(%X{requestId} | %X{requestMethod} | %X{requestUri}){yellow} %clr(%-40.40logger{39}){cyan} : %msg%n%ex{full}"/>
+              value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %clr(%5level) %clr(${PID:-}){magenta} %clr(---){faint} %clr([%X{requestId} | %X{requestMethod} | %X{requestUri}]){yellow} %clr(%-40.40logger{39}){cyan} : %msg%n%ex{full}"/>
 
     <property name="FILE_LOG_PATTERN"
               value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} [%X{requestId} | %X{requestMethod} | %X{requestUri}] - %msg%n%ex{full}"/>

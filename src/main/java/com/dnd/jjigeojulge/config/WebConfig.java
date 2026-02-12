@@ -14,7 +14,6 @@ public class WebConfig implements WebMvcConfigurer {
 	private static final List<String> EXCLUDE_PATHS = List.of(
 		"/swagger-ui/**",
 		"/v3/api-docs/**",
-		"/health",
 		"/favicon.ico"
 	);
 
