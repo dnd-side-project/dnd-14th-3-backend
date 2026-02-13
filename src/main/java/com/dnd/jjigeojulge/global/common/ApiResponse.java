@@ -19,7 +19,7 @@ public class ApiResponse<T> {
 	private final String code;
 	@Schema(description = "요청에 따른 응답 데이터", requiredMode = Schema.RequiredMode.AUTO)
 	private final T data;
-
+	
 	public static <T> ApiResponse<T> of(boolean success, String message, T data) {
 		return ApiResponse.<T>builder().success(success).message(message).data(data).build();
 	}

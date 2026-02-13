@@ -1,7 +1,5 @@
 package com.dnd.jjigeojulge.presentation.user;
 
-import java.time.LocalDateTime;
-
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -38,7 +36,8 @@ public class UserController implements UserApi {
 	@Override
 	@PostMapping("/check-nickname")
 	public ResponseEntity<ApiResponse<Boolean>> checkNicknameAvailability(
-		@RequestBody UserCheckNicknameRequest request) {
+		@RequestBody @Valid UserCheckNicknameRequest request
+	) {
 		return ResponseEntity.ok(ApiResponse.success(userService.isNicknameAvailable(request)));
 	}
 
@@ -47,29 +46,20 @@ public class UserController implements UserApi {
 	public ResponseEntity<ApiResponse<ProfileDto>> update(@PathVariable Long userId,
 		@RequestPart("request") @Valid UserUpdateRequest userUpdateRequest,
 		@RequestPart(value = "image", required = false) MultipartFile profileImage) {
-		String username = "홍길동";
-		String profileImageUrl = "https://example.com/profile.jpg";
-		String email = "hong@mail.com";
-		String phoneNumber = "010-1234-5678";
-		ProfileDto dto = new ProfileDto(username, profileImageUrl, email, phoneNumber);
+		ProfileDto dto = userService.updateProfile(userId, userUpdateRequest, profileImage);
 		return ResponseEntity.ok(ApiResponse.success(dto));
 	}
 
 	@Override
 	@GetMapping("{userId}/profiles")
 	public ResponseEntity<ApiResponse<ProfileDto>> find(@PathVariable Long userId) {
-		String username = "홍길동";
-		String profileImageUrl = "https://example.com/profile.jpg";
-		String email = "hong@mail.com";
-		String phoneNumber = "010-1234-5678";
-		ProfileDto dto = new ProfileDto(username, profileImageUrl, email, phoneNumber);
-		return ResponseEntity.ok(ApiResponse.success(dto));
+		return ResponseEntity.ok(ApiResponse.success(userService.getProfile(userId)));
 	}
 
 	@Override
 	@GetMapping("{userId}/consents")
 	public ResponseEntity<ApiResponse<ConsentDto>> getConsentPermission(@PathVariable Long userId) {
-		ConsentDto dto = new ConsentDto(false, false, LocalDateTime.now());
+		ConsentDto dto = userService.getConsent(userId);
 		return ResponseEntity.ok(ApiResponse.success(dto));
 	}
 
@@ -77,7 +67,7 @@ public class UserController implements UserApi {
 	@PatchMapping("{userId}/consents")
 	public ResponseEntity<ApiResponse<ConsentDto>> updateConsentPermission(@PathVariable Long userId,
 		@RequestBody @Valid UserConsentUpdateRequest request) {
-		ConsentDto dto = new ConsentDto(false, false, LocalDateTime.now());
+		ConsentDto dto = userService.updateConsent(userId, request);
 		return ResponseEntity.ok(ApiResponse.success(dto));
 	}
 }

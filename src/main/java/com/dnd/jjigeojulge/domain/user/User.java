@@ -2,10 +2,12 @@ package com.dnd.jjigeojulge.domain.user;
 
 import com.dnd.jjigeojulge.domain.base.BaseUpdatableEntity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -34,6 +36,9 @@ public class User extends BaseUpdatableEntity {
 	@Column(length = 20)
 	private String phoneNumber;
 
+	@OneToOne(mappedBy = "user", orphanRemoval = true, cascade = CascadeType.ALL)
+	private UserSetting userSetting;
+
 	@Builder
 	public User(String nickname, String kakaoUserEmail, Gender gender, String profileImageUrl, String phoneNumber) {
 		this.nickname = nickname;
@@ -41,6 +46,14 @@ public class User extends BaseUpdatableEntity {
 		this.gender = gender;
 		this.profileImageUrl = profileImageUrl;
 		this.phoneNumber = phoneNumber;
+	}
+
+	// 양방향 동기화
+	public void setUserSetting(UserSetting userSetting) {
+		this.userSetting = userSetting;
+		if (userSetting.getUser() != this) {
+			userSetting.setUser(this);
+		}
 	}
 
 	public void update(String newNickname, Gender newGender, String newProfileImageUrl, String newPhoneNumber) {
