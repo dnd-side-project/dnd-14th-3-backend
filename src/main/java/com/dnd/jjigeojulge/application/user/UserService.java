@@ -1,12 +1,16 @@
 package com.dnd.jjigeojulge.application.user;
 
+import java.util.Set;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.dnd.jjigeojulge.domain.photostyle.PhotoStyle;
 import com.dnd.jjigeojulge.domain.user.User;
 import com.dnd.jjigeojulge.domain.user.UserSetting;
 import com.dnd.jjigeojulge.global.exception.user.UserNotFoundException;
+import com.dnd.jjigeojulge.infra.user.PhotoStyleRepository;
 import com.dnd.jjigeojulge.infra.user.UserRepository;
 import com.dnd.jjigeojulge.presentation.user.data.ConsentDto;
 import com.dnd.jjigeojulge.presentation.user.data.ProfileDto;
@@ -23,6 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 public class UserService {
 
 	private final UserRepository userRepository;
+	private final PhotoStyleRepository photoStyleRepository;
 
 	@Transactional(readOnly = true)
 	public boolean isNicknameAvailable(UserCheckNicknameRequest request) {
@@ -31,10 +36,9 @@ public class UserService {
 
 	@Transactional(readOnly = true)
 	public ProfileDto getProfile(Long userId) {
-		User user = userRepository.findById(userId)
+		User user = userRepository.findByIdWithPhotoStyles(userId)
 			.orElseThrow(UserNotFoundException::new);
-		return new ProfileDto(user.getNickname(), user.getProfileImageUrl(), user.getKakaoUserEmail(),
-			user.getPhoneNumber());
+		return toDto(user);
 	}
 
 	@Transactional
@@ -43,11 +47,16 @@ public class UserService {
 		UserUpdateRequest request,
 		MultipartFile profileImage
 	) {
-		User user = userRepository.findById(userId)
+		/*
+		 * username, gender, preferredStyles
+		 *
+		 * */
+		User user = userRepository.findByIdWithPhotoStyles(userId)
 			.orElseThrow(UserNotFoundException::new);
-		user.update(request.newUsername(), null, null, null);
-		return new ProfileDto(user.getNickname(), user.getProfileImageUrl(), user.getKakaoUserEmail(),
-			user.getPhoneNumber());
+
+		Set<PhotoStyle> photoStyles = photoStyleRepository.findAllByNameIn(request.preferredStyles());
+		user.update(request.newUsername(), request.gender(), photoStyles);
+		return toDto(user);
 	}
 
 	@Transactional
@@ -82,10 +91,10 @@ public class UserService {
 	}
 
 	private ConsentDto toDto(UserSetting userSetting) {
-		return new ConsentDto(
-			userSetting.isNotificationEnabled(),
-			userSetting.isLocationSharingEnabled(),
-			userSetting.getUpdatedAt()
-		);
+		return ConsentDto.from(userSetting);
+	}
+
+	private ProfileDto toDto(User user) {
+		return ProfileDto.from(user);
 	}
 }

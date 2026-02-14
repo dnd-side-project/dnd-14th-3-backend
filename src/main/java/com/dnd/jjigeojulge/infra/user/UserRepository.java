@@ -13,5 +13,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
 	@Query("select u from User u left join fetch u.userSetting where u.id = :userId")
 	Optional<User> findByUserIdWithUserSetting(Long userId);
 
-	// boolean existsByNickname(String nickname);
+	@Query("select u from User u " +
+		"left join fetch u.photoStyles ups " +
+		"left join fetch ups.photoStyle " +
+		"left join fetch u.userSetting " +
+		"where u.id = :userId")
+	Optional<User> findByIdWithPhotoStyles(Long userId);
 }
