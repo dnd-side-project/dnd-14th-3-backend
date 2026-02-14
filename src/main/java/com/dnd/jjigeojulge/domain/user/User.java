@@ -60,7 +60,7 @@ public class User extends BaseUpdatableEntity {
 	// 양방향 동기화
 	public void setUserSetting(UserSetting userSetting) {
 		this.userSetting = userSetting;
-		if (userSetting.getUser() != this) {
+		if (userSetting != null && userSetting.getUser() != this) {
 			userSetting.setUser(this);
 		}
 	}

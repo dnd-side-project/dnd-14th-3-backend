@@ -21,6 +21,7 @@ import com.dnd.jjigeojulge.presentation.user.request.UserUpdateRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+// TODO 프로필 관련 조회 설정 PreAuthorize 적용 필요, 스프링 시큐리티
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -45,12 +46,8 @@ public class UserService {
 	public ProfileDto updateProfile(
 		Long userId,
 		UserUpdateRequest request,
-		MultipartFile profileImage
+		MultipartFile profileImage    //TODO  프로필 이미지 업데이트 향후 구현
 	) {
-		/*
-		 * username, gender, preferredStyles
-		 *
-		 * */
 		User user = userRepository.findByIdWithPhotoStyles(userId)
 			.orElseThrow(UserNotFoundException::new);
 
