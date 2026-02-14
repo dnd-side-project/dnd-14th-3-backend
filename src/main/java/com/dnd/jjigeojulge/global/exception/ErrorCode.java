@@ -16,6 +16,7 @@ public enum ErrorCode {
 	MISSING_PARAMETER(HttpStatus.BAD_REQUEST, "필수 요청 파라미터가 누락되었습니다."),
 
 	INVALID_PROFILE_REQUEST(HttpStatus.BAD_REQUEST, "요청한 프로필 정보가 올바르지 않습니다."),
+	INVALID_PHOTO_STYLE(HttpStatus.BAD_REQUEST, "요청한 사진 스타일이 올바르지 않습니다."),
 
 	// ===== 404 Not Found =====
 	RESOURCE_NOT_FOUND(HttpStatus.NOT_FOUND, "요청한 리소스를 찾을 수 없습니다."),

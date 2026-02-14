@@ -9,6 +9,8 @@ import org.springframework.web.multipart.MultipartFile;
 import com.dnd.jjigeojulge.domain.photostyle.PhotoStyle;
 import com.dnd.jjigeojulge.domain.user.User;
 import com.dnd.jjigeojulge.domain.user.UserSetting;
+import com.dnd.jjigeojulge.global.exception.ErrorCode;
+import com.dnd.jjigeojulge.global.exception.photoStyle.InvalidPhotoStyleException;
 import com.dnd.jjigeojulge.global.exception.user.UserNotFoundException;
 import com.dnd.jjigeojulge.infra.user.PhotoStyleRepository;
 import com.dnd.jjigeojulge.infra.user.UserRepository;
@@ -52,16 +54,18 @@ public class UserService {
 			.orElseThrow(UserNotFoundException::new);
 
 		Set<PhotoStyle> photoStyles = photoStyleRepository.findAllByNameIn(request.preferredStyles());
+		if (photoStyles.size() != request.preferredStyles().size()) {
+			throw new InvalidPhotoStyleException(ErrorCode.INVALID_PHOTO_STYLE);
+		}
 		user.update(request.newUsername(), request.gender(), photoStyles);
 		return toDto(user);
 	}
 
-	@Transactional
+	@Transactional(readOnly = true)
 	public ConsentDto getConsent(Long userId) {
 		User user = userRepository.findByUserIdWithUserSetting(userId)
 			.orElseThrow(UserNotFoundException::new);
-		UserSetting userSetting = getOrCreateUserSetting(user);
-		return toDto(userSetting);
+		return toDto(user.getUserSetting());
 	}
 
 	@Transactional
@@ -88,7 +92,11 @@ public class UserService {
 	}
 
 	private ConsentDto toDto(UserSetting userSetting) {
-		return ConsentDto.from(userSetting);
+		if (userSetting != null) {
+			return ConsentDto.from(userSetting);
+		}
+
+		throw new RuntimeException();
 	}
 
 	private ProfileDto toDto(User user) {

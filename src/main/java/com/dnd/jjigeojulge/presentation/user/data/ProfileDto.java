@@ -33,7 +33,7 @@ public record ProfileDto(
 			user.getKakaoUserEmail(),
 			user.getPhoneNumber(),
 			list,
-			ConsentDto.from(userSetting)
+			userSetting != null ? ConsentDto.from(userSetting) : null
 		);
 	}
 }
