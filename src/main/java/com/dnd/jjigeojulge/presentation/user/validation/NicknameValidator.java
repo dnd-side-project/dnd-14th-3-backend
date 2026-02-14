@@ -36,7 +36,6 @@ public class NicknameValidator implements ConstraintValidator<Nickname, String> 
 		// 금지 단어 포함 여부 (대소문자 무시)
 		String lower = inputNickname.toLowerCase();
 		boolean containsForbidden = Arrays.stream(NicknamePolicy.FORBIDDEN_WORDS)
-			.map(String::toLowerCase)
 			.anyMatch(lower::contains);
 
 		if (containsForbidden) {
