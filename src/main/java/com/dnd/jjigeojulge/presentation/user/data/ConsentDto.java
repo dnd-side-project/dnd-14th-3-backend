@@ -2,6 +2,7 @@ package com.dnd.jjigeojulge.presentation.user.data;
 
 import java.time.LocalDateTime;
 
+import com.dnd.jjigeojulge.domain.user.UserSetting;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 public record ConsentDto(
@@ -10,4 +11,12 @@ public record ConsentDto(
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	LocalDateTime updatedAt
 ) {
+
+	public static ConsentDto from(UserSetting userSetting) {
+		return new ConsentDto(
+			userSetting.isNotificationEnabled(),
+			userSetting.isLocationSharingEnabled(),
+			userSetting.getUpdatedAt()
+		);
+	}
 }
