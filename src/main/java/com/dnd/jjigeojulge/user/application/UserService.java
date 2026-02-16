@@ -1,4 +1,4 @@
-package com.dnd.jjigeojulge.application.user;
+package com.dnd.jjigeojulge.user.application;
 
 import java.util.Set;
 
