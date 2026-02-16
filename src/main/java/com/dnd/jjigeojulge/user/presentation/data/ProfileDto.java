@@ -1,0 +1,39 @@
+package com.dnd.jjigeojulge.user.presentation.data;
+
+import java.util.List;
+
+import com.dnd.jjigeojulge.user.domain.PhotoStyle;
+import com.dnd.jjigeojulge.user.domain.StyleName;
+import com.dnd.jjigeojulge.user.domain.Gender;
+import com.dnd.jjigeojulge.user.domain.User;
+import com.dnd.jjigeojulge.user.domain.UserPhotoStyle;
+import com.dnd.jjigeojulge.user.domain.UserSetting;
+
+public record ProfileDto(
+	String nickname,
+	Gender gender,
+	String profileImageUrl,
+	String email,
+	String phoneNumber,
+	List<StyleName> photoStyles,
+	ConsentDto consent
+) {
+
+	public static ProfileDto from(User user) {
+		List<StyleName> list = user.getPhotoStyles().stream()
+			.map(UserPhotoStyle::getPhotoStyle)
+			.map(PhotoStyle::getName)
+			.toList();
+		UserSetting userSetting = user.getUserSetting();
+
+		return new ProfileDto(
+			user.getNickname(),
+			user.getGender(),
+			user.getProfileImageUrl(),
+			user.getKakaoUserEmail(),
+			user.getPhoneNumber(),
+			list,
+			userSetting != null ? ConsentDto.from(userSetting) : null
+		);
+	}
+}
