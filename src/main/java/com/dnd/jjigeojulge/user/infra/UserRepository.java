@@ -1,4 +1,4 @@
-package com.dnd.jjigeojulge.infra.user;
+package com.dnd.jjigeojulge.user.infra;
 
 import java.util.Optional;
 
