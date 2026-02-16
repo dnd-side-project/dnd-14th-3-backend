@@ -1,11 +1,11 @@
-package com.dnd.jjigeojulge.domain.user;
+package com.dnd.jjigeojulge.user.domain;
 
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.dnd.jjigeojulge.domain.base.BaseUpdatableEntity;
-import com.dnd.jjigeojulge.domain.photostyle.PhotoStyle;
+import com.dnd.jjigeojulge.user.domain.PhotoStyle;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;

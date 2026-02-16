@@ -1,4 +1,4 @@
-package com.dnd.jjigeojulge.domain.photostyle;
+package com.dnd.jjigeojulge.user.domain;
 
 import lombok.Getter;
 

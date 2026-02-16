@@ -1,6 +1,6 @@
-package com.dnd.jjigeojulge.domain.user;
+package com.dnd.jjigeojulge.user.domain;
 
-import com.dnd.jjigeojulge.domain.photostyle.PhotoStyle;
+import com.dnd.jjigeojulge.user.domain.PhotoStyle;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;

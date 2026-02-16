@@ -2,12 +2,12 @@ package com.dnd.jjigeojulge.presentation.user.data;
 
 import java.util.List;
 
-import com.dnd.jjigeojulge.domain.photostyle.PhotoStyle;
-import com.dnd.jjigeojulge.domain.photostyle.StyleName;
-import com.dnd.jjigeojulge.domain.user.Gender;
-import com.dnd.jjigeojulge.domain.user.User;
-import com.dnd.jjigeojulge.domain.user.UserPhotoStyle;
-import com.dnd.jjigeojulge.domain.user.UserSetting;
+import com.dnd.jjigeojulge.user.domain.PhotoStyle;
+import com.dnd.jjigeojulge.user.domain.StyleName;
+import com.dnd.jjigeojulge.user.domain.Gender;
+import com.dnd.jjigeojulge.user.domain.User;
+import com.dnd.jjigeojulge.user.domain.UserPhotoStyle;
+import com.dnd.jjigeojulge.user.domain.UserSetting;
 
 public record ProfileDto(
 	String nickname,

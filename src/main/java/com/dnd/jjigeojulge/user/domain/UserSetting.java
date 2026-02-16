@@ -1,4 +1,4 @@
-package com.dnd.jjigeojulge.domain.user;
+package com.dnd.jjigeojulge.user.domain;
 
 import com.dnd.jjigeojulge.domain.base.BaseUpdatableEntity;
 

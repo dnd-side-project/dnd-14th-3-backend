@@ -2,7 +2,7 @@ package com.dnd.jjigeojulge.presentation.user.data;
 
 import java.time.LocalDateTime;
 
-import com.dnd.jjigeojulge.domain.user.UserSetting;
+import com.dnd.jjigeojulge.user.domain.UserSetting;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 public record ConsentDto(
