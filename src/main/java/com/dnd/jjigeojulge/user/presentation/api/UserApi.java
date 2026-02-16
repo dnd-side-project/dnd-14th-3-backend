@@ -1,15 +1,15 @@
-package com.dnd.jjigeojulge.presentation.user.api;
+package com.dnd.jjigeojulge.user.presentation.api;
 
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.dnd.jjigeojulge.global.common.ApiResponse;
-import com.dnd.jjigeojulge.presentation.user.data.ConsentDto;
-import com.dnd.jjigeojulge.presentation.user.data.ProfileDto;
-import com.dnd.jjigeojulge.presentation.user.request.UserCheckNicknameRequest;
-import com.dnd.jjigeojulge.presentation.user.request.UserConsentUpdateRequest;
-import com.dnd.jjigeojulge.presentation.user.request.UserUpdateRequest;
+import com.dnd.jjigeojulge.user.presentation.data.ConsentDto;
+import com.dnd.jjigeojulge.user.presentation.data.ProfileDto;
+import com.dnd.jjigeojulge.user.presentation.request.UserCheckNicknameRequest;
+import com.dnd.jjigeojulge.user.presentation.request.UserConsentUpdateRequest;
+import com.dnd.jjigeojulge.user.presentation.request.UserUpdateRequest;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

@@ -1,6 +1,6 @@
-package com.dnd.jjigeojulge.presentation.user.request;
+package com.dnd.jjigeojulge.user.presentation.request;
 
-import com.dnd.jjigeojulge.presentation.user.validation.Nickname;
+import com.dnd.jjigeojulge.user.presentation.validation.Nickname;
 
 import jakarta.validation.constraints.NotBlank;
 

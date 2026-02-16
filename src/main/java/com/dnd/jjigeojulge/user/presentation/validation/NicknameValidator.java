@@ -1,4 +1,4 @@
-package com.dnd.jjigeojulge.presentation.user.validation;
+package com.dnd.jjigeojulge.user.presentation.validation;
 
 import java.util.Arrays;
 

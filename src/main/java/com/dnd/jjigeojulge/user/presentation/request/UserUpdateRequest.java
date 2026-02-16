@@ -1,10 +1,10 @@
-package com.dnd.jjigeojulge.presentation.user.request;
+package com.dnd.jjigeojulge.user.presentation.request;
 
 import java.util.Set;
 
 import com.dnd.jjigeojulge.user.domain.StyleName;
 import com.dnd.jjigeojulge.user.domain.Gender;
-import com.dnd.jjigeojulge.presentation.user.validation.Nickname;
+import com.dnd.jjigeojulge.user.presentation.validation.Nickname;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

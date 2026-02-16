@@ -1,4 +1,4 @@
-package com.dnd.jjigeojulge.presentation.user.data;
+package com.dnd.jjigeojulge.user.presentation.data;
 
 import java.time.LocalDateTime;
 

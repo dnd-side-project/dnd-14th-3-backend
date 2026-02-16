@@ -14,11 +14,11 @@ import com.dnd.jjigeojulge.global.exception.photoStyle.InvalidPhotoStyleExceptio
 import com.dnd.jjigeojulge.global.exception.user.UserNotFoundException;
 import com.dnd.jjigeojulge.user.infra.PhotoStyleRepository;
 import com.dnd.jjigeojulge.user.infra.UserRepository;
-import com.dnd.jjigeojulge.presentation.user.data.ConsentDto;
-import com.dnd.jjigeojulge.presentation.user.data.ProfileDto;
-import com.dnd.jjigeojulge.presentation.user.request.UserCheckNicknameRequest;
-import com.dnd.jjigeojulge.presentation.user.request.UserConsentUpdateRequest;
-import com.dnd.jjigeojulge.presentation.user.request.UserUpdateRequest;
+import com.dnd.jjigeojulge.user.presentation.data.ConsentDto;
+import com.dnd.jjigeojulge.user.presentation.data.ProfileDto;
+import com.dnd.jjigeojulge.user.presentation.request.UserCheckNicknameRequest;
+import com.dnd.jjigeojulge.user.presentation.request.UserConsentUpdateRequest;
+import com.dnd.jjigeojulge.user.presentation.request.UserUpdateRequest;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -1,4 +1,4 @@
-package com.dnd.jjigeojulge.presentation.user.validation;
+package com.dnd.jjigeojulge.user.presentation.validation;
 
 import static java.lang.annotation.ElementType.*;
 import static java.lang.annotation.RetentionPolicy.*;
