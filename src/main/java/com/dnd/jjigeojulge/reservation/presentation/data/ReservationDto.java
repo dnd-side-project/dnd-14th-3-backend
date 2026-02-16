@@ -2,7 +2,7 @@ package com.dnd.jjigeojulge.reservation.presentation.data;
 
 import java.time.LocalDateTime;
 
-import com.dnd.jjigeojulge.domain.common.ShootingDurationOption;
+import com.dnd.jjigeojulge.global.common.enums.ShootingDurationOption;
 import com.dnd.jjigeojulge.global.common.dto.AuthorDto;
 import com.dnd.jjigeojulge.global.common.dto.GeoPoint;
 

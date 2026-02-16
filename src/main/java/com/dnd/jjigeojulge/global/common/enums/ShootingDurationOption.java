@@ -1,4 +1,4 @@
-package com.dnd.jjigeojulge.domain.common;
+package com.dnd.jjigeojulge.global.common.enums;
 
 public enum ShootingDurationOption {
 	TEN_MINUTES(10),
