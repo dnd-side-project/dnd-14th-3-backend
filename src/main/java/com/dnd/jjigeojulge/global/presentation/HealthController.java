@@ -1,4 +1,4 @@
-package com.dnd.jjigeojulge.presentation;
+package com.dnd.jjigeojulge.global.presentation;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;

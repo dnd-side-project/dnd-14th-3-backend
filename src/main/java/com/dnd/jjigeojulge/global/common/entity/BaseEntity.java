@@ -1,4 +1,4 @@
-package com.dnd.jjigeojulge.domain.base;
+package com.dnd.jjigeojulge.global.common.entity;
 
 import java.time.LocalDateTime;
 

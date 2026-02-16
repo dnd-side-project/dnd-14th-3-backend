@@ -2,7 +2,7 @@ package com.dnd.jjigeojulge.user.domain;
 
 import java.util.Objects;
 
-import com.dnd.jjigeojulge.domain.base.BaseEntity;
+import com.dnd.jjigeojulge.global.common.entity.BaseEntity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

@@ -1,6 +1,6 @@
 package com.dnd.jjigeojulge.user.domain;
 
-import com.dnd.jjigeojulge.domain.base.BaseUpdatableEntity;
+import com.dnd.jjigeojulge.global.common.entity.BaseUpdatableEntity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

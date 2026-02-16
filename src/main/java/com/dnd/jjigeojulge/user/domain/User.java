@@ -4,7 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.dnd.jjigeojulge.domain.base.BaseUpdatableEntity;
+import com.dnd.jjigeojulge.global.common.entity.BaseUpdatableEntity;
 import com.dnd.jjigeojulge.user.domain.PhotoStyle;
 
 import jakarta.persistence.CascadeType;
