@@ -1,4 +1,4 @@
-package com.dnd.jjigeojulge.presentation.auth.api;
+package com.dnd.jjigeojulge.auth.presentation.api;
 
 import org.springframework.http.ResponseEntity;
 

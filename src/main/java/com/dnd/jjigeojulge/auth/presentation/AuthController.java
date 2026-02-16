@@ -1,4 +1,4 @@
-package com.dnd.jjigeojulge.presentation.auth;
+package com.dnd.jjigeojulge.auth.presentation;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CookieValue;
@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.dnd.jjigeojulge.presentation.auth.api.AuthApi;
+import com.dnd.jjigeojulge.auth.presentation.api.AuthApi;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
