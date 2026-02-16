@@ -1,4 +1,4 @@
-package com.dnd.jjigeojulge.global.exception.photoStyle;
+package com.dnd.jjigeojulge.user.domain.exception;
 
 import com.dnd.jjigeojulge.global.exception.BusinessException;
 import com.dnd.jjigeojulge.global.exception.ErrorCode;
