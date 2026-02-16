@@ -2,14 +2,15 @@ package com.dnd.jjigeojulge.presentation.user.data;
 
 import java.util.List;
 
+import com.dnd.jjigeojulge.domain.common.StyleName;
 import com.dnd.jjigeojulge.domain.photostyle.PhotoStyle;
-import com.dnd.jjigeojulge.domain.photostyle.StyleName;
 import com.dnd.jjigeojulge.domain.user.Gender;
 import com.dnd.jjigeojulge.domain.user.User;
 import com.dnd.jjigeojulge.domain.user.UserPhotoStyle;
 import com.dnd.jjigeojulge.domain.user.UserSetting;
 
 public record ProfileDto(
+	Long id,
 	String nickname,
 	Gender gender,
 	String profileImageUrl,
@@ -27,6 +28,7 @@ public record ProfileDto(
 		UserSetting userSetting = user.getUserSetting();
 
 		return new ProfileDto(
+			user.getId(),
 			user.getNickname(),
 			user.getGender(),
 			user.getProfileImageUrl(),
