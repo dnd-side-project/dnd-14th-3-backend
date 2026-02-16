@@ -3,6 +3,7 @@ package com.dnd.jjigeojulge.domain.photostyle;
 import java.util.Objects;
 
 import com.dnd.jjigeojulge.domain.base.BaseEntity;
+import com.dnd.jjigeojulge.domain.common.StyleName;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -39,5 +40,5 @@ public class PhotoStyle extends BaseEntity {
 	public int hashCode() {
 		return Objects.hashCode(name);
 	}
-	
+
 }

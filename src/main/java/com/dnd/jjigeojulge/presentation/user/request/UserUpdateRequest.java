@@ -2,7 +2,7 @@ package com.dnd.jjigeojulge.presentation.user.request;
 
 import java.util.Set;
 
-import com.dnd.jjigeojulge.domain.photostyle.StyleName;
+import com.dnd.jjigeojulge.domain.common.StyleName;
 import com.dnd.jjigeojulge.domain.user.Gender;
 import com.dnd.jjigeojulge.presentation.user.validation.Nickname;
 
