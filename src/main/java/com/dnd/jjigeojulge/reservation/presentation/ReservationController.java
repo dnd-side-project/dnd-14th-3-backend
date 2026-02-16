@@ -1,4 +1,4 @@
-package com.dnd.jjigeojulge.presentation.reseration;
+package com.dnd.jjigeojulge.reservation.presentation;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,11 +10,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.dnd.jjigeojulge.presentation.common.response.ApiResponse;
-import com.dnd.jjigeojulge.presentation.common.response.PageResponse;
-import com.dnd.jjigeojulge.presentation.reseration.api.ReservationApi;
-import com.dnd.jjigeojulge.presentation.reseration.data.ReservationDto;
-import com.dnd.jjigeojulge.presentation.reseration.request.ReservationCreateRequest;
+import com.dnd.jjigeojulge.global.common.response.ApiResponse;
+import com.dnd.jjigeojulge.global.common.response.PageResponse;
+import com.dnd.jjigeojulge.reservation.presentation.api.ReservationApi;
+import com.dnd.jjigeojulge.reservation.presentation.data.ReservationDto;
+import com.dnd.jjigeojulge.reservation.presentation.request.ReservationCreateRequest;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

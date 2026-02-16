@@ -1,12 +1,12 @@
-package com.dnd.jjigeojulge.presentation.reseration.api;
+package com.dnd.jjigeojulge.reservation.presentation.api;
 
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
-import com.dnd.jjigeojulge.presentation.common.response.ApiResponse;
-import com.dnd.jjigeojulge.presentation.common.response.PageResponse;
-import com.dnd.jjigeojulge.presentation.reseration.data.ReservationDto;
-import com.dnd.jjigeojulge.presentation.reseration.request.ReservationCreateRequest;
+import com.dnd.jjigeojulge.global.common.response.ApiResponse;
+import com.dnd.jjigeojulge.global.common.response.PageResponse;
+import com.dnd.jjigeojulge.reservation.presentation.data.ReservationDto;
+import com.dnd.jjigeojulge.reservation.presentation.request.ReservationCreateRequest;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

@@ -1,9 +1,9 @@
-package com.dnd.jjigeojulge.presentation.reseration.request;
+package com.dnd.jjigeojulge.reservation.presentation.request;
 
 import java.time.LocalDateTime;
 
 import com.dnd.jjigeojulge.domain.common.ShootingDurationOption;
-import com.dnd.jjigeojulge.presentation.common.dto.GeoPoint;
+import com.dnd.jjigeojulge.global.common.dto.GeoPoint;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;

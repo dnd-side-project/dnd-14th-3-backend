@@ -2,7 +2,7 @@ package com.dnd.jjigeojulge.global.example.api;
 
 import org.springframework.http.ResponseEntity;
 
-import com.dnd.jjigeojulge.presentation.common.response.ApiResponse;
+import com.dnd.jjigeojulge.global.common.response.ApiResponse;
 import com.dnd.jjigeojulge.global.example.response.ExampleDtoRecord;
 
 import io.swagger.v3.oas.annotations.Operation;

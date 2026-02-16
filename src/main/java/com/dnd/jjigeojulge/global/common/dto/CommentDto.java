@@ -1,4 +1,4 @@
-package com.dnd.jjigeojulge.presentation.common.dto;
+package com.dnd.jjigeojulge.global.common.dto;
 
 import java.time.LocalDateTime;
 

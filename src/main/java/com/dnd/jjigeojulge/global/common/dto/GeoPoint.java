@@ -1,4 +1,4 @@
-package com.dnd.jjigeojulge.presentation.common.dto;
+package com.dnd.jjigeojulge.global.common.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.DecimalMax;

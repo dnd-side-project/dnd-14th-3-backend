@@ -1,10 +1,10 @@
-package com.dnd.jjigeojulge.presentation.reseration.data;
+package com.dnd.jjigeojulge.reservation.presentation.data;
 
 import java.time.LocalDateTime;
 
 import com.dnd.jjigeojulge.domain.common.ShootingDurationOption;
-import com.dnd.jjigeojulge.presentation.common.dto.AuthorDto;
-import com.dnd.jjigeojulge.presentation.common.dto.GeoPoint;
+import com.dnd.jjigeojulge.global.common.dto.AuthorDto;
+import com.dnd.jjigeojulge.global.common.dto.GeoPoint;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 

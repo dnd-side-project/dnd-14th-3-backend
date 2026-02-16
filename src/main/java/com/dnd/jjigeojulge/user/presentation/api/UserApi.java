@@ -4,7 +4,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.dnd.jjigeojulge.presentation.common.response.ApiResponse;
+import com.dnd.jjigeojulge.global.common.response.ApiResponse;
 import com.dnd.jjigeojulge.user.presentation.data.ConsentDto;
 import com.dnd.jjigeojulge.user.presentation.data.ProfileDto;
 import com.dnd.jjigeojulge.user.presentation.request.UserCheckNicknameRequest;

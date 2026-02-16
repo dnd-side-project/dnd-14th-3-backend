@@ -1,4 +1,4 @@
-package com.dnd.jjigeojulge.presentation.common.response;
+package com.dnd.jjigeojulge.global.common.response;
 
 import com.dnd.jjigeojulge.global.exception.ErrorCode;
 
