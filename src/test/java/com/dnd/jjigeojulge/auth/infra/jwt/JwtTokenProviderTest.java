@@ -53,20 +53,18 @@ class JwtTokenProviderTest {
 	}
 
 	@Test
-	@DisplayName("유효한 토큰을 검증하면 true를 반환한다.")
+	@DisplayName("유효한 토큰을 검증하면 예외가 발생하지 않는다.")
 	void validateTokenSuccess() {
 		// given
 		String token = jwtTokenProvider.createAccessToken(1L);
 
-		// when
-		boolean isValid = jwtTokenProvider.validateToken(token);
-
-		// then
-		assertThat(isValid).isTrue();
+		// when & then
+		assertThatCode(() -> jwtTokenProvider.validateToken(token))
+			.doesNotThrowAnyException();
 	}
 
 	@Test
-	@DisplayName("만료된 토큰을 검증하면 false를 반환한다.")
+	@DisplayName("만료된 토큰을 검증하면 예외가 발생한다.")
 	void validateTokenExpired() {
 		// given
 		// 만료 시간이 0인 토큰 생성기 임시 생성
@@ -77,24 +75,20 @@ class JwtTokenProviderTest {
 		JwtTokenProvider expiredProvider = new JwtTokenProvider(expiredProperties);
 		String token = expiredProvider.createAccessToken(1L);
 
-		// when
-		boolean isValid = jwtTokenProvider.validateToken(token);
-
-		// then
-		assertThat(isValid).isFalse();
+		// when & then
+		assertThatThrownBy(() -> jwtTokenProvider.validateToken(token))
+			.isInstanceOf(io.jsonwebtoken.JwtException.class);
 	}
 
 	@Test
-	@DisplayName("잘못된 서명의 토큰을 검증하면 false를 반환한다.")
+	@DisplayName("잘못된 서명의 토큰을 검증하면 예외가 발생한다.")
 	void validateTokenInvalidSignature() {
 		// given
 		String token = jwtTokenProvider.createAccessToken(1L);
 		String invalidToken = token + "wrong";
 
-		// when
-		boolean isValid = jwtTokenProvider.validateToken(invalidToken);
-
-		// then
-		assertThat(isValid).isFalse();
+		// when & then
+		assertThatThrownBy(() -> jwtTokenProvider.validateToken(invalidToken))
+			.isInstanceOf(io.jsonwebtoken.JwtException.class);
 	}
 }

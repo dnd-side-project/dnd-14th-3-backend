@@ -7,7 +7,6 @@ import javax.crypto.SecretKey;
 
 import org.springframework.stereotype.Component;
 
-import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
@@ -48,17 +47,11 @@ public class JwtTokenProvider {
 			.compact();
 	}
 
-	public boolean validateToken(String token) {
-		try {
-			Jwts.parser()
-				.verifyWith(key)
-				.build()
-				.parseSignedClaims(token);
-			return true;
-		} catch (JwtException | IllegalArgumentException e) {
-			log.warn("JWT validation failed: {}", e.getMessage());
-			return false;
-		}
+	public void validateToken(String token) {
+		Jwts.parser()
+			.verifyWith(key)
+			.build()
+			.parseSignedClaims(token);
 	}
 
 	public String getPayload(String token) {

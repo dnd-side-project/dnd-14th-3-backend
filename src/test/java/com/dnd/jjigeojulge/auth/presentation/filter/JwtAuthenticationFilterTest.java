@@ -20,6 +20,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import com.dnd.jjigeojulge.auth.infra.jwt.JwtTokenProvider;
 import com.dnd.jjigeojulge.auth.infra.security.CustomUserDetails;
 
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 
 @ExtendWith(MockitoExtension.class)
@@ -54,7 +55,8 @@ class JwtAuthenticationFilterTest {
 
 		CustomUserDetails userDetails = new CustomUserDetails(1L, List.of(new SimpleGrantedAuthority("ROLE_USER")));
 
-		given(jwtTokenProvider.validateToken(token)).willReturn(true);
+		// validateToken은 void 반환이므로 예외가 발생하지 않으면 성공한 것으로 간주 (willDoNothing은 기본값이므로 생략 가능하나 명시적 표현)
+		willDoNothing().given(jwtTokenProvider).validateToken(token);
 		given(jwtTokenProvider.getPayload(token)).willReturn(userId);
 		given(userDetailsService.loadUserByUsername(userId)).willReturn(userDetails);
 
@@ -83,7 +85,7 @@ class JwtAuthenticationFilterTest {
 	}
 
 	@Test
-	@DisplayName("유효하지 않은 토큰이면 인증 객체는 null이고 다음 필터로 넘어간다.")
+	@DisplayName("유효하지 않은 토큰(예외 발생)이면 request에 예외를 저장하고 다음 필터로 넘어간다.")
 	void doFilterInternal_InvalidToken() throws Exception {
 		// given
 		String token = "invalid_token";
@@ -91,13 +93,14 @@ class JwtAuthenticationFilterTest {
 		request.addHeader("Authorization", "Bearer " + token);
 		MockHttpServletResponse response = new MockHttpServletResponse();
 
-		given(jwtTokenProvider.validateToken(token)).willReturn(false);
+		willThrow(new JwtException("Invalid Token")).given(jwtTokenProvider).validateToken(token);
 
 		// when
 		jwtAuthenticationFilter.doFilter(request, response, filterChain);
 
 		// then
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
+		assertThat(request.getAttribute("exception")).isInstanceOf(JwtException.class); // 예외 저장 확인
 		then(filterChain).should().doFilter(request, response);
 	}
 }
