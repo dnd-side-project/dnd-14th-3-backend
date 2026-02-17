@@ -1,5 +1,7 @@
 package com.dnd.jjigeojulge.user.domain;
 
+import com.dnd.jjigeojulge.global.common.enums.OAuthProvider;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.EnumType;
