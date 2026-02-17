@@ -23,7 +23,9 @@ logging:
 security:
   jwt:
     secret: ${JWT_SECRET}
-    expire: ${JWT_EXPIRATION}
+    access-token-expire: ${JWT_ACCESS_TOKEN_EXPIRE:3600000}
+    refresh-token-expire: ${JWT_REFRESH_TOKEN_EXPIRE:1209600000}
+    register-token-expire: ${JWT_REGISTER_TOKEN_EXPIRE:1800000}
 
 server:
   forward-headers-strategy: framework
