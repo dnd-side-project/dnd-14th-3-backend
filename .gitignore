@@ -48,3 +48,7 @@ nginx/ssl/*.key
 nginx/ssl/*.pem
 *.key
 *.pem
+
+# Local development
+docker-compose-local.yml
+.env
