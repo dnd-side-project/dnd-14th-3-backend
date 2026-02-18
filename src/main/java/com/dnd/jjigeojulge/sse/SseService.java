@@ -1,6 +1,5 @@
 package com.dnd.jjigeojulge.sse;
 
-import java.io.IOException;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -38,41 +37,36 @@ public class SseService {
 			sseEmitterRepository.delete(receiverId, sseEmitter);
 		});
 
-		try {
-			sseEmitter.send(
-				SseEmitter.event()
-					.name("connect")
-					.data("connected")
-					.build()
-			);
+		sseEmitterRepository.save(receiverId, sseEmitter);
 
-		} catch (IOException e) {
-			log.error("초기 SSE Event 전송 실패", e);
-			sseEmitterRepository.delete(receiverId, sseEmitter);
-		}
-		return sseEmitterRepository.save(receiverId, sseEmitter);
+		sendToEmitter(sseEmitter, SseEmitter.event()
+			.name("connect")
+			.data("connected")
+			.build());
+		return sseEmitter;
 	}
 
-	@Scheduled(cron = "0 */30 * * * *")
+	@Scheduled(fixedDelay = 30_000)
 	public void clearUp() {
 		Set<ResponseBodyEmitter.DataWithMediaType> ping = SseEmitter.event()
 			.name("ping")
 			.build();
 
-		sseEmitterRepository.findAllWithKeys().forEach((receiverId, sseEmitters) -> {
-			for (SseEmitter sseEmitter : sseEmitters) {
-				try {
-					sseEmitter.send(ping);
-				} catch (IOException e) {
-					log.error(e.getMessage(), e);
-					sseEmitter.completeWithError(e);
-					sseEmitterRepository.delete(receiverId, sseEmitter);
-				}
-			}
-		});
+		sseEmitterRepository.findAll().forEach(sseEmitter -> sendToEmitter(sseEmitter, ping));
 	}
 
 	public void send(SseMessage sseMessage) {
+		Set<ResponseBodyEmitter.DataWithMediaType> event = sseMessage.toEvent();
+		sseEmitterRepository.findAllByReceiverIdIn(sseMessage.getReceiverIds())
+			.forEach(emitter -> sendToEmitter(emitter, event));
+	}
 
+	private void sendToEmitter(SseEmitter emitter, Set<ResponseBodyEmitter.DataWithMediaType> event) {
+		try {
+			emitter.send(event);
+		} catch (Exception e) {
+			log.error("SSE send failed", e);
+			emitter.completeWithError(e);
+		}
 	}
 }
