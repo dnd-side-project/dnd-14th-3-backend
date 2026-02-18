@@ -1,9 +1,11 @@
 package com.dnd.jjigeojulge.auth.presentation.request;
 
 import java.util.List;
+
 import com.dnd.jjigeojulge.auth.application.dto.SignupCommand;
 import com.dnd.jjigeojulge.user.domain.Gender;
 import com.dnd.jjigeojulge.user.domain.StyleName;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;

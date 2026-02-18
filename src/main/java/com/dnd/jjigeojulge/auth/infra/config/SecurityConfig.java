@@ -44,7 +44,8 @@ public class SecurityConfig {
 					"/health",
 					"/swagger-ui/**",
 					"/v3/api-docs/**",
-					"/api/v1/examples/**"
+					"/api/v1/examples/**",
+					"/api/sse/**"  // 임시 등록
 				).permitAll()
 				.anyRequest().authenticated()
 			)

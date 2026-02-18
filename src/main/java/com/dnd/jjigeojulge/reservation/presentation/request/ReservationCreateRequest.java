@@ -2,8 +2,8 @@ package com.dnd.jjigeojulge.reservation.presentation.request;
 
 import java.time.LocalDateTime;
 
-import com.dnd.jjigeojulge.global.common.enums.ShootingDurationOption;
 import com.dnd.jjigeojulge.global.common.dto.GeoPoint;
+import com.dnd.jjigeojulge.global.common.enums.ShootingDurationOption;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;

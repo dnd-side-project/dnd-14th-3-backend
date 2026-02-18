@@ -2,9 +2,9 @@ package com.dnd.jjigeojulge.user.presentation.data;
 
 import java.util.List;
 
+import com.dnd.jjigeojulge.user.domain.Gender;
 import com.dnd.jjigeojulge.user.domain.PhotoStyle;
 import com.dnd.jjigeojulge.user.domain.StyleName;
-import com.dnd.jjigeojulge.user.domain.Gender;
 import com.dnd.jjigeojulge.user.domain.User;
 import com.dnd.jjigeojulge.user.domain.UserPhotoStyle;
 import com.dnd.jjigeojulge.user.domain.UserSetting;

@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.dnd.jjigeojulge.user.application.UserService;
 import com.dnd.jjigeojulge.global.common.response.ApiResponse;
+import com.dnd.jjigeojulge.user.application.UserService;
 import com.dnd.jjigeojulge.user.presentation.api.UserApi;
 import com.dnd.jjigeojulge.user.presentation.data.ConsentDto;
 import com.dnd.jjigeojulge.user.presentation.data.ProfileDto;

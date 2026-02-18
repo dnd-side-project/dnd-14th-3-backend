@@ -40,9 +40,17 @@ public interface UserApi {
 				examples = @ExampleObject(value = """
 					{
 					  "success": false,
-					  "message": "닉네임은 2~20자이며 한글, 영문, 숫자만 사용할 수 있습니다.",
-					  "code": "INVALID_NICKNAME_FORMAT",
-					  "data": null
+					  "message": "요청 값 검증에 실패했습니다.",
+					  "code": "VALIDATION_FAILED",
+					  "data": {
+					       "fieldErrors": [
+					         {
+					           "field": "nickname",
+					           "message": "공백일 수 없습니다",
+					           "code": "NotBlank"
+					         }
+					       ]
+					     }
 					}
 					"""))
 		)

@@ -6,10 +6,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.dnd.jjigeojulge.global.exception.ErrorCode;
 import com.dnd.jjigeojulge.user.domain.PhotoStyle;
 import com.dnd.jjigeojulge.user.domain.User;
 import com.dnd.jjigeojulge.user.domain.UserSetting;
-import com.dnd.jjigeojulge.global.exception.ErrorCode;
 import com.dnd.jjigeojulge.user.domain.exception.InvalidPhotoStyleException;
 import com.dnd.jjigeojulge.user.domain.exception.UserNotFoundException;
 import com.dnd.jjigeojulge.user.infra.PhotoStyleRepository;
