@@ -115,20 +115,29 @@ public interface AuthApi {
 					""")
 			)
 		),
-		@io.swagger.v3.oas.annotations.responses.ApiResponse(
-			responseCode = "401", description = "유효하지 않은 Register Token",
-			content = @Content(schema = @Schema(implementation = ApiResponse.class),
-				examples = @ExampleObject(value = """
-					{
-					  "success": false,
-					  "message": "인증에 실패했습니다.",
-					  "code": "AUTHENTICATION_FAILED",
-					  "data": null
-					}
-					""")
-			)
-		)
-	})
+		        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+		            responseCode = "401", description = "인증 실패 (토큰 만료 또는 유효하지 않음)",
+		            content = @Content(schema = @Schema(implementation = ApiResponse.class),
+		                examples = {
+		                    @ExampleObject(name = "토큰 만료 (재발급 필요)", value = """
+		                        {
+		                          "success": false,
+		                          "message": "토큰이 만료되었습니다.",
+		                          "code": "TOKEN_EXPIRED",
+		                          "data": null
+		                        }
+		                        """),
+		                    @ExampleObject(name = "유효하지 않은 토큰 (로그아웃)", value = """
+		                        {
+		                          "success": false,
+		                          "message": "유효하지 않은 토큰입니다.",
+		                          "code": "INVALID_TOKEN",
+		                          "data": null
+		                        }
+		                        """)
+		                }
+		            )
+		        )	})
 	@PostMapping("/signup")
 	ResponseEntity<ApiResponse<TokenResponse>> signup(
 		@Parameter(description = "회원가입용 임시 토큰", required = true) @RequestHeader("Register-Token") String registerToken,

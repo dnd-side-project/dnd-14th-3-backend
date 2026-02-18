@@ -19,6 +19,11 @@ public enum ErrorCode {
 	INVALID_PHOTO_STYLE(HttpStatus.BAD_REQUEST, "요청한 사진 스타일이 올바르지 않습니다."),
 	INVALID_OAUTH_REQUEST(HttpStatus.BAD_REQUEST, "소셜 로그인 요청이 올바르지 않습니다."),
 
+	// ===== 401 Unauthorized =====
+	UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "인증에 실패했습니다."),
+	INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다."),
+	TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "토큰이 만료되었습니다."),
+
 	// ===== 404 Not Found =====
 	RESOURCE_NOT_FOUND(HttpStatus.NOT_FOUND, "요청한 리소스를 찾을 수 없습니다."),
 	USER_NOT_FOUND(HttpStatus.NOT_FOUND, "User를 찾을 수 없습니다."),

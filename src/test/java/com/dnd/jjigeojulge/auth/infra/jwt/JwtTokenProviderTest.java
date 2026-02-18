@@ -67,16 +67,16 @@ class JwtTokenProviderTest {
 	@DisplayName("만료된 토큰을 검증하면 예외가 발생한다.")
 	void validateTokenExpired() {
 		// given
-		// 만료 시간이 0인 토큰 생성기 임시 생성
+		// 만료 시간이 -1000ms인 토큰 생성기 임시 생성
 		JwtProperties expiredProperties = new JwtProperties(
 			jwtProperties.secret(),
-			0L, 0L, 0L
+			-1000L, -1000L, -1000L
 		);
 		JwtTokenProvider expiredProvider = new JwtTokenProvider(expiredProperties);
 		String token = expiredProvider.createAccessToken(1L);
 
 		// when & then
-		assertThatThrownBy(() -> jwtTokenProvider.validateToken(token))
+		assertThatThrownBy(() -> expiredProvider.validateToken(token))
 			.isInstanceOf(io.jsonwebtoken.JwtException.class);
 	}
 

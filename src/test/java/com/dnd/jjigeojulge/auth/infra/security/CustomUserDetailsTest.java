@@ -6,6 +6,8 @@ import java.util.List;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.test.util.ReflectionTestUtils;
+
 import com.dnd.jjigeojulge.user.domain.Gender;
 import com.dnd.jjigeojulge.user.domain.OAuthInfo;
 import com.dnd.jjigeojulge.global.common.enums.OAuthProvider;
@@ -18,21 +20,20 @@ class CustomUserDetailsTest {
 	void fromUser() {
 		// given
 		User user = User.builder()
-			.oauthInfo(new OAuthInfo("12345", OAuthProvider.KAKAO))
-			.nickname("테스터")
+			.oauthInfo(new OAuthInfo("test-id", OAuthProvider.KAKAO))
+			.nickname("test")
 			.gender(Gender.MALE)
-			.profileImageUrl("http://image.com")
 			.build();
+		ReflectionTestUtils.setField(user, "id", 1L);
 
 		// when
 		CustomUserDetails userDetails = CustomUserDetails.from(user);
 
 		// then
+		assertThat(userDetails.id()).isEqualTo(1L);
+		assertThat(userDetails.getUsername()).isEqualTo("1");
 		assertThat(userDetails.getAuthorities()).hasSize(1);
-		assertThat(userDetails.getAuthorities().iterator().next().getAuthority())
-			.isEqualTo("ROLE_USER");
-		assertThat(userDetails.getUsername()).isEqualTo(String.valueOf(user.getId()));
-		assertThat(userDetails.getPassword()).isNull();
+		assertThat(userDetails.getAuthorities().iterator().next().getAuthority()).isEqualTo("ROLE_USER");
 	}
 
 	@Test

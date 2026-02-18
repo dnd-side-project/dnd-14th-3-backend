@@ -1,5 +1,6 @@
 package com.dnd.jjigeojulge.auth.infra.kakao;
 
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 
 import org.springframework.boot.http.client.ClientHttpRequestFactoryBuilder;
@@ -39,11 +40,11 @@ public class KakaoClient implements OAuthClient {
 		this.restClient = RestClient.builder()
 			.requestFactory(ClientHttpRequestFactoryBuilder.httpComponents().build(settings))
 			.defaultStatusHandler(HttpStatusCode::is4xxClientError, (request, response) -> {
-				log.error("Kakao Client Error: {} - {}", response.getStatusCode(), new String(response.getBody().readAllBytes()));
+				log.error("Kakao Client Error: {} - {}", response.getStatusCode(), new String(response.getBody().readAllBytes(), StandardCharsets.UTF_8));
 				throw new InvalidOAuthRequestException();
 			})
 			.defaultStatusHandler(HttpStatusCode::is5xxServerError, (request, response) -> {
-				log.error("Kakao Server Error: {} - {}", response.getStatusCode(), new String(response.getBody().readAllBytes()));
+				log.error("Kakao Server Error: {} - {}", response.getStatusCode(), new String(response.getBody().readAllBytes(), StandardCharsets.UTF_8));
 				throw new OAuthServerException();
 			})
 			.build();
@@ -58,44 +59,58 @@ public class KakaoClient implements OAuthClient {
 	public String getAccessToken(String authCode) {
 		log.info("Requesting Kakao Access Token");
 
-		MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
-		body.add("grant_type", "authorization_code");
-		body.add("client_id", kakaoProperties.clientId());
-		body.add("redirect_uri", kakaoProperties.redirectUri());
-		body.add("code", authCode);
+		try {
+			MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+			body.add("grant_type", "authorization_code");
+			body.add("client_id", kakaoProperties.clientId());
+			body.add("redirect_uri", kakaoProperties.redirectUri());
+			body.add("code", authCode);
 
-		KakaoTokenResponse response = restClient.post()
-			.uri(kakaoProperties.tokenUri())
-			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.body(body)
-			.retrieve()
-			.body(KakaoTokenResponse.class);
+			KakaoTokenResponse response = restClient.post()
+				.uri(kakaoProperties.tokenUri())
+				.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+				.body(body)
+				.retrieve()
+				.body(KakaoTokenResponse.class);
 
-		if (response == null || response.accessToken() == null) {
-			log.error("Kakao Access Token response is null");
-			throw new OAuthServerException();
+			if (response == null || response.accessToken() == null) {
+				log.error("Kakao Access Token response is null");
+				throw new OAuthServerException();
+			}
+
+			log.info("Successfully retrieved Kakao Access Token");
+			return response.accessToken();
+		} catch (Exception e) {
+			if (e instanceof InvalidOAuthRequestException || e instanceof OAuthServerException) {
+				throw e;
+			}
+			throw new OAuthServerException(e);
 		}
-
-		log.info("Successfully retrieved Kakao Access Token");
-		return response.accessToken();
 	}
 
 	@Override
 	public OAuthUserProfile getUserProfile(String accessToken) {
 		log.info("Requesting Kakao User Profile");
 
-		KakaoUserInfoResponse response = restClient.get()
-			.uri(kakaoProperties.userInfoUri())
-			.header("Authorization", "Bearer " + accessToken)
-			.retrieve()
-			.body(KakaoUserInfoResponse.class);
+		try {
+			KakaoUserInfoResponse response = restClient.get()
+				.uri(kakaoProperties.userInfoUri())
+				.header("Authorization", "Bearer " + accessToken)
+				.retrieve()
+				.body(KakaoUserInfoResponse.class);
 
-		if (response == null) {
-			log.error("Kakao User Profile response is null");
-			throw new OAuthServerException();
+			if (response == null || response.id() == null) {
+				log.error("Kakao User Profile response is invalid (null or no ID)");
+				throw new OAuthServerException();
+			}
+
+			log.info("Successfully retrieved Kakao User Profile: {}", response.id());
+			return response.toOAuthUserProfile();
+		} catch (Exception e) {
+			if (e instanceof InvalidOAuthRequestException || e instanceof OAuthServerException) {
+				throw e;
+			}
+			throw new OAuthServerException(e);
 		}
-
-		log.info("Successfully retrieved Kakao User Profile: {}", response.id());
-		return response.toOAuthUserProfile();
 	}
 }

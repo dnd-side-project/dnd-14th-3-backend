@@ -49,10 +49,9 @@ public class AuthService {
 	}
 
 	public AuthResult signup(SignupCommand command) {
-		jwtTokenProvider.validateToken(command.registerToken());
+		jwtTokenProvider.validateRegisterToken(command.registerToken());
 		String providerId = jwtTokenProvider.getPayload(command.registerToken());
 
-		// 2. 닉네임 중복 검사
 		if (userRepository.existsByNickname(command.nickname())) {
 			throw new BusinessException(ErrorCode.CONFLICT);
 		}
@@ -70,20 +69,21 @@ public class AuthService {
 			photoStyles
 		);
 
-		userRepository.save(user);
+		User savedUser = userRepository.save(user);
 
-		String access = jwtTokenProvider.createAccessToken(user.getId());
-		String refresh = jwtTokenProvider.createRefreshToken(user.getId());
+		String access = jwtTokenProvider.createAccessToken(savedUser.getId());
+		String refresh = jwtTokenProvider.createRefreshToken(savedUser.getId());
 
 		return AuthResult.success(access, refresh);
 	}
 
 	public AuthResult refresh(String refreshToken) {
-		jwtTokenProvider.validateToken(refreshToken);
+		jwtTokenProvider.validateRefreshToken(refreshToken);
 		String userId = jwtTokenProvider.getPayload(refreshToken);
 
-		String newAccessToken = jwtTokenProvider.createAccessToken(Long.parseLong(userId));
-		String newRefreshToken = jwtTokenProvider.createRefreshToken(Long.parseLong(userId));
+		long id = Long.parseLong(userId);
+		String newAccessToken = jwtTokenProvider.createAccessToken(id);
+		String newRefreshToken = jwtTokenProvider.createRefreshToken(id);
 
 		return AuthResult.success(newAccessToken, newRefreshToken);
 	}

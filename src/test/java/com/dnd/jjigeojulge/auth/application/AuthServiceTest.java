@@ -13,6 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import com.dnd.jjigeojulge.auth.application.dto.AuthResult;
 import com.dnd.jjigeojulge.auth.application.dto.SignupCommand;
@@ -111,20 +112,18 @@ class AuthServiceTest {
 		);
 		String providerId = "kakao_123";
 
-		willDoNothing().given(jwtTokenProvider).validateToken(registerToken);
+		willDoNothing().given(jwtTokenProvider).validateRegisterToken(registerToken);
 		given(jwtTokenProvider.getPayload(registerToken)).willReturn(providerId);
 		given(userRepository.existsByNickname(command.nickname())).willReturn(false); // 중복 아님
 		given(photoStyleRepository.findAllByNameIn(anyList()))
 			.willReturn(Set.of(new PhotoStyle(StyleName.FULL_BODY))); // 스타일 존재
 		given(userRepository.save(any(User.class))).willAnswer(invocation -> {
 			User u = invocation.getArgument(0);
-			// ID가 없으면 subsequent createAccessToken에서 NPE가 날 수 있으므로 모의
-			// 실제로는 JPA가 ID를 할당해줌. 테스트에서는 any() 매칭으로 커버하거나
-			// createAccessToken 메서드 호출 시 인자를 확인하지 않도록 해야 함.
+			ReflectionTestUtils.setField(u, "id", 1L); // ID 설정
 			return u;
 		});
-		given(jwtTokenProvider.createAccessToken(any())).willReturn("access");
-		given(jwtTokenProvider.createRefreshToken(any())).willReturn("refresh");
+		given(jwtTokenProvider.createAccessToken(1L)).willReturn("access");
+		given(jwtTokenProvider.createRefreshToken(1L)).willReturn("refresh");
 
 		// when
 		AuthResult result = authService.signup(command);
@@ -143,7 +142,7 @@ class AuthServiceTest {
 			"token", "dup_nick", Gender.MALE, "url", List.of()
 		);
 
-		willDoNothing().given(jwtTokenProvider).validateToken(anyString());
+		willDoNothing().given(jwtTokenProvider).validateRegisterToken(anyString());
 		given(jwtTokenProvider.getPayload(anyString())).willReturn("id");
 		given(userRepository.existsByNickname("dup_nick")).willReturn(true); // 중복
 
@@ -160,7 +159,7 @@ class AuthServiceTest {
 		String refreshToken = "valid_refresh_token";
 		String userId = "1";
 
-		willDoNothing().given(jwtTokenProvider).validateToken(refreshToken);
+		willDoNothing().given(jwtTokenProvider).validateRefreshToken(refreshToken);
 		given(jwtTokenProvider.getPayload(refreshToken)).willReturn(userId);
 		given(jwtTokenProvider.createAccessToken(1L)).willReturn("new_access");
 		given(jwtTokenProvider.createRefreshToken(1L)).willReturn("new_refresh");
