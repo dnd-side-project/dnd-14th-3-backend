@@ -37,13 +37,13 @@ public class SseService {
 			sseEmitterRepository.delete(receiverId, sseEmitter);
 		});
 
-		sseEmitterRepository.save(receiverId, sseEmitter);
+		SseEmitter emitter = sseEmitterRepository.save(receiverId, sseEmitter);
 
-		sendToEmitter(sseEmitter, SseEmitter.event()
+		sendToEmitter(emitter, SseEmitter.event()
 			.name("connect")
 			.data("connected")
 			.build());
-		return sseEmitter;
+		return emitter;
 	}
 
 	@Scheduled(fixedDelay = 30_000)
