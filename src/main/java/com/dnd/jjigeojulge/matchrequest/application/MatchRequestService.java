@@ -35,7 +35,8 @@ public class MatchRequestService {
 		// 2. 유저 당 1개 WAITING
 		boolean exists = matchRequestRepository.existsByUserIdAndStatus(user.getId(), MatchRequestStatus.WAITING);
 
-		// 3. 이미 요청이 waiting으로 존재할 경우 정책
+		// 3. 이미 요청이 waiting으로 존재할 경우 정책, 임시로 생성한 예외 이후 리팩토링
+		// TODO 정확히 요청이 이미 존재할 경우 처리 방법 회의
 		if (exists) {
 			throw new IllegalStateException("이미 요청이 존재합니다.");
 		}

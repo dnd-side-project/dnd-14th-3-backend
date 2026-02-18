@@ -2,6 +2,7 @@ package com.dnd.jjigeojulge.matchrequest.presentation.api;
 
 import org.springframework.http.ResponseEntity;
 
+import com.dnd.jjigeojulge.auth.infra.security.CustomUserDetails;
 import com.dnd.jjigeojulge.global.common.response.ApiResponse;
 import com.dnd.jjigeojulge.matchrequest.presentation.data.MatchRequestDto;
 import com.dnd.jjigeojulge.matchrequest.presentation.request.MatchRequestCreateRequest;
@@ -55,7 +56,10 @@ public interface MatchRequestApi {
 			)
 		)
 	})
-	ResponseEntity<ApiResponse<MatchRequestDto>> create(MatchRequestCreateRequest request);
+	ResponseEntity<ApiResponse<MatchRequestDto>> create(
+		MatchRequestCreateRequest request,
+		@Parameter(hidden = true) CustomUserDetails userDetails
+	);
 
 	@Operation(summary = "실시간 매칭 대기 취소", description = """
 		진행 중인 실시간 매칭 대기(요청)를 취소합니다.
