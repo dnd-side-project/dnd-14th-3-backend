@@ -1,39 +1,66 @@
 package com.dnd.jjigeojulge.auth.presentation;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CookieValue;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.dnd.jjigeojulge.auth.application.AuthService;
+import com.dnd.jjigeojulge.auth.application.dto.AuthResult;
+import com.dnd.jjigeojulge.auth.application.dto.SignupCommand;
 import com.dnd.jjigeojulge.auth.presentation.api.AuthApi;
+import com.dnd.jjigeojulge.auth.presentation.request.SignupRequest;
+import com.dnd.jjigeojulge.auth.presentation.response.LoginResponse;
+import com.dnd.jjigeojulge.auth.presentation.response.TokenResponse;
+import com.dnd.jjigeojulge.global.common.response.ApiResponse;
 
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
-@RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/auth")
+@RequiredArgsConstructor
+@RequestMapping("/api/v1/auth")
 public class AuthController implements AuthApi {
 
+	private final AuthService authService;
+
 	@Override
-	@GetMapping("me")
-	public ResponseEntity<String> me(
-		@CookieValue(value = "refresh_token") String refreshToken
-	) {
-		return ResponseEntity.ok("accessToken");
+	public ResponseEntity<ApiResponse<LoginResponse>> login(String code) {
+		AuthResult result = authService.login(code);
+
+		LoginResponse response;
+		if (result.isNewUser()) {
+			response = LoginResponse.registerNeeded(result.registerToken());
+		} else {
+			response = LoginResponse.loginSuccess(
+				TokenResponse.of(result.accessToken(), result.refreshToken())
+			);
+		}
+
+		return ResponseEntity.ok(ApiResponse.success(
+			result.isNewUser() ? "회원가입이 필요합니다." : "로그인 성공",
+			response
+		));
 	}
 
 	@Override
-	@PostMapping("refresh")
-	public ResponseEntity<String> refresh(String refreshToken, HttpServletResponse response) {
-		Cookie refreshTokenCookie = new Cookie("refresh_token", "newRefresh");
-		refreshTokenCookie.setHttpOnly(true);
-		response.addCookie(refreshTokenCookie);
-		return ResponseEntity.ok("newAccessToken");
+	public ResponseEntity<ApiResponse<TokenResponse>> signup(
+		String registerToken,
+		SignupRequest request
+	) {
+		SignupCommand command = request.toCommand(registerToken);
+		AuthResult result = authService.signup(command);
+
+		return ResponseEntity.ok(ApiResponse.success(
+			"회원가입 성공",
+			TokenResponse.of(result.accessToken(), result.refreshToken())
+		));
+	}
+
+	@Override
+	public ResponseEntity<ApiResponse<TokenResponse>> refresh(String refreshToken) {
+		AuthResult result = authService.refresh(refreshToken);
+		return ResponseEntity.ok(ApiResponse.success(
+			"토큰 재발급 성공",
+			TokenResponse.of(result.accessToken(), result.refreshToken())
+		));
 	}
 }

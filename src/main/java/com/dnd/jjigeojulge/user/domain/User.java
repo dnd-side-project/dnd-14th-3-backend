@@ -53,6 +53,21 @@ public class User extends BaseUpdatableEntity {
 		this.profileImageUrl = profileImageUrl;
 	}
 
+	public static User create(OAuthInfo oauthInfo, String nickname, Gender gender, String profileImageUrl, Set<PhotoStyle> styles) {
+		User user = User.builder()
+			.oauthInfo(oauthInfo)
+			.nickname(nickname)
+			.gender(gender)
+			.profileImageUrl(profileImageUrl)
+			.build();
+
+		if (styles != null) {
+			styles.forEach(user::addPhotoStyle);
+		}
+
+		return user;
+	}
+
 	// 양방향 동기화
 	public void setUserSetting(UserSetting userSetting) {
 		this.userSetting = userSetting;
