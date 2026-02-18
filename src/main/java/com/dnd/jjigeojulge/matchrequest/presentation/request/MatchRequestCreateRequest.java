@@ -21,7 +21,7 @@ public record MatchRequestCreateRequest(
 		example = "서울 구로구 고척로 21 고척스카이돔 1번 출입구 앞"
 	)
 	@NotBlank(message = "구체적인 장소는 필수입니다.")
-	@Size(max = 100, message = "구체적인 장소는 최대 100자까지 가능합니다.")
+	@Size(max = 150, message = "구체적인 장소는 최대 100자까지 가능합니다.")
 	String specificPlace,
 
 	@Schema(description = "요청 메시지", example = "고척 입구에서 전신 사진을 찍고 싶어요.")
