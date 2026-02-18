@@ -38,11 +38,23 @@ public class SseService {
 			sseEmitterRepository.delete(receiverId, sseEmitter);
 		});
 
+		try {
+			sseEmitter.send(
+				SseEmitter.event()
+					.name("connect")
+					.data("connected")
+					.build()
+			);
+
+		} catch (IOException e) {
+			log.error("초기 SSE Event 전송 실패", e);
+			sseEmitterRepository.delete(receiverId, sseEmitter);
+		}
 		return sseEmitterRepository.save(receiverId, sseEmitter);
 	}
 
 	@Scheduled(cron = "0 */30 * * * *")
-	public void heartbeat() {
+	public void clearUp() {
 		Set<ResponseBodyEmitter.DataWithMediaType> ping = SseEmitter.event()
 			.name("ping")
 			.build();

@@ -45,7 +45,7 @@ public class MatchRequestService {
 		GeoPoint location = request.location();
 		MatchRequest matchRequest = MatchRequest.builder()
 			.latitude(BigDecimal.valueOf(location.latitude()))
-			.longitude(BigDecimal.valueOf(request.location().longitude()))
+			.longitude(BigDecimal.valueOf(location.longitude()))
 			.specificPlace(request.specificPlace())
 			.status(MatchRequestStatus.WAITING)
 			.expectedDuration(request.expectedDuration())
