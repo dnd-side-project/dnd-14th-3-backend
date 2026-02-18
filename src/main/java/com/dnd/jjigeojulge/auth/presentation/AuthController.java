@@ -1,7 +1,10 @@
 package com.dnd.jjigeojulge.auth.presentation;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.dnd.jjigeojulge.auth.application.AuthService;
@@ -13,6 +16,7 @@ import com.dnd.jjigeojulge.auth.presentation.response.LoginResponse;
 import com.dnd.jjigeojulge.auth.presentation.response.TokenResponse;
 import com.dnd.jjigeojulge.global.common.response.ApiResponse;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -23,7 +27,7 @@ public class AuthController implements AuthApi {
 	private final AuthService authService;
 
 	@Override
-	public ResponseEntity<ApiResponse<LoginResponse>> login(String code) {
+	public ResponseEntity<ApiResponse<LoginResponse>> login(@RequestParam String code) {
 		AuthResult result = authService.login(code);
 
 		LoginResponse response;
@@ -43,8 +47,8 @@ public class AuthController implements AuthApi {
 
 	@Override
 	public ResponseEntity<ApiResponse<TokenResponse>> signup(
-		String registerToken,
-		SignupRequest request
+		@RequestHeader("Register-Token") String registerToken,
+		@Valid @RequestBody SignupRequest request
 	) {
 		SignupCommand command = request.toCommand(registerToken);
 		AuthResult result = authService.signup(command);
@@ -56,7 +60,9 @@ public class AuthController implements AuthApi {
 	}
 
 	@Override
-	public ResponseEntity<ApiResponse<TokenResponse>> refresh(String refreshToken) {
+	public ResponseEntity<ApiResponse<TokenResponse>> refresh(
+		@RequestHeader("Authorization") String refreshToken
+	) {
 		String token = refreshToken;
 		if (refreshToken.startsWith("Bearer ")) {
 			token = refreshToken.substring(7);

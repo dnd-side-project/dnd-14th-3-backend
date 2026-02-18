@@ -69,6 +69,7 @@ public class AuthService {
 			photoStyles
 		);
 
+		// TODO: [Refactor] AuthService에서 유저 관리를 직접 하지 않고, UserService나 Port로 위임 필요
 		User savedUser = userRepository.save(user);
 
 		String access = jwtTokenProvider.createAccessToken(savedUser.getId());
