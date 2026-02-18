@@ -18,7 +18,7 @@ public class ExampleController implements ExampleApi {
 	@Override
 	@GetMapping
 	public ResponseEntity<ApiResponse<ExampleDtoRecord>> exampleEndpoint() {
-		ExampleDtoRecord dto = new ExampleDtoRecord(1L, "example@google.com",
+		ExampleDtoRecord dto = new ExampleDtoRecord(1L,
 			new ExampleDtoRecord.Profile("exampleNickname", "http://example.com/profile.jpg"),
 			List.of());
 

@@ -66,9 +66,7 @@ public interface UserApi {
 					  "code": "",
 					  "data": {
 					    "nickname": "홍길동",
-					    "profileImageUrl": "https://example.com/profile.jpg",
-						"email": "hong@mail.com",
-					    "phoneNumber": "010-1234-5678"
+					    "profileImageUrl": "https://example.com/profile.jpg"
 					  }
 					}
 					""")
@@ -102,9 +100,7 @@ public interface UserApi {
 					  "code": "",
 					  "data": {
 					    "nickname": "홍길동",
-					    "profileImageUrl": "https://example.com/updated_profile.jpg",
-					    "email": "hong@mail.com",
-					    "phoneNumber": "010-1234-5678"
+					    "profileImageUrl": "https://example.com/updated_profile.jpg"
 					  }
 					}
 					"""))

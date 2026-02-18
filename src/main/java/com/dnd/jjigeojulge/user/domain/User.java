@@ -5,10 +5,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.dnd.jjigeojulge.global.common.entity.BaseUpdatableEntity;
-import com.dnd.jjigeojulge.user.domain.PhotoStyle;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -26,11 +26,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User extends BaseUpdatableEntity {
 
+	@Embedded
+	private OAuthInfo oauthInfo;
+
 	@Column(length = 30, nullable = false, unique = true)
 	private String nickname;
-
-	@Column(nullable = false, unique = true)
-	private String kakaoUserEmail;
 
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false, length = 10)
@@ -39,9 +39,6 @@ public class User extends BaseUpdatableEntity {
 	@Column(length = 512)
 	private String profileImageUrl;
 
-	@Column(length = 20)
-	private String phoneNumber;
-
 	@OneToOne(mappedBy = "user", orphanRemoval = true, cascade = CascadeType.ALL)
 	private UserSetting userSetting;
 
@@ -49,12 +46,26 @@ public class User extends BaseUpdatableEntity {
 	private Set<UserPhotoStyle> photoStyles = new HashSet<>();
 
 	@Builder
-	public User(String nickname, String kakaoUserEmail, Gender gender, String profileImageUrl, String phoneNumber) {
+	public User(OAuthInfo oauthInfo, String nickname, Gender gender, String profileImageUrl) {
+		this.oauthInfo = oauthInfo;
 		this.nickname = nickname;
-		this.kakaoUserEmail = kakaoUserEmail;
 		this.gender = gender;
 		this.profileImageUrl = profileImageUrl;
-		this.phoneNumber = phoneNumber;
+	}
+
+	public static User create(OAuthInfo oauthInfo, String nickname, Gender gender, String profileImageUrl, Set<PhotoStyle> styles) {
+		User user = User.builder()
+			.oauthInfo(oauthInfo)
+			.nickname(nickname)
+			.gender(gender)
+			.profileImageUrl(profileImageUrl)
+			.build();
+
+		if (styles != null) {
+			styles.forEach(user::addPhotoStyle);
+		}
+
+		return user;
 	}
 
 	// 양방향 동기화

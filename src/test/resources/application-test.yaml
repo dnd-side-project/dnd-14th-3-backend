@@ -8,3 +8,16 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create-drop
+
+security:
+  jwt:
+    secret: "this-is-a-very-long-secret-key-for-test-at-least-32-bytes"
+    access-token-expire: 3600000
+    refresh-token-expire: 1209600000
+    register-token-expire: 1800000
+
+kakao:
+  client-id: test-client-id
+  redirect-uri: http://localhost:8080/login/oauth2/code/kakao
+  token-uri: https://kauth.kakao.com/oauth/token
+  user-info-uri: https://kapi.kakao.com/v2/user/me

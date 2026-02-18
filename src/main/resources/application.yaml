@@ -23,7 +23,15 @@ logging:
 security:
   jwt:
     secret: ${JWT_SECRET}
-    expire: ${JWT_EXPIRATION}
+    access-token-expire: ${JWT_ACCESS_TOKEN_EXPIRE:3600000}
+    refresh-token-expire: ${JWT_REFRESH_TOKEN_EXPIRE:1209600000}
+    register-token-expire: ${JWT_REGISTER_TOKEN_EXPIRE:1800000}
 
 server:
   forward-headers-strategy: framework
+
+kakao:
+  client-id: ${KAKAO_CLIENT_ID}
+  redirect-uri: ${KAKAO_REDIRECT_URI}
+  token-uri: https://kauth.kakao.com/oauth/token
+  user-info-uri: https://kapi.kakao.com/v2/user/me

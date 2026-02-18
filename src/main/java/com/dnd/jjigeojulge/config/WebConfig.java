@@ -17,15 +17,6 @@ public class WebConfig implements WebMvcConfigurer {
 		"/favicon.ico"
 	);
 
-	@Override
-	public void addCorsMappings(CorsRegistry registry) {
-		registry.addMapping("/**")
-			.allowedOrigins("*")
-			.allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
-			.allowedHeaders("*")
-			.maxAge(3000);
-	}
-
 	@Bean
 	public MDCLoggingInterceptor mdcLoggingInterceptor() {
 		return new MDCLoggingInterceptor();

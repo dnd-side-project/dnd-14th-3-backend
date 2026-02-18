@@ -13,8 +13,6 @@ public record ProfileDto(
 	String nickname,
 	Gender gender,
 	String profileImageUrl,
-	String email,
-	String phoneNumber,
 	List<StyleName> photoStyles,
 	ConsentDto consent
 ) {
@@ -30,8 +28,6 @@ public record ProfileDto(
 			user.getNickname(),
 			user.getGender(),
 			user.getProfileImageUrl(),
-			user.getKakaoUserEmail(),
-			user.getPhoneNumber(),
 			list,
 			userSetting != null ? ConsentDto.from(userSetting) : null
 		);
