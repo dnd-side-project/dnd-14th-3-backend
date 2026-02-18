@@ -40,7 +40,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		}
 
 		try {
-			jwtTokenProvider.validateToken(jwt);
+			// Access Token 타입인지 검증
+			jwtTokenProvider.validateAccessToken(jwt);
 
 			String userId = jwtTokenProvider.getPayload(jwt);
 			UserDetails userDetails = userDetailsService.loadUserByUsername(userId);

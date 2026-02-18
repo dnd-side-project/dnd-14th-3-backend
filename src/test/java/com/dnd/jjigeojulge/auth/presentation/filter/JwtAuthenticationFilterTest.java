@@ -56,7 +56,7 @@ class JwtAuthenticationFilterTest {
 		CustomUserDetails userDetails = new CustomUserDetails(1L, List.of(new SimpleGrantedAuthority("ROLE_USER")));
 
 		// validateToken은 void 반환이므로 예외가 발생하지 않으면 성공한 것으로 간주 (willDoNothing은 기본값이므로 생략 가능하나 명시적 표현)
-		willDoNothing().given(jwtTokenProvider).validateToken(token);
+		willDoNothing().given(jwtTokenProvider).validateAccessToken(token);
 		given(jwtTokenProvider.getPayload(token)).willReturn(userId);
 		given(userDetailsService.loadUserByUsername(userId)).willReturn(userDetails);
 
@@ -93,7 +93,8 @@ class JwtAuthenticationFilterTest {
 		request.addHeader("Authorization", "Bearer " + token);
 		MockHttpServletResponse response = new MockHttpServletResponse();
 
-		willThrow(new JwtException("Invalid Token")).given(jwtTokenProvider).validateToken(token);
+		// validateToken 호출 시 JwtException 발생하도록 설정
+		willThrow(new JwtException("Invalid Token")).given(jwtTokenProvider).validateAccessToken(token);
 
 		// when
 		jwtAuthenticationFilter.doFilter(request, response, filterChain);

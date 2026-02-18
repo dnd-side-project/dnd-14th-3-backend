@@ -21,12 +21,13 @@ import lombok.extern.slf4j.Slf4j;
 public class JwtTokenProvider {
 
 	private static final String TYPE_CLAIM = "type";
-	private static final String ACCESS = "access";
-	private static final String REFRESH = "refresh";
-	private static final String REGISTER = "register";
 
 	private final SecretKey key;
 	private final JwtProperties jwtProperties;
+
+	public enum TokenType {
+		ACCESS, REFRESH, REGISTER
+	}
 
 	public JwtTokenProvider(JwtProperties jwtProperties) {
 		this.key = Keys.hmacShaKeyFor(jwtProperties.secret().getBytes(StandardCharsets.UTF_8));
@@ -34,48 +35,65 @@ public class JwtTokenProvider {
 	}
 
 	public String createAccessToken(Long userId) {
-		return createToken(String.valueOf(userId), ACCESS, jwtProperties.accessTokenExpire());
+		return createToken(String.valueOf(userId), TokenType.ACCESS, jwtProperties.accessTokenExpire());
 	}
 
 	public String createRefreshToken(Long userId) {
-		return createToken(String.valueOf(userId), REFRESH, jwtProperties.refreshTokenExpire());
+		return createToken(String.valueOf(userId), TokenType.REFRESH, jwtProperties.refreshTokenExpire());
 	}
 
 	public String createRegisterToken(String providerId) {
-		return createToken(providerId, REGISTER, jwtProperties.registerTokenExpire());
+		return createToken(providerId, TokenType.REGISTER, jwtProperties.registerTokenExpire());
 	}
 
-	private String createToken(String subject, String type, long validityInMilliseconds) {
+	private String createToken(String subject, TokenType type, long validityInMilliseconds) {
 		Date now = new Date();
 		Date validity = new Date(now.getTime() + validityInMilliseconds);
 
 		return Jwts.builder()
 			.subject(subject)
-			.claim(TYPE_CLAIM, type)
+			.claim(TYPE_CLAIM, type.name())
 			.issuedAt(now)
 			.expiration(validity)
 			.signWith(key)
 			.compact();
 	}
 
-	public void validateToken(String token) {
-		parseClaims(token);
-	}
-
-	public void validateRefreshToken(String token) {
-		validateTokenWithType(token, REFRESH);
-	}
-
-	public void validateRegisterToken(String token) {
-		validateTokenWithType(token, REGISTER);
-	}
-
-	private void validateTokenWithType(String token, String expectedType) {
+	/**
+	 * 토큰 유효성 및 타입 검증을 수행합니다.
+	 *
+	 * @param token 검증할 토큰
+	 * @param expectedType 예상되는 토큰 타입
+	 * @throws JwtException 만료, 서명 불일치 등 JWT 자체 오류
+	 * @throws BusinessException 토큰 타입이 일치하지 않는 경우
+	 */
+	public void validateToken(String token, TokenType expectedType) {
 		Claims claims = parseClaims(token);
 		String type = claims.get(TYPE_CLAIM, String.class);
-		if (type == null || !type.equals(expectedType)) {
+		if (type == null || !type.equals(expectedType.name())) {
 			throw new BusinessException(ErrorCode.INVALID_TOKEN);
 		}
+	}
+
+	/**
+	 * Access Token 전용 검증 메서드
+	 */
+	public void validateAccessToken(String token) {
+		validateToken(token, TokenType.ACCESS);
+	}
+
+	/**
+	 * Refresh Token 전용 검증 메서드
+	 */
+	public void validateRefreshToken(String token) {
+		validateToken(token, TokenType.REFRESH);
+	}
+
+	/**
+	 * Register Token 전용 검증 메서드
+	 */
+	public void validateRegisterToken(String token) {
+		validateToken(token, TokenType.REGISTER);
 	}
 
 	public String getPayload(String token) {

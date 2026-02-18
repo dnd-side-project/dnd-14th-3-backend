@@ -59,7 +59,7 @@ class JwtTokenProviderTest {
 		String token = jwtTokenProvider.createAccessToken(1L);
 
 		// when & then
-		assertThatCode(() -> jwtTokenProvider.validateToken(token))
+		assertThatCode(() -> jwtTokenProvider.validateAccessToken(token))
 			.doesNotThrowAnyException();
 	}
 
@@ -76,7 +76,7 @@ class JwtTokenProviderTest {
 		String token = expiredProvider.createAccessToken(1L);
 
 		// when & then
-		assertThatThrownBy(() -> expiredProvider.validateToken(token))
+		assertThatThrownBy(() -> expiredProvider.validateAccessToken(token))
 			.isInstanceOf(io.jsonwebtoken.JwtException.class);
 	}
 
@@ -88,7 +88,7 @@ class JwtTokenProviderTest {
 		String invalidToken = token + "wrong";
 
 		// when & then
-		assertThatThrownBy(() -> jwtTokenProvider.validateToken(invalidToken))
+		assertThatThrownBy(() -> jwtTokenProvider.validateAccessToken(invalidToken))
 			.isInstanceOf(io.jsonwebtoken.JwtException.class);
 	}
 }
