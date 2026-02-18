@@ -1,7 +1,5 @@
 package com.dnd.jjigeojulge.user.domain;
 
-import com.dnd.jjigeojulge.user.domain.PhotoStyle;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;

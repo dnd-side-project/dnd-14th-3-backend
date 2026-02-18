@@ -5,7 +5,6 @@ import java.time.Duration;
 
 import org.springframework.boot.http.client.ClientHttpRequestFactoryBuilder;
 import org.springframework.boot.http.client.ClientHttpRequestFactorySettings;
-
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -40,11 +39,13 @@ public class KakaoClient implements OAuthClient {
 		this.restClient = RestClient.builder()
 			.requestFactory(ClientHttpRequestFactoryBuilder.httpComponents().build(settings))
 			.defaultStatusHandler(HttpStatusCode::is4xxClientError, (request, response) -> {
-				log.error("Kakao Client Error: {} - {}", response.getStatusCode(), new String(response.getBody().readAllBytes(), StandardCharsets.UTF_8));
+				log.error("Kakao Client Error: {} - {}", response.getStatusCode(),
+					new String(response.getBody().readAllBytes(), StandardCharsets.UTF_8));
 				throw new InvalidOAuthRequestException();
 			})
 			.defaultStatusHandler(HttpStatusCode::is5xxServerError, (request, response) -> {
-				log.error("Kakao Server Error: {} - {}", response.getStatusCode(), new String(response.getBody().readAllBytes(), StandardCharsets.UTF_8));
+				log.error("Kakao Server Error: {} - {}", response.getStatusCode(),
+					new String(response.getBody().readAllBytes(), StandardCharsets.UTF_8));
 				throw new OAuthServerException();
 			})
 			.build();

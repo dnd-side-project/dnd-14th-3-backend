@@ -4,11 +4,10 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-
-import com.dnd.jjigeojulge.user.domain.User;
-
 import org.springframework.data.repository.query.Param;
+
 import com.dnd.jjigeojulge.global.common.enums.OAuthProvider;
+import com.dnd.jjigeojulge.user.domain.User;
 
 public interface UserRepository extends JpaRepository<User, Long> {
 	boolean existsByNickname(String nickname);
