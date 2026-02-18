@@ -135,9 +135,9 @@ public interface AuthApi {
 		@Valid @RequestBody SignupRequest request
 	);
 
-	@Operation(summary = "토큰 재발급", description = "Refresh Token으로 Access Token을 재발급합니다.")
+	@Operation(summary = "토큰 재발급", description = "Refresh Token으로 Access Token을 재발급합니다. (Bearer 토큰 형식)")
 	@PostMapping("/refresh")
 	ResponseEntity<ApiResponse<TokenResponse>> refresh(
-		@Parameter(description = "Refresh Token", required = true) @RequestHeader("Refresh-Token") String refreshToken
+		@Parameter(description = "Refresh Token (Bearer ...)", required = true) @RequestHeader("Authorization") String refreshToken
 	);
 }

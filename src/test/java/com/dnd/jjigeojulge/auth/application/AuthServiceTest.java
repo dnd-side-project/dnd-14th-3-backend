@@ -154,7 +154,7 @@ class AuthServiceTest {
 	}
 
 	@Test
-	@DisplayName("토큰 재발급 - 리프레시 토큰이 유효하면 액세스 토큰을 재발급한다.")
+	@DisplayName("토큰 재발급 - 리프레시 토큰이 유효하면 액세스 토큰과 리프레시 토큰을 모두 재발급한다.")
 	void refreshSuccess() {
 		// given
 		String refreshToken = "valid_refresh_token";
@@ -163,12 +163,13 @@ class AuthServiceTest {
 		willDoNothing().given(jwtTokenProvider).validateToken(refreshToken);
 		given(jwtTokenProvider.getPayload(refreshToken)).willReturn(userId);
 		given(jwtTokenProvider.createAccessToken(1L)).willReturn("new_access");
+		given(jwtTokenProvider.createRefreshToken(1L)).willReturn("new_refresh");
 
 		// when
 		AuthResult result = authService.refresh(refreshToken);
 
 		// then
 		assertThat(result.accessToken()).isEqualTo("new_access");
-		assertThat(result.refreshToken()).isEqualTo(refreshToken); // 리프레시는 그대로 반환
+		assertThat(result.refreshToken()).isEqualTo("new_refresh"); // Rotation 확인
 	}
 }

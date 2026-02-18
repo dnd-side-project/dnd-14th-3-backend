@@ -57,7 +57,11 @@ public class AuthController implements AuthApi {
 
 	@Override
 	public ResponseEntity<ApiResponse<TokenResponse>> refresh(String refreshToken) {
-		AuthResult result = authService.refresh(refreshToken);
+		String token = refreshToken;
+		if (refreshToken.startsWith("Bearer ")) {
+			token = refreshToken.substring(7);
+		}
+		AuthResult result = authService.refresh(token);
 		return ResponseEntity.ok(ApiResponse.success(
 			"토큰 재발급 성공",
 			TokenResponse.of(result.accessToken(), result.refreshToken())

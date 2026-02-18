@@ -83,7 +83,8 @@ public class AuthService {
 		String userId = jwtTokenProvider.getPayload(refreshToken);
 
 		String newAccessToken = jwtTokenProvider.createAccessToken(Long.parseLong(userId));
-		// Refresh Token Rotation이 필요하다면 여기서 새로 발급
-		return AuthResult.success(newAccessToken, refreshToken);
+		String newRefreshToken = jwtTokenProvider.createRefreshToken(Long.parseLong(userId));
+
+		return AuthResult.success(newAccessToken, newRefreshToken);
 	}
 }
