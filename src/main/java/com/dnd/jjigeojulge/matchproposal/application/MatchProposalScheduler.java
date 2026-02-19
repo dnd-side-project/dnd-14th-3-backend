@@ -6,7 +6,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.dnd.jjigeojulge.global.common.dto.GeoPoint;
-import com.dnd.jjigeojulge.matchproposal.data.MatchProposalDto;
 import com.dnd.jjigeojulge.matchproposal.infra.MatchGeoQueueRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -73,8 +72,7 @@ public class MatchProposalScheduler {
 			}
 
 			// 페어 설정 플로우 진행
-			// 3. 이벤트를 발송해 sse 메시지를 전송할 수 있도록 한다.
-			MatchProposalDto proposalDto = matchProposalService.createProposalAndDequeue(userId, otherId);
+			matchProposalService.createProposalAndDequeue(userId, otherId);
 			return;
 		}
 	}

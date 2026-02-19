@@ -3,9 +3,11 @@ package com.dnd.jjigeojulge.matchproposal.application;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.dnd.jjigeojulge.event.MatchProposalCreatedEvent;
 import com.dnd.jjigeojulge.matchproposal.data.MatchProposalDto;
 import com.dnd.jjigeojulge.matchproposal.domain.MatchProposal;
 import com.dnd.jjigeojulge.matchproposal.domain.MatchProposalStatus;
@@ -20,6 +22,7 @@ public class MatchProposalService {
 
 	private final MatchProposalRepository matchProposalRepository;
 	private final MatchGeoQueueRepository queueRepository;
+	private final ApplicationEventPublisher eventPublisher;
 
 	@Transactional
 	public MatchProposalDto createProposalAndDequeue(Long userAId, Long userBId) {
@@ -30,7 +33,9 @@ public class MatchProposalService {
 		queueRepository.removeWaitingUser(userAId);
 		queueRepository.removeWaitingUser(userBId);
 
-		return toDto(saved);
+		MatchProposalDto dto = toDto(saved);
+		eventPublisher.publishEvent(new MatchProposalCreatedEvent(dto));
+		return dto;
 	}
 
 	@Transactional(readOnly = true)

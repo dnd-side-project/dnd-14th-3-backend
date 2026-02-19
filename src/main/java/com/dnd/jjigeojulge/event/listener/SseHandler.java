@@ -1,5 +1,7 @@
 package com.dnd.jjigeojulge.event.listener;
 
+import java.util.Set;
+
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
@@ -20,8 +22,9 @@ public class SseHandler {
 
 	@TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
 	public void handle(MatchProposalCreatedEvent event) {
-		
-		SseMessage sseMessage = SseMessage.create(1L, "proposal", null);
+
+		Set<Long> receiverIds = Set.of(event.matchProposalDto().userAId(), event.matchProposalDto().userBId());
+		SseMessage sseMessage = SseMessage.create(receiverIds, "proposal", event.matchProposalDto());
 		handleMessage(sseMessage);
 	}
 
