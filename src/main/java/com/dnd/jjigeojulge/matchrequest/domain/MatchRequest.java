@@ -60,4 +60,8 @@ public class MatchRequest extends BaseUpdatableEntity {
 		this.requestMessage = requestMessage;
 		this.user = user;
 	}
+
+	public void cancel() {
+		this.status = MatchRequestStatus.CANCELLED;
+	}
 }

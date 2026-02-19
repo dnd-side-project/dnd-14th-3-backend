@@ -61,45 +61,6 @@ public interface MatchRequestApi {
 		@Parameter(hidden = true) CustomUserDetails userDetails
 	);
 
-	@Operation(summary = "실시간 매칭 대기 취소", description = """
-		진행 중인 실시간 매칭 대기(요청)를 취소합니다.
-		
-		- 대기열에서 제거됩니다.
-		- 이미 `MATCHED`, `EXPIRED`, `CANCELLED` 상태라면 취소가 거부될 수 있습니다.
-		""")
-	@ApiResponses(value = {
-		@io.swagger.v3.oas.annotations.responses.ApiResponse(
-			responseCode = "204", description = "매칭 대기 취소 성공"
-		),
-		@io.swagger.v3.oas.annotations.responses.ApiResponse(
-			responseCode = "404", description = "매칭 요청을 찾을 수 없음.",
-			content = @Content(schema = @Schema(implementation = ApiResponse.class),
-				examples = @ExampleObject(value = """
-					{
-					  "success": false,
-					  "message": "매칭 요청을 찾을 수 없습니다.",
-					  "code": "MATCH_REQUEST_NOT_FOUND",
-					  "data": null
-					}
-					"""))
-		),
-		@io.swagger.v3.oas.annotations.responses.ApiResponse(
-			responseCode = "409", description = "취소 불가 상태",
-			content = @Content(schema = @Schema(implementation = ApiResponse.class),
-				examples = @ExampleObject(value = """
-					{
-					  "success": false,
-					  "message": "현재 상태에서는 취소할 수 없습니다.",
-					  "code": "MATCH_REQUEST_CANCEL_NOT_ALLOWED",
-					  "data": null
-					}
-					"""))
-		)
-	})
-	ResponseEntity<Void> cancel(
-		@Parameter(description = "매칭 요청 ID", example = "12", required = true) Long matchRequestId
-	);
-
 	@Operation(summary = "실시간 매칭 대기 상태 조회", description = """
 		매칭 대기(요청)의 현재 상태를 조회합니다.
 		
@@ -129,4 +90,29 @@ public interface MatchRequestApi {
 		@Parameter(description = "매칭 요청 ID", example = "12", required = true)
 		Long matchRequestId
 	);
+
+	@Operation(summary = "실시간 매칭 대기 취소", description = """
+		내 진행 중인 실시간 매칭 대기(요청)를 취소합니다.
+		
+		- 대기열에서 제거됩니다.
+		- 이미 취소되었거나 대기 중인 요청이 없더라도 멱등하게 성공(204) 처리할 수 있습니다.
+		""")
+	@ApiResponses(value = {
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(
+			responseCode = "204", description = "매칭 대기 취소 성공"
+		),
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(
+			responseCode = "409", description = "취소 불가 상태",
+			content = @Content(schema = @Schema(implementation = ApiResponse.class),
+				examples = @ExampleObject(value = """
+					{
+					  "success": false,
+					  "message": "현재 상태에서는 취소할 수 없습니다.",
+					  "code": "MATCH_REQUEST_CANCEL_NOT_ALLOWED",
+					  "data": null
+					}
+					"""))
+		)
+	})
+	ResponseEntity<Void> cancel(@Parameter(hidden = true) CustomUserDetails userDetails);
 }

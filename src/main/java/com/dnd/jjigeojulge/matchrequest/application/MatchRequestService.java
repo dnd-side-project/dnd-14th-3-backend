@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.dnd.jjigeojulge.global.common.dto.GeoPoint;
+import com.dnd.jjigeojulge.matchproposal.infra.MatchGeoQueueRepository;
 import com.dnd.jjigeojulge.matchrequest.domain.MatchRequest;
 import com.dnd.jjigeojulge.matchrequest.domain.MatchRequestStatus;
 import com.dnd.jjigeojulge.matchrequest.infra.MatchRequestRepository;
@@ -25,6 +26,7 @@ public class MatchRequestService {
 
 	private final MatchRequestRepository matchRequestRepository;
 	private final UserRepository userRepository;
+	private final MatchGeoQueueRepository matchGeoQueueRepository;
 
 	@Transactional
 	public MatchRequestDto create(Long userId, MatchRequestCreateRequest request) {
@@ -54,6 +56,8 @@ public class MatchRequestService {
 			.build();
 
 		MatchRequest saved = matchRequestRepository.save(matchRequest);
+		// TODO 트랜잭션 롤백 시 레디스도 롤백 되지 않는 부분 문제 해결
+		matchGeoQueueRepository.addWaitingUser(userId, location);
 		return toDto(saved);
 	}
 
@@ -64,10 +68,14 @@ public class MatchRequestService {
 		return null;
 	}
 
-	// preAuthorize 필요 + 어떻게 삭제할 것인가?
 	@Transactional
-	public void cancel() {
-
+	public void cancel(Long userId) {
+		matchRequestRepository.findByUserIdAndStatus(userId, MatchRequestStatus.WAITING)
+			.ifPresent(matchRequest -> {
+				matchRequest.cancel();
+				matchGeoQueueRepository.removeWaitingUser(userId);
+				log.info("MatchRequest cancelled. userId={}, matchRequestId={}", userId, matchRequest.getId());
+			});
 	}
 
 	private static MatchRequestDto toDto(MatchRequest saved) {
