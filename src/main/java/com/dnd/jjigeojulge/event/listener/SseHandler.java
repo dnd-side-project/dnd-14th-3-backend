@@ -7,6 +7,7 @@ import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 import com.dnd.jjigeojulge.event.MatchProposalCreatedEvent;
+import com.dnd.jjigeojulge.matchsession.data.MatchSessionDto;
 import com.dnd.jjigeojulge.sse.SseMessage;
 import com.dnd.jjigeojulge.sse.SseService;
 
@@ -22,9 +23,16 @@ public class SseHandler {
 
 	@TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
 	public void handle(MatchProposalCreatedEvent event) {
-
 		Set<Long> receiverIds = Set.of(event.matchProposalDto().userAId(), event.matchProposalDto().userBId());
-		SseMessage sseMessage = SseMessage.create(receiverIds, "proposal", event.matchProposalDto());
+		SseMessage sseMessage = SseMessage.create(receiverIds, "match.proposal", event.matchProposalDto());
+		handleMessage(sseMessage);
+	}
+
+	@TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+	public void handle(MatchConfirmedEvent event) {
+		MatchSessionDto dto = event.matchSessionDto();
+		Set<Long> receiverIds = Set.of(dto.userAId(), dto.userBId());
+		SseMessage sseMessage = SseMessage.create(receiverIds, "match.session", event.matchSessionDto());
 		handleMessage(sseMessage);
 	}
 

@@ -3,7 +3,10 @@ package com.dnd.jjigeojulge.global.common.dto;
 import java.util.List;
 
 import com.dnd.jjigeojulge.user.domain.Gender;
+import com.dnd.jjigeojulge.user.domain.PhotoStyle;
 import com.dnd.jjigeojulge.user.domain.StyleName;
+import com.dnd.jjigeojulge.user.domain.User;
+import com.dnd.jjigeojulge.user.domain.UserPhotoStyle;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -27,4 +30,18 @@ public record AuthorDto(
 	@Schema(description = "작성자 선호 사진 스타일 목록", example = "[\"FULL_BODY\", \"PROP_USAGE\"]")
 	List<StyleName> photoStyles
 ) {
+
+	public static AuthorDto from(User user) {
+		return new AuthorDto(
+			user.getId(),
+			user.getNickname(),
+			user.getGender(),
+			user.getProfileImageUrl(),
+			null,
+			user.getPhotoStyles().stream()
+				.map(UserPhotoStyle::getPhotoStyle)
+				.map(PhotoStyle::getName)
+				.toList()
+		);
+	}
 }

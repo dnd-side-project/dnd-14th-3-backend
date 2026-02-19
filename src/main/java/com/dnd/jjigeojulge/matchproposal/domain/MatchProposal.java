@@ -1,6 +1,7 @@
 package com.dnd.jjigeojulge.matchproposal.domain;
 
 import com.dnd.jjigeojulge.global.common.entity.BaseUpdatableEntity;
+import com.dnd.jjigeojulge.matchproposal.exception.MatchProposalInvalidException;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -53,24 +54,30 @@ public class MatchProposal extends BaseUpdatableEntity {
 		return new MatchProposal(userAId, userBId);
 	}
 
-	public void acceptByA() {
-		this.aDecision = MatchDecisionStatus.ACCEPTED;
+	public void accept(Long userId) {
+		if (userId.equals(userAId)) {
+			this.aDecision = MatchDecisionStatus.ACCEPTED;
+		} else if (userId.equals(userBId)) {
+			this.bDecision = MatchDecisionStatus.ACCEPTED;
+		} else {
+			throw new MatchProposalInvalidException();
+		}
 		updateFinalStatusIfDecided();
 	}
 
-	public void rejectByA() {
-		this.aDecision = MatchDecisionStatus.REJECTED;
+	public void reject(Long userId) {
+		if (userId.equals(userAId)) {
+			this.aDecision = MatchDecisionStatus.REJECTED;
+		} else if (userId.equals(userBId)) {
+			this.bDecision = MatchDecisionStatus.REJECTED;
+		} else {
+			throw new MatchProposalInvalidException();
+		}
 		this.status = MatchProposalStatus.REJECTED;
 	}
 
-	public void acceptByB() {
-		this.bDecision = MatchDecisionStatus.ACCEPTED;
-		updateFinalStatusIfDecided();
-	}
-
-	public void rejectByB() {
-		this.bDecision = MatchDecisionStatus.REJECTED;
-		this.status = MatchProposalStatus.REJECTED;
+	public boolean isProposalAccepted() {
+		return this.status == MatchProposalStatus.ACCEPTED;
 	}
 
 	private void updateFinalStatusIfDecided() {

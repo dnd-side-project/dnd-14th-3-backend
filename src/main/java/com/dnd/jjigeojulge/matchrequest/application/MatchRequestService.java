@@ -13,7 +13,7 @@ import com.dnd.jjigeojulge.matchrequest.infra.MatchRequestRepository;
 import com.dnd.jjigeojulge.matchrequest.presentation.data.MatchRequestDto;
 import com.dnd.jjigeojulge.matchrequest.presentation.request.MatchRequestCreateRequest;
 import com.dnd.jjigeojulge.user.domain.User;
-import com.dnd.jjigeojulge.user.domain.exception.UserNotFoundException;
+import com.dnd.jjigeojulge.user.exception.UserNotFoundException;
 import com.dnd.jjigeojulge.user.infra.UserRepository;
 
 import lombok.RequiredArgsConstructor;

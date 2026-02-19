@@ -14,7 +14,7 @@ public enum ErrorCode {
 	VALIDATION_FAILED(HttpStatus.BAD_REQUEST, "요청 값 검증에 실패했습니다."),
 	CONSTRAINT_VIOLATION(HttpStatus.BAD_REQUEST, "요청 값이 제약 조건을 위반했습니다."),
 	MISSING_PARAMETER(HttpStatus.BAD_REQUEST, "필수 요청 파라미터가 누락되었습니다."),
-
+	INVALID_MATCH_PARTICIPANT(HttpStatus.BAD_REQUEST, "해당 매칭 제안에 참여한 유저가 아닙니다."),
 	INVALID_PROFILE_REQUEST(HttpStatus.BAD_REQUEST, "요청한 프로필 정보가 올바르지 않습니다."),
 	INVALID_PHOTO_STYLE(HttpStatus.BAD_REQUEST, "요청한 사진 스타일이 올바르지 않습니다."),
 	INVALID_OAUTH_REQUEST(HttpStatus.BAD_REQUEST, "소셜 로그인 요청이 올바르지 않습니다."),
