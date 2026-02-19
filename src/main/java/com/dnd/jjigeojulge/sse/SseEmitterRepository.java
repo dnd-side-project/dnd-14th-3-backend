@@ -31,10 +31,6 @@ public class SseEmitterRepository {
 			.toList();
 	}
 
-	public Map<Long, List<SseEmitter>> findAllWithKeys() {
-		return data;
-	}
-
 	public void delete(Long receiverId, SseEmitter emitter) {
 		Objects.requireNonNull(receiverId, "receiverId must not be null");
 		Objects.requireNonNull(emitter, "emitter must not be null");
@@ -44,5 +40,13 @@ public class SseEmitterRepository {
 			list.remove(emitter);
 			return list.isEmpty() ? null : list; // null 반환 시 해당 key 제거(원자)
 		});
+	}
+
+	public List<SseEmitter> findAllByReceiverIdIn(Collection<Long> receiverIds) {
+		return data.entrySet().stream()
+			.filter(entry -> receiverIds.contains(entry.getKey()))
+			.map(Map.Entry::getValue)
+			.flatMap(Collection::stream)
+			.toList();
 	}
 }
