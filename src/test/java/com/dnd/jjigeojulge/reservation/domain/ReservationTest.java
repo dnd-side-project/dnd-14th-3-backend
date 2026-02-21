@@ -288,4 +288,30 @@ class ReservationTest {
 			.isThrownBy(() -> reservation.cancel(otherUserId))
 			.withMessage("예약 작성자 본인만 예약을 취소할 수 있습니다.");
 	}
+
+	@Test
+	@DisplayName("확정됨(CONFIRMED) 상태인 예약을 완료(COMPLETED) 처리할 수 있다.")
+	void complete_Reservation_Success() {
+		Reservation reservation = Reservation.create(
+			ownerInfo, scheduledTime, placeInfo, shootingDuration, requestMessage
+		);
+		reservation.changeStatusToConfirmed(); // 강제로 CONFIRMED 상태로 변경
+
+		reservation.complete();
+
+		assertThat(reservation.getStatus()).isEqualTo(ReservationStatus.COMPLETED);
+	}
+
+	@Test
+	@DisplayName("확정됨(CONFIRMED) 상태가 아닌 예약을 완료 처리하려고 하면 예외가 발생한다.")
+	void complete_Reservation_Fail_NotConfirmed() {
+		Reservation reservation = Reservation.create(
+			ownerInfo, scheduledTime, placeInfo, shootingDuration, requestMessage
+		);
+		// 상태가 RECRUITING
+
+		assertThatIllegalStateException()
+			.isThrownBy(() -> reservation.complete())
+			.withMessage("확정됨(CONFIRMED) 상태인 예약만 완료 처리할 수 있습니다.");
+	}
 }

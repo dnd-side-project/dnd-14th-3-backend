@@ -210,6 +210,13 @@ public class Reservation extends BaseUpdatableEntity {
 		}
 	}
 
+	public void complete() {
+		if (this.status != ReservationStatus.CONFIRMED) {
+			throw new IllegalStateException("확정됨(CONFIRMED) 상태인 예약만 완료 처리할 수 있습니다.");
+		}
+		this.status = ReservationStatus.COMPLETED;
+	}
+
 	// Commit 4에서 추가될 상태 변경 메서드들 (확정 처리 등)을 위한 보호된(protected/package-private) Setter성 메서드 대용
 	protected void changeStatusToConfirmed() {
 		this.status = ReservationStatus.CONFIRMED;
