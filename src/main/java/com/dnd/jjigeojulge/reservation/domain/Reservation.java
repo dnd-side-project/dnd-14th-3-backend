@@ -216,9 +216,4 @@ public class Reservation extends BaseUpdatableEntity {
 		}
 		this.status = ReservationStatus.COMPLETED;
 	}
-
-	// Commit 4에서 추가될 상태 변경 메서드들 (확정 처리 등)을 위한 보호된(protected/package-private) Setter성 메서드 대용
-	protected void changeStatusToConfirmed() {
-		this.status = ReservationStatus.CONFIRMED;
-	}
 }

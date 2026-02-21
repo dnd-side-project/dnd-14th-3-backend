@@ -33,6 +33,16 @@ class ReservationTest {
 		requestMessage = RequestMessage.from("사진 이쁘게 찍어주세요");
 	}
 
+	private void forceChangeStatus(Reservation reservation, ReservationStatus status) {
+		try {
+			java.lang.reflect.Field statusField = Reservation.class.getDeclaredField("status");
+			statusField.setAccessible(true);
+			statusField.set(reservation, status);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 	@Test
 	@DisplayName("올바른 정보로 예약(Reservation)을 생성하면 RECRUITING 상태가 된다.")
 	void create_Reservation_Success() {
@@ -124,7 +134,7 @@ class ReservationTest {
 		Reservation reservation = Reservation.create(
 			ownerInfo, scheduledTime, placeInfo, shootingDuration, requestMessage
 		);
-		reservation.changeStatusToConfirmed(); // 강제 상태 변경 (테스트용)
+		forceChangeStatus(reservation, ReservationStatus.CONFIRMED); // 강제 상태 변경 (테스트용)
 
 		// when & then
 		assertThatIllegalStateException()
@@ -267,7 +277,7 @@ class ReservationTest {
 		idField.set(applicant, 10L);
 		
 		reservation.apply(applicant);
-		reservation.changeStatusToConfirmed(); // 강제 상태 변경
+		forceChangeStatus(reservation, ReservationStatus.CONFIRMED); // 강제 상태 변경
 
 		assertThatIllegalStateException()
 			.isThrownBy(() -> reservation.acceptApplicant(ownerInfo.getUserId(), 10L))
@@ -295,7 +305,7 @@ class ReservationTest {
 		Reservation reservation = Reservation.create(
 			ownerInfo, scheduledTime, placeInfo, shootingDuration, requestMessage
 		);
-		reservation.changeStatusToConfirmed(); // 강제로 CONFIRMED 상태로 변경
+		forceChangeStatus(reservation, ReservationStatus.CONFIRMED); // 강제로 CONFIRMED 상태로 변경
 
 		reservation.complete();
 
