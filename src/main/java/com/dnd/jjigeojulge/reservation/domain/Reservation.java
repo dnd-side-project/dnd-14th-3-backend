@@ -1,24 +1,17 @@
 package com.dnd.jjigeojulge.reservation.domain;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.dnd.jjigeojulge.global.common.entity.BaseUpdatableEntity;
 import com.dnd.jjigeojulge.global.common.enums.ShootingDurationOption;
+import com.dnd.jjigeojulge.reservation.domain.vo.OwnerInfo;
 import com.dnd.jjigeojulge.reservation.domain.vo.PlaceInfo;
 import com.dnd.jjigeojulge.reservation.domain.vo.RequestMessage;
 import com.dnd.jjigeojulge.reservation.domain.vo.ScheduledTime;
-import com.dnd.jjigeojulge.user.domain.StyleName;
 
-import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -30,8 +23,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Reservation extends BaseUpdatableEntity {
 
-	@Column(name = "owner_id", nullable = false)
-	private Long ownerId;
+	@Embedded
+	private OwnerInfo ownerInfo;
 
 	@Embedded
 	private ScheduledTime scheduledTime;
@@ -46,61 +39,44 @@ public class Reservation extends BaseUpdatableEntity {
 	@Embedded
 	private RequestMessage requestMessage;
 
-	@ElementCollection(fetch = FetchType.LAZY)
-	@CollectionTable(name = "reservation_photo_style_snapshot", joinColumns = @JoinColumn(name = "reservation_id"))
-	@Enumerated(EnumType.STRING)
-	@Column(name = "style_name", nullable = false)
-	private List<StyleName> photoStyleSnapshot = new ArrayList<>();
-
 	@Enumerated(EnumType.STRING)
 	@Column(name = "status", nullable = false)
 	private ReservationStatus status;
 
 	private Reservation(
-		Long ownerId,
+		OwnerInfo ownerInfo,
 		ScheduledTime scheduledTime,
 		PlaceInfo placeInfo,
 		ShootingDurationOption shootingDuration,
 		RequestMessage requestMessage,
-		List<StyleName> photoStyleSnapshot,
 		ReservationStatus status
 	) {
-		this.ownerId = ownerId;
+		this.ownerInfo = ownerInfo;
 		this.scheduledTime = scheduledTime;
 		this.placeInfo = placeInfo;
 		this.shootingDuration = shootingDuration;
 		this.requestMessage = requestMessage;
-		this.photoStyleSnapshot = new ArrayList<>(photoStyleSnapshot);
 		this.status = status;
 	}
 
 	public static Reservation create(
-		Long ownerId,
+		OwnerInfo ownerInfo,
 		ScheduledTime scheduledTime,
 		PlaceInfo placeInfo,
 		ShootingDurationOption shootingDuration,
-		RequestMessage requestMessage,
-		List<StyleName> photoStyleSnapshot
+		RequestMessage requestMessage
 	) {
-		validateCreation(ownerId, photoStyleSnapshot);
+		if (ownerInfo == null) {
+			throw new IllegalArgumentException("작성자(Owner) 정보는 필수입니다.");
+		}
 		return new Reservation(
-			ownerId,
+			ownerInfo,
 			scheduledTime,
 			placeInfo,
 			shootingDuration,
 			requestMessage,
-			photoStyleSnapshot,
 			ReservationStatus.RECRUITING
 		);
-	}
-
-	private static void validateCreation(Long ownerId, List<StyleName> photoStyleSnapshot) {
-		if (ownerId == null) {
-			throw new IllegalArgumentException("작성자(Owner) ID는 필수입니다.");
-		}
-		if (photoStyleSnapshot == null || photoStyleSnapshot.isEmpty()) {
-			throw new IllegalArgumentException("촬영 유형 스냅샷은 최소 1개 이상 존재해야 합니다.");
-		}
 	}
 
 	public void update(
@@ -119,7 +95,7 @@ public class Reservation extends BaseUpdatableEntity {
 	}
 
 	public void cancel(Long requesterId) {
-		if (!this.ownerId.equals(requesterId)) {
+		if (!this.ownerInfo.getUserId().equals(requesterId)) {
 			throw new IllegalArgumentException("예약 작성자 본인만 예약을 취소할 수 있습니다.");
 		}
 		if (!this.status.isRecruiting()) {

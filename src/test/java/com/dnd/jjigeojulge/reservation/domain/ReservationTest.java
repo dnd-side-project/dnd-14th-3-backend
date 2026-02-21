@@ -10,6 +10,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import com.dnd.jjigeojulge.global.common.enums.ShootingDurationOption;
+import com.dnd.jjigeojulge.reservation.domain.vo.OwnerInfo;
 import com.dnd.jjigeojulge.reservation.domain.vo.PlaceInfo;
 import com.dnd.jjigeojulge.reservation.domain.vo.RequestMessage;
 import com.dnd.jjigeojulge.reservation.domain.vo.ScheduledTime;
@@ -17,22 +18,20 @@ import com.dnd.jjigeojulge.user.domain.StyleName;
 
 class ReservationTest {
 
-	private Long ownerId;
+	private OwnerInfo ownerInfo;
 	private ScheduledTime scheduledTime;
 	private PlaceInfo placeInfo;
 	private ShootingDurationOption shootingDuration;
 	private RequestMessage requestMessage;
-	private List<StyleName> photoStyleSnapshot;
 
 	@BeforeEach
 	void setUp() {
-		ownerId = 1L;
+		ownerInfo = OwnerInfo.of(1L, List.of(StyleName.SNS_UPLOAD, StyleName.FULL_BODY));
 		LocalDateTime future = LocalDateTime.now().plusDays(1).withMinute(30).withSecond(0).withNano(0);
 		scheduledTime = ScheduledTime.of(future, LocalDateTime.now());
 		placeInfo = PlaceInfo.of("강남역", 37.4979, 127.0276);
 		shootingDuration = ShootingDurationOption.TWENTY_MINUTES;
 		requestMessage = RequestMessage.from("사진 이쁘게 찍어주세요");
-		photoStyleSnapshot = List.of(StyleName.SNS_UPLOAD, StyleName.FULL_BODY);
 	}
 
 	@Test
@@ -40,33 +39,23 @@ class ReservationTest {
 	void create_Reservation_Success() {
 		// when
 		Reservation reservation = Reservation.create(
-			ownerId, scheduledTime, placeInfo, shootingDuration, requestMessage, photoStyleSnapshot
+			ownerInfo, scheduledTime, placeInfo, shootingDuration, requestMessage
 		);
 
 		// then
 		assertThat(reservation.getStatus()).isEqualTo(ReservationStatus.RECRUITING);
-		assertThat(reservation.getOwnerId()).isEqualTo(ownerId);
-		assertThat(reservation.getPhotoStyleSnapshot()).containsExactly(StyleName.SNS_UPLOAD, StyleName.FULL_BODY);
+		assertThat(reservation.getOwnerInfo().getUserId()).isEqualTo(1L);
+		assertThat(reservation.getOwnerInfo().getPhotoStyleSnapshot()).containsExactly(StyleName.SNS_UPLOAD, StyleName.FULL_BODY);
 	}
 
 	@Test
-	@DisplayName("ownerId가 null이면 예약 생성 시 예외가 발생한다.")
-	void create_Reservation_Fail_NullOwnerId() {
+	@DisplayName("ownerInfo가 null이면 예약 생성 시 예외가 발생한다.")
+	void create_Reservation_Fail_NullOwnerInfo() {
 		assertThatIllegalArgumentException()
 			.isThrownBy(() -> Reservation.create(
-				null, scheduledTime, placeInfo, shootingDuration, requestMessage, photoStyleSnapshot
+				null, scheduledTime, placeInfo, shootingDuration, requestMessage
 			))
-			.withMessage("작성자(Owner) ID는 필수입니다.");
-	}
-
-	@Test
-	@DisplayName("촬영 유형 스냅샷이 비어있으면 예약 생성 시 예외가 발생한다.")
-	void create_Reservation_Fail_EmptyPhotoStyle() {
-		assertThatIllegalArgumentException()
-			.isThrownBy(() -> Reservation.create(
-				ownerId, scheduledTime, placeInfo, shootingDuration, requestMessage, List.of()
-			))
-			.withMessage("촬영 유형 스냅샷은 최소 1개 이상 존재해야 합니다.");
+			.withMessage("작성자(Owner) 정보는 필수입니다.");
 	}
 
 	@Test
@@ -74,7 +63,7 @@ class ReservationTest {
 	void update_Reservation_Success() {
 		// given
 		Reservation reservation = Reservation.create(
-			ownerId, scheduledTime, placeInfo, shootingDuration, requestMessage, photoStyleSnapshot
+			ownerInfo, scheduledTime, placeInfo, shootingDuration, requestMessage
 		);
 		PlaceInfo newPlace = PlaceInfo.of("홍대입구역", 37.5568, 126.9242);
 		ShootingDurationOption newDuration = ShootingDurationOption.THIRTY_PLUS_MINUTES;
@@ -92,7 +81,7 @@ class ReservationTest {
 	void update_Reservation_Fail_NotRecruiting() {
 		// given
 		Reservation reservation = Reservation.create(
-			ownerId, scheduledTime, placeInfo, shootingDuration, requestMessage, photoStyleSnapshot
+			ownerInfo, scheduledTime, placeInfo, shootingDuration, requestMessage
 		);
 		reservation.changeStatusToConfirmed(); // 강제 상태 변경 (테스트용)
 
@@ -107,11 +96,11 @@ class ReservationTest {
 	void cancel_Reservation_Success() {
 		// given
 		Reservation reservation = Reservation.create(
-			ownerId, scheduledTime, placeInfo, shootingDuration, requestMessage, photoStyleSnapshot
+			ownerInfo, scheduledTime, placeInfo, shootingDuration, requestMessage
 		);
 
 		// when
-		reservation.cancel(ownerId);
+		reservation.cancel(ownerInfo.getUserId());
 
 		// then
 		assertThat(reservation.getStatus()).isEqualTo(ReservationStatus.CANCELED);
@@ -122,7 +111,7 @@ class ReservationTest {
 	void cancel_Reservation_Fail_NotOwner() {
 		// given
 		Reservation reservation = Reservation.create(
-			ownerId, scheduledTime, placeInfo, shootingDuration, requestMessage, photoStyleSnapshot
+			ownerInfo, scheduledTime, placeInfo, shootingDuration, requestMessage
 		);
 		Long otherUserId = 999L;
 
