@@ -14,7 +14,6 @@ import com.dnd.jjigeojulge.reservation.domain.vo.OwnerInfo;
 import com.dnd.jjigeojulge.reservation.domain.vo.PlaceInfo;
 import com.dnd.jjigeojulge.reservation.domain.vo.RequestMessage;
 import com.dnd.jjigeojulge.reservation.domain.vo.ScheduledTime;
-import com.dnd.jjigeojulge.user.domain.StyleName;
 
 class ReservationTest {
 
@@ -26,7 +25,7 @@ class ReservationTest {
 
 	@BeforeEach
 	void setUp() {
-		ownerInfo = OwnerInfo.of(1L, List.of(StyleName.SNS_UPLOAD, StyleName.FULL_BODY));
+		ownerInfo = OwnerInfo.of(1L, List.of("SNS_UPLOAD", "FULL_BODY"));
 		LocalDateTime future = LocalDateTime.now().plusDays(1).withMinute(30).withSecond(0).withNano(0);
 		scheduledTime = ScheduledTime.of(future, LocalDateTime.now());
 		placeInfo = PlaceInfo.of("강남역", 37.4979, 127.0276);
@@ -45,7 +44,7 @@ class ReservationTest {
 		// then
 		assertThat(reservation.getStatus()).isEqualTo(ReservationStatus.RECRUITING);
 		assertThat(reservation.getOwnerInfo().getUserId()).isEqualTo(1L);
-		assertThat(reservation.getOwnerInfo().getPhotoStyleSnapshot()).containsExactly(StyleName.SNS_UPLOAD, StyleName.FULL_BODY);
+		assertThat(reservation.getOwnerInfo().getPhotoStyleSnapshot()).containsExactly("SNS_UPLOAD", "FULL_BODY");
 	}
 
 	@Test

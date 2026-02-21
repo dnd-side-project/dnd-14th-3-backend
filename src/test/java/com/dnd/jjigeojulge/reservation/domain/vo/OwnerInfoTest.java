@@ -7,8 +7,6 @@ import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import com.dnd.jjigeojulge.user.domain.StyleName;
-
 class OwnerInfoTest {
 
 	@Test
@@ -16,21 +14,21 @@ class OwnerInfoTest {
 	void create_Success() {
 		// given
 		Long userId = 1L;
-		List<StyleName> styles = List.of(StyleName.SNS_UPLOAD, StyleName.FULL_BODY);
+		List<String> styles = List.of("SNS_UPLOAD", "FULL_BODY");
 
 		// when
 		OwnerInfo ownerInfo = OwnerInfo.of(userId, styles);
 
 		// then
 		assertThat(ownerInfo.getUserId()).isEqualTo(userId);
-		assertThat(ownerInfo.getPhotoStyleSnapshot()).containsExactly(StyleName.SNS_UPLOAD, StyleName.FULL_BODY);
+		assertThat(ownerInfo.getPhotoStyleSnapshot()).containsExactly("SNS_UPLOAD", "FULL_BODY");
 	}
 
 	@Test
 	@DisplayName("사용자 ID가 null이면 예외가 발생한다")
 	void create_Fail_NullUserId() {
 		// given
-		List<StyleName> styles = List.of(StyleName.SNS_UPLOAD);
+		List<String> styles = List.of("SNS_UPLOAD");
 
 		// when & then
 		assertThatIllegalArgumentException()
