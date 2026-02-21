@@ -44,4 +44,8 @@ public class OwnerInfo {
 			throw new IllegalArgumentException("촬영 유형 스냅샷은 최소 1개 이상 존재해야 합니다.");
 		}
 	}
+
+	public boolean isOwner(Long userId) {
+		return this.userId.equals(userId);
+	}
 }
