@@ -17,6 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.dnd.jjigeojulge.global.common.enums.ShootingDurationOption;
 import com.dnd.jjigeojulge.reservation.application.dto.CreateReservationCommand;
+import com.dnd.jjigeojulge.reservation.application.dto.UpdateReservationCommand;
 import com.dnd.jjigeojulge.reservation.domain.Applicant;
 import com.dnd.jjigeojulge.reservation.domain.Reservation;
 import com.dnd.jjigeojulge.reservation.domain.repository.ReservationRepository;
@@ -54,12 +55,10 @@ class ReservationServiceTest {
                         "잘 부탁드려요"
                 );
 
-                // 유저 엔티티 준비 (Style: SNS_UPLOAD, FULL_BODY)
                 User user = User.create(null, "nickname", Gender.MALE, "image", Set.of(
                         new PhotoStyle(StyleName.SNS_UPLOAD),
                         new PhotoStyle(StyleName.FULL_BODY)
                 ));
-                // 리플렉션으로 ID 주입
                 setId(user, userId);
 
                 given(userRepository.findByIdWithPhotoStyles(userId)).willReturn(Optional.of(user));
@@ -73,6 +72,27 @@ class ReservationServiceTest {
                         return reservation.getOwnerInfo().getPhotoStyleSnapshot().containsAll(List.of("SNS_UPLOAD", "FULL_BODY")) &&
                                 reservation.getOwnerInfo().getUserId().equals(userId);
                 }));
+        }
+
+        @Test
+        @DisplayName("모집 중인 예약 정보를 수정한다.")
+        void updateReservation_Success() {
+                // given
+                Long reservationId = 1L;
+                Long ownerId = 10L;
+                UpdateReservationCommand command = new UpdateReservationCommand(
+                        reservationId, ownerId, "서울특별시", "홍대입구역", 37.5568, 126.9242,
+                        LocalDateTime.now().plusDays(2).withMinute(0).withSecond(0).withNano(0),
+                        ShootingDurationOption.THIRTY_PLUS_MINUTES, "메시지 수정"
+                );
+                Reservation reservation = mock(Reservation.class);
+                given(reservationRepository.findById(reservationId)).willReturn(Optional.of(reservation));
+
+                // when
+                reservationService.updateReservation(command);
+
+                // then
+                verify(reservation).update(eq(ownerId), any(), any(), eq(ShootingDurationOption.THIRTY_PLUS_MINUTES), any());
         }
 
         @Test
@@ -126,6 +146,21 @@ class ReservationServiceTest {
 
                 // then
                 verify(reservation).cancel(userId);
+        }
+
+        @Test
+        @DisplayName("확정된 일정을 완료 처리한다.")
+        void completeReservation_Success() {
+                // given
+                Long reservationId = 1L;
+                Reservation reservation = mock(Reservation.class);
+                given(reservationRepository.findById(reservationId)).willReturn(Optional.of(reservation));
+
+                // when
+                reservationService.completeReservation(reservationId);
+
+                // then
+                verify(reservation).complete();
         }
 
         private void setId(Object entity, Long id) {
