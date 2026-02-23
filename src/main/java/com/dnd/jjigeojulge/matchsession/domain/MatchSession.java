@@ -84,6 +84,9 @@ public class MatchSession extends BaseUpdatableEntity {
 	}
 
 	public void arrive(Long userId) {
+		if (this.status != MatchSessionStatus.ACTIVE) {
+			throw new IllegalStateException("활성 상태의 세션에서만 도착 처리가 가능합니다. 현재 상태: " + this.status);
+		}
 		if (userA.getId().equals(userId)) {
 			isArrivedA = true;
 		} else if (userB.getId().equals(userId)) {
@@ -98,6 +101,9 @@ public class MatchSession extends BaseUpdatableEntity {
 	}
 
 	public void end() {
+		if (this.status == MatchSessionStatus.ENDED) {
+			return;
+		}
 		this.status = MatchSessionStatus.ENDED;
 		this.endedAt = LocalDateTime.now();
 	}

@@ -15,6 +15,7 @@ public enum ErrorCode {
 	CONSTRAINT_VIOLATION(HttpStatus.BAD_REQUEST, "요청 값이 제약 조건을 위반했습니다."),
 	MISSING_PARAMETER(HttpStatus.BAD_REQUEST, "필수 요청 파라미터가 누락되었습니다."),
 	INVALID_MATCH_PARTICIPANT(HttpStatus.BAD_REQUEST, "해당 매칭 제안에 참여한 유저가 아닙니다."),
+	MATCH_PROPOSAL_ALREADY_PROCESSED(HttpStatus.BAD_REQUEST, "이미 처리된 매칭 제안입니다."),
 	INVALID_PROFILE_REQUEST(HttpStatus.BAD_REQUEST, "요청한 프로필 정보가 올바르지 않습니다."),
 	INVALID_PHOTO_STYLE(HttpStatus.BAD_REQUEST, "요청한 사진 스타일이 올바르지 않습니다."),
 	INVALID_OAUTH_REQUEST(HttpStatus.BAD_REQUEST, "소셜 로그인 요청이 올바르지 않습니다."),
@@ -28,6 +29,7 @@ public enum ErrorCode {
 	RESOURCE_NOT_FOUND(HttpStatus.NOT_FOUND, "요청한 리소스를 찾을 수 없습니다."),
 	USER_NOT_FOUND(HttpStatus.NOT_FOUND, "User를 찾을 수 없습니다."),
 	MATCH_PROPOSAL_NOT_FOUND(HttpStatus.NOT_FOUND, "매칭 제안을 찾을 수 없습니다."),
+	MATCH_REQUEST_NOT_FOUND(HttpStatus.NOT_FOUND, "매칭 요청을 찾을 수 없습니다."),
 
 	// ===== 405 Method Not Allowed =====
 	METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "지원하지 않는 HTTP 메서드입니다."),

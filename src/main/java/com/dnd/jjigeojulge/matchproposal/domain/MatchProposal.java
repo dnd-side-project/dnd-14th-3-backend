@@ -1,6 +1,7 @@
 package com.dnd.jjigeojulge.matchproposal.domain;
 
 import com.dnd.jjigeojulge.global.common.entity.BaseUpdatableEntity;
+import com.dnd.jjigeojulge.matchproposal.exception.MatchProposalAlreadyProcessedException;
 import com.dnd.jjigeojulge.matchproposal.exception.MatchProposalInvalidException;
 
 import jakarta.persistence.Column;
@@ -48,6 +49,9 @@ public class MatchProposal extends BaseUpdatableEntity {
 	}
 
 	public static MatchProposal create(Long userAId, Long userBId) {
+		if (userAId == null || userBId == null) {
+			throw new IllegalArgumentException("userAId and userBId must not be null");
+		}
 		if (userAId.equals(userBId)) {
 			throw new IllegalArgumentException("userAId and userBId must be different");
 		}
@@ -55,6 +59,9 @@ public class MatchProposal extends BaseUpdatableEntity {
 	}
 
 	public void accept(Long userId) {
+		if (this.status != MatchProposalStatus.PENDING) {
+			throw new MatchProposalAlreadyProcessedException();
+		}
 		if (userId.equals(userAId)) {
 			this.aDecision = MatchDecisionStatus.ACCEPTED;
 		} else if (userId.equals(userBId)) {
@@ -66,6 +73,9 @@ public class MatchProposal extends BaseUpdatableEntity {
 	}
 
 	public void reject(Long userId) {
+		if (this.status != MatchProposalStatus.PENDING) {
+			throw new MatchProposalAlreadyProcessedException();
+		}
 		if (userId.equals(userAId)) {
 			this.aDecision = MatchDecisionStatus.REJECTED;
 		} else if (userId.equals(userBId)) {

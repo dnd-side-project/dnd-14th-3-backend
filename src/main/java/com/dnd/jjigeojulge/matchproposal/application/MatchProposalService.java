@@ -17,6 +17,7 @@ import com.dnd.jjigeojulge.matchproposal.infra.MatchGeoQueueRepository;
 import com.dnd.jjigeojulge.matchproposal.infra.MatchProposalRepository;
 import com.dnd.jjigeojulge.matchrequest.domain.MatchRequest;
 import com.dnd.jjigeojulge.matchrequest.domain.MatchRequestStatus;
+import com.dnd.jjigeojulge.matchrequest.exception.MatchRequestNotFoundException;
 import com.dnd.jjigeojulge.matchrequest.infra.MatchRequestRepository;
 import com.dnd.jjigeojulge.matchsession.data.MatchSessionDto;
 import com.dnd.jjigeojulge.matchsession.domain.MatchSession;
@@ -80,7 +81,7 @@ public class MatchProposalService {
 
 			MatchRequest matchRequest = matchRequestRepository.findByUserIdAndStatus(userId,
 					MatchRequestStatus.WAITING)
-				.orElseThrow(() -> new RuntimeException("not found exception"));
+				.orElseThrow(MatchRequestNotFoundException::new);
 			MatchSession matchSession = MatchSession.create(userA, userB, matchRequest.getLatitude(),
 				matchRequest.getLongitude());
 			MatchSession saved = matchSessionRepository.save(matchSession);

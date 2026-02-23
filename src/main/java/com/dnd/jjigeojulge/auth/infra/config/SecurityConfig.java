@@ -44,6 +44,7 @@ public class SecurityConfig {
 					"/health",
 					"/swagger-ui/**",
 					"/v3/api-docs/**",
+					"/v3/api-docs.yaml",
 					"/api/v1/examples/**",
 					"/api/sse/**"  // 임시 등록
 				).permitAll()

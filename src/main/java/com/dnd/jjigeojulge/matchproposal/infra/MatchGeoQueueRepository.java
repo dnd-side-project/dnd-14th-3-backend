@@ -45,12 +45,13 @@ public class MatchGeoQueueRepository {
 	}
 
 	public List<Long> scanWaitingUsers(int limit) {
-		Set<String> members = redisTemplate.opsForSet().members(KEY_WAITING_USERS);
+		Set<String> members = redisTemplate.opsForSet().distinctRandomMembers(KEY_WAITING_USERS, limit);
 		if (members == null || members.isEmpty()) {
 			return List.of();
 		}
+
 		return members.stream()
-			.limit(limit)
+			.distinct()
 			.map(Long::valueOf)
 			.toList();
 	}
@@ -63,7 +64,9 @@ public class MatchGeoQueueRepository {
 		}
 		Point p = positions.get(0);
 		// Point.getX()=lon, getY()=lat
-		return Optional.of(new GeoPoint(p.getX(), p.getY()));
+		double longitude = p.getX();
+		double latitude = p.getY();
+		return Optional.of(new GeoPoint(latitude, longitude));
 	}
 
 	public List<Long> findNearBy(GeoPoint center, double radiusKm, int limit) {

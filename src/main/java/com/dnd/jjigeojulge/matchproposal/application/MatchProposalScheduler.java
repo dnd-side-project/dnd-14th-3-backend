@@ -62,7 +62,7 @@ public class MatchProposalScheduler {
 
 			// 상대가 이미 빠졌을 수도 있으니 최소 확인(좌표 존재 여부)
 			if (queueRepository.getLocation(otherId).isEmpty()) {
-				return;
+				continue;
 			}
 
 			// 오늘 취소 페어면 스킵하고 다음 후보 탐색

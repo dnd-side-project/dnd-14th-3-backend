@@ -7,6 +7,7 @@ import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 import com.dnd.jjigeojulge.event.MatchProposalCreatedEvent;
+import com.dnd.jjigeojulge.matchproposal.data.MatchProposalDto;
 import com.dnd.jjigeojulge.matchsession.data.MatchSessionDto;
 import com.dnd.jjigeojulge.sse.SseMessage;
 import com.dnd.jjigeojulge.sse.SseService;
@@ -23,8 +24,15 @@ public class SseHandler {
 
 	@TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
 	public void handle(MatchProposalCreatedEvent event) {
-		Set<Long> receiverIds = Set.of(event.matchProposalDto().userAId(), event.matchProposalDto().userBId());
-		SseMessage sseMessage = SseMessage.create(receiverIds, "match.proposal", event.matchProposalDto());
+		MatchProposalDto matchProposalDto = event.matchProposalDto();
+		Long userAId = matchProposalDto.userAId();
+		Long userBId = matchProposalDto.userBId();
+		if (userAId == null || userBId == null) {
+			log.warn("SSE 전송 실패: matchSession의 userAId 또는 userBId가 null입니다.");
+			return;
+		}
+		Set<Long> receiverIds = Set.of(userAId, userBId);
+		SseMessage sseMessage = SseMessage.create(receiverIds, "match.proposal", matchProposalDto);
 		handleMessage(sseMessage);
 	}
 
