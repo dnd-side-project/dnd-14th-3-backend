@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -47,7 +48,7 @@ class ReservationServiceTest {
                         "강남역",
                         37.4979,
                         127.0276,
-                        LocalDateTime.now().plusDays(1),
+                        LocalDateTime.now().plusDays(1).withMinute(30).withSecond(0).withNano(0),
                         ShootingDurationOption.TWENTY_MINUTES,
                         "잘 부탁드려요"
                 );
