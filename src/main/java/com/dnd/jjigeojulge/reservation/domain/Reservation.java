@@ -50,9 +50,6 @@ public class Reservation extends BaseUpdatableEntity {
         @OneToMany(mappedBy = "reservation", cascade = jakarta.persistence.CascadeType.ALL, orphanRemoval = true)
         private List<Applicant> applicants = new ArrayList<>();
 
-        @OneToMany(mappedBy = "reservation", cascade = jakarta.persistence.CascadeType.ALL, orphanRemoval = true)
-        private List<ReservationComment> comments = new ArrayList<>();
-
         private Reservation(
                 OwnerInfo ownerInfo,
                 ScheduledTime scheduledTime,
