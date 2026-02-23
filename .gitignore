@@ -52,4 +52,3 @@ nginx/ssl/*.pem
 # Local development
 docker-compose-local.yml
 .env
-data/
