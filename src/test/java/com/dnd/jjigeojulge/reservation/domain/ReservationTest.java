@@ -26,13 +26,12 @@ class ReservationTest {
 	@BeforeEach
 	void setUp() {
 		ownerInfo = OwnerInfo.of(1L, List.of("SNS_UPLOAD", "FULL_BODY"));
-		LocalDateTime future = LocalDateTime.now().plusDays(1).withMinute(30).withSecond(0).withNano(0);
-		scheduledTime = ScheduledTime.of(future, LocalDateTime.now());
-		placeInfo = PlaceInfo.of("강남역", 37.4979, 127.0276);
-		shootingDuration = ShootingDurationOption.TWENTY_MINUTES;
-		requestMessage = RequestMessage.from("사진 이쁘게 찍어주세요");
-	}
-
+		                LocalDateTime future = LocalDateTime.now().plusDays(1).withMinute(30).withSecond(0).withNano(0);
+		                scheduledTime = ScheduledTime.of(future, LocalDateTime.now());
+		                placeInfo = PlaceInfo.of("서울특별시", "강남역", 37.4979, 127.0276);
+		                shootingDuration = ShootingDurationOption.TWENTY_MINUTES;
+		                requestMessage = RequestMessage.from("사진 이쁘게 찍어주세요");
+		        }
 	private void forceChangeStatus(Reservation reservation, ReservationStatus status) {
 		try {
 			java.lang.reflect.Field statusField = Reservation.class.getDeclaredField("status");
@@ -101,12 +100,11 @@ class ReservationTest {
 	@DisplayName("모집 중(RECRUITING)일 때 작성자 본인이 예약 정보를 수정할 수 있다.")
 	void update_Reservation_Success() {
 		// given
-		Reservation reservation = Reservation.create(
-			ownerInfo, scheduledTime, placeInfo, shootingDuration, requestMessage
-		);
-		PlaceInfo newPlace = PlaceInfo.of("홍대입구역", 37.5568, 126.9242);
-		ShootingDurationOption newDuration = ShootingDurationOption.THIRTY_PLUS_MINUTES;
-
+		                Reservation reservation = Reservation.create(
+		                        ownerInfo, scheduledTime, placeInfo, shootingDuration, requestMessage
+		                );
+		                PlaceInfo newPlace = PlaceInfo.of("서울특별시", "홍대입구역", 37.5568, 126.9242);
+		                ShootingDurationOption newDuration = ShootingDurationOption.THIRTY_PLUS_MINUTES;
 		// when
 		reservation.update(ownerInfo.getUserId(), scheduledTime, newPlace, newDuration, requestMessage);
 

@@ -36,7 +36,7 @@ class ReservationRepositoryTest {
 		OwnerInfo ownerInfo = OwnerInfo.of(1L, List.of("SNS_UPLOAD", "FULL_BODY"));
 		LocalDateTime future = LocalDateTime.now().plusDays(1).withMinute(30).withSecond(0).withNano(0);
 		ScheduledTime scheduledTime = ScheduledTime.of(future, LocalDateTime.now());
-		PlaceInfo placeInfo = PlaceInfo.of("강남역", 37.4979, 127.0276);
+		PlaceInfo placeInfo = PlaceInfo.of("서울특별시", "강남역", 37.4979, 127.0276);
 		ShootingDurationOption shootingDuration = ShootingDurationOption.TWENTY_MINUTES;
 		RequestMessage requestMessage = RequestMessage.from("사진 이쁘게 찍어주세요");
 
@@ -60,7 +60,7 @@ class ReservationRepositoryTest {
 		OwnerInfo ownerInfo = OwnerInfo.of(1L, List.of("SNS_UPLOAD"));
 		LocalDateTime future = LocalDateTime.now().plusDays(1).withMinute(30).withSecond(0).withNano(0);
 		ScheduledTime scheduledTime = ScheduledTime.of(future, LocalDateTime.now());
-		PlaceInfo placeInfo = PlaceInfo.of("강남역", 37.4979, 127.0276);
+		PlaceInfo placeInfo = PlaceInfo.of("서울특별시", "강남역", 37.4979, 127.0276);
 		Reservation reservation = Reservation.create(ownerInfo, scheduledTime, placeInfo, ShootingDurationOption.TEN_MINUTES, RequestMessage.from(""));
 
 		Applicant applicant1 = Applicant.create(reservation, 2L);
