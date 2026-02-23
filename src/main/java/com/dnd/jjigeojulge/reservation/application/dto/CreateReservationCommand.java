@@ -6,7 +6,7 @@ import com.dnd.jjigeojulge.global.common.enums.ShootingDurationOption;
 
 public record CreateReservationCommand(
         Long userId,
-        String region,
+        String region1Depth,
         String specificPlace,
         Double latitude,
         Double longitude,

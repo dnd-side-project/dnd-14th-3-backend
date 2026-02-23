@@ -17,6 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.dnd.jjigeojulge.global.common.enums.ShootingDurationOption;
 import com.dnd.jjigeojulge.reservation.application.dto.CreateReservationCommand;
+import com.dnd.jjigeojulge.reservation.domain.Applicant;
 import com.dnd.jjigeojulge.reservation.domain.Reservation;
 import com.dnd.jjigeojulge.reservation.domain.repository.ReservationRepository;
 import com.dnd.jjigeojulge.user.domain.Gender;
@@ -58,14 +59,8 @@ class ReservationServiceTest {
                         new PhotoStyle(StyleName.SNS_UPLOAD),
                         new PhotoStyle(StyleName.FULL_BODY)
                 ));
-                // 리플렉션으로 ID 주입 (BaseEntity id 필드)
-                try {
-                        java.lang.reflect.Field idField = com.dnd.jjigeojulge.global.common.entity.BaseEntity.class.getDeclaredField("id");
-                        idField.setAccessible(true);
-                        idField.set(user, userId);
-                } catch (Exception e) {
-                        throw new RuntimeException(e);
-                }
+                // 리플렉션으로 ID 주입
+                setId(user, userId);
 
                 given(userRepository.findByIdWithPhotoStyles(userId)).willReturn(Optional.of(user));
                 given(reservationRepository.save(any(Reservation.class))).willAnswer(invocation -> invocation.getArgument(0));
@@ -78,5 +73,68 @@ class ReservationServiceTest {
                         return reservation.getOwnerInfo().getPhotoStyleSnapshot().containsAll(List.of("SNS_UPLOAD", "FULL_BODY")) &&
                                 reservation.getOwnerInfo().getUserId().equals(userId);
                 }));
+        }
+
+        @Test
+        @DisplayName("모집 중인 예약에 지원할 수 있다.")
+        void applyToReservation_Success() {
+                // given
+                Long reservationId = 1L;
+                Long applicantId = 2L;
+                Reservation reservation = mock(Reservation.class);
+
+                given(reservationRepository.findById(reservationId)).willReturn(Optional.of(reservation));
+                given(userRepository.existsById(applicantId)).willReturn(true);
+
+                // when
+                reservationService.applyToReservation(reservationId, applicantId);
+
+                // then
+                verify(reservation).apply(any(Applicant.class));
+        }
+
+        @Test
+        @DisplayName("예약 작성자가 지원자를 수락하여 매칭을 확정한다.")
+        void acceptApplicant_Success() {
+                // given
+                Long reservationId = 1L;
+                Long ownerId = 10L;
+                Long applicantId = 20L;
+                Reservation reservation = mock(Reservation.class);
+
+                given(reservationRepository.findById(reservationId)).willReturn(Optional.of(reservation));
+
+                // when
+                reservationService.acceptApplicant(reservationId, ownerId, applicantId);
+
+                // then
+                verify(reservation).acceptApplicant(ownerId, applicantId);
+        }
+
+        @Test
+        @DisplayName("예약 작성자가 예약을 취소한다.")
+        void cancelReservation_Success() {
+                // given
+                Long reservationId = 1L;
+                Long userId = 10L;
+                Reservation reservation = mock(Reservation.class);
+
+                given(reservationRepository.findById(reservationId)).willReturn(Optional.of(reservation));
+
+                // when
+                reservationService.cancelReservation(reservationId, userId);
+
+                // then
+                verify(reservation).cancel(userId);
+        }
+
+        private void setId(Object entity, Long id) {
+                try {
+                        java.lang.reflect.Field idField = com.dnd.jjigeojulge.global.common.entity.BaseEntity.class.getDeclaredField("id");
+                        idField.setAccessible(true);
+                        idField.set(entity, id);
+                } catch (Exception e) {
+                        throw new RuntimeException(e);
+                }
         }
 }

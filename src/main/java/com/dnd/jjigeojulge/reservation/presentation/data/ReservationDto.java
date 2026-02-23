@@ -28,8 +28,8 @@ public record ReservationDto(
         @Schema(description = "촬영 예약 일시 (KST, ISO-8601 형식)", example = "2026-02-20T14:30:00")
         LocalDateTime scheduledAt,
 
-        @Schema(description = "지역", example = "서울특별시")
-        String region,
+        @Schema(description = "1Depth 지역", example = "서울특별시")
+        String region1Depth,
 
         @Schema(description = "구체적인 촬영 장소", example = "강남역 10번 출구 앞")
         String specificPlace,

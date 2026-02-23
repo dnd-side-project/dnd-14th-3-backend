@@ -16,8 +16,8 @@ import lombok.NoArgsConstructor;
 public class PlaceInfo {
 
         @Enumerated(EnumType.STRING)
-        @Column(name = "region", nullable = false)
-        private Region region;
+        @Column(name = "region_1depth", nullable = false)
+        private Region1Depth region1Depth;
 
         @Column(name = "specific_place", nullable = false)
         private String specificPlace;
@@ -28,21 +28,21 @@ public class PlaceInfo {
         @Column(name = "longitude", precision = 10, scale = 6, nullable = false)
         private BigDecimal longitude;
 
-        private PlaceInfo(Region region, String specificPlace, BigDecimal latitude, BigDecimal longitude) {
-                this.region = region;
+        private PlaceInfo(Region1Depth region1Depth, String specificPlace, BigDecimal latitude, BigDecimal longitude) {
+                this.region1Depth = region1Depth;
                 this.specificPlace = specificPlace;
                 this.latitude = latitude;
                 this.longitude = longitude;
         }
 
         public static PlaceInfo of(String regionName, String specificPlace, Double latitude, Double longitude) {
-                Region region = Region.fromKakaoName(regionName);
-                validate(region, specificPlace, latitude, longitude);
-                return new PlaceInfo(region, specificPlace, BigDecimal.valueOf(latitude), BigDecimal.valueOf(longitude));
+                Region1Depth region1Depth = Region1Depth.fromLabel(regionName);
+                validate(region1Depth, specificPlace, latitude, longitude);
+                return new PlaceInfo(region1Depth, specificPlace, BigDecimal.valueOf(latitude), BigDecimal.valueOf(longitude));
         }
 
-        private static void validate(Region region, String specificPlace, Double latitude, Double longitude) {
-                if (region == null) {
+        private static void validate(Region1Depth region1Depth, String specificPlace, Double latitude, Double longitude) {
+                if (region1Depth == null) {
                         throw new IllegalArgumentException("1Depth 지역 정보는 필수입니다.");
                 }
                 if (specificPlace == null || specificPlace.isBlank()) {

@@ -33,6 +33,7 @@ public enum ErrorCode {
 	USER_NOT_FOUND(HttpStatus.NOT_FOUND, "User를 찾을 수 없습니다."),
 	MATCH_PROPOSAL_NOT_FOUND(HttpStatus.NOT_FOUND, "매칭 제안을 찾을 수 없습니다."),
 	MATCH_REQUEST_NOT_FOUND(HttpStatus.NOT_FOUND, "매칭 요청을 찾을 수 없습니다."),
+	RESERVATION_NOT_FOUND(HttpStatus.NOT_FOUND, "예약 정보를 찾을 수 없습니다."),
 
 	// ===== 405 Method Not Allowed =====
 	METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "지원하지 않는 HTTP 메서드입니다."),

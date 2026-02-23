@@ -13,9 +13,9 @@ import jakarta.validation.constraints.Size;
 
 @Schema(description = "동행 예약 생성 요청")
 public record ReservationCreateRequest(
-        @Schema(description = "지역 (도/광역시)", example = "서울특별시")
+        @Schema(description = "1Depth 지역 (도/광역시)", example = "서울특별시")
         @NotBlank(message = "지역 정보는 필수입니다.")
-        String region,
+        String region1Depth,
 
         @Schema(description = "구체적인 장소(상세 주소/랜드마크)", example = "강남역 10번 출구 앞")
         @NotBlank(message = "구체적인 장소는 필수입니다.")

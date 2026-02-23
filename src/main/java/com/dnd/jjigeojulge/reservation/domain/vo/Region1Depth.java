@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum Region {
+public enum Region1Depth {
         SEOUL("서울특별시"),
         GYEONGGI("경기도"),
         INCHEON("인천광역시"),
@@ -26,12 +26,12 @@ public enum Region {
         BUSAN("부산광역시"),
         JEJU("제주특별자치도");
 
-        private final String kakaoName;
+        private final String label;
 
-        public static Region fromKakaoName(String kakaoName) {
+        public static Region1Depth fromLabel(String label) {
                 return Arrays.stream(values())
-                        .filter(region -> region.kakaoName.equals(kakaoName))
+                        .filter(region -> region.label.equals(label))
                         .findFirst()
-                        .orElseThrow(() -> new IllegalArgumentException("지원하지 않는 지역입니다: " + kakaoName));
+                        .orElseThrow(() -> new IllegalArgumentException("지원하지 않는 지역입니다: " + label));
         }
 }

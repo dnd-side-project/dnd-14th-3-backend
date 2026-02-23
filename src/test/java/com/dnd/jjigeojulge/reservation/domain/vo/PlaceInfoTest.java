@@ -24,7 +24,7 @@ class PlaceInfoTest {
                 PlaceInfo placeInfo = PlaceInfo.of(region, placeName, lat, lng);
 
                 // then
-                assertThat(placeInfo.getRegion()).isEqualTo(Region.SEOUL);
+                assertThat(placeInfo.getRegion1Depth()).isEqualTo(Region1Depth.SEOUL);
                 assertThat(placeInfo.getSpecificPlace()).isEqualTo(placeName);
                 assertThat(placeInfo.getLatitude()).isEqualTo(BigDecimal.valueOf(lat));
                 assertThat(placeInfo.getLongitude()).isEqualTo(BigDecimal.valueOf(lng));
