@@ -7,6 +7,7 @@ import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 import com.dnd.jjigeojulge.event.MatchProposalCreatedEvent;
+import com.dnd.jjigeojulge.event.MatchRequestExpiredEvent;
 import com.dnd.jjigeojulge.matchproposal.data.MatchProposalDto;
 import com.dnd.jjigeojulge.matchsession.data.MatchSessionDto;
 import com.dnd.jjigeojulge.sse.SseMessage;
@@ -41,6 +42,12 @@ public class SseHandler {
 		MatchSessionDto dto = event.matchSessionDto();
 		Set<Long> receiverIds = Set.of(dto.userAId(), dto.userBId());
 		SseMessage sseMessage = SseMessage.create(receiverIds, "match.session", event.matchSessionDto());
+		handleMessage(sseMessage);
+	}
+
+	@TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+	public void handle(MatchRequestExpiredEvent event) {
+		SseMessage sseMessage = SseMessage.create(event.userId(), "match.request.expired", event);
 		handleMessage(sseMessage);
 	}
 

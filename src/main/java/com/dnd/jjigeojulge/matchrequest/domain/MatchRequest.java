@@ -1,6 +1,7 @@
 package com.dnd.jjigeojulge.matchrequest.domain;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 import com.dnd.jjigeojulge.global.common.entity.BaseUpdatableEntity;
 import com.dnd.jjigeojulge.global.common.enums.ShootingDurationOption;
@@ -45,23 +46,35 @@ public class MatchRequest extends BaseUpdatableEntity {
 	@Column(name = "request_message", columnDefinition = "text")
 	private String requestMessage;
 
+	@Column(name = "expires_at", nullable = false)
+	private LocalDateTime expiresAt;
+
 	@ManyToOne(fetch = FetchType.LAZY, optional = false)
 	@JoinColumn(name = "user_id", nullable = false, updatable = false)
 	private User user;
 
 	@Builder
 	public MatchRequest(BigDecimal latitude, BigDecimal longitude, String specificPlace, MatchRequestStatus status,
-		ShootingDurationOption expectedDuration, String requestMessage, User user) {
+		ShootingDurationOption expectedDuration, String requestMessage, LocalDateTime expiresAt, User user) {
 		this.latitude = latitude;
 		this.longitude = longitude;
 		this.specificPlace = specificPlace;
 		this.status = status;
 		this.expectedDuration = expectedDuration;
 		this.requestMessage = requestMessage;
+		this.expiresAt = expiresAt;
 		this.user = user;
 	}
 
 	public void cancel() {
 		this.status = MatchRequestStatus.CANCELLED;
+	}
+
+	public void expire() {
+		this.status = MatchRequestStatus.EXPIRED;
+	}
+
+	public boolean isExpired(LocalDateTime now) {
+		return this.expiresAt.isBefore(now) || this.expiresAt.isEqual(now);
 	}
 }

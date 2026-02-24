@@ -46,8 +46,8 @@ public class MatchRequestController implements MatchRequestApi {
 		return ResponseEntity.ok(ApiResponse.success(null));
 	}
 
-	@DeleteMapping("me")
 	@Override
+	@DeleteMapping("me")
 	public ResponseEntity<Void> cancel(@AuthenticationPrincipal CustomUserDetails userDetails) {
 		Long userId = userDetails.id();
 		matchRequestService.cancel(userId);

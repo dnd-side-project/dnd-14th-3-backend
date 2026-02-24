@@ -1,6 +1,7 @@
 package com.dnd.jjigeojulge.matchrequest.application;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +25,8 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class MatchRequestService {
 
+	private static final int REQUEST_TTL_MIN = 5; // MVP: 5분 대기
+
 	private final MatchRequestRepository matchRequestRepository;
 	private final UserRepository userRepository;
 	private final MatchGeoQueueRepository matchGeoQueueRepository;
@@ -39,9 +42,13 @@ public class MatchRequestService {
 
 		// 3. 이미 요청이 waiting으로 존재할 경우 정책, 임시로 생성한 예외 이후 리팩토링
 		// TODO 정확히 요청이 이미 존재할 경우 처리 방법 회의
+		// TODO 에러 발생 시 500 에러나옴, 커스텀 에러 생성하기
 		if (exists) {
 			throw new IllegalStateException("이미 요청이 존재합니다.");
 		}
+
+		LocalDateTime now = LocalDateTime.now();
+		LocalDateTime expiresAt = now.minusMinutes(REQUEST_TTL_MIN);
 
 		// 3. 생성 및 저장 (정적메 엔티티 내부에 생성)
 		GeoPoint location = request.location();
@@ -52,6 +59,7 @@ public class MatchRequestService {
 			.status(MatchRequestStatus.WAITING)
 			.expectedDuration(request.expectedDuration())
 			.requestMessage(request.requestMessage())
+			.expiresAt(expiresAt)
 			.user(user)
 			.build();
 
