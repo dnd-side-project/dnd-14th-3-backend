@@ -1,5 +1,6 @@
 package com.dnd.jjigeojulge.reservation.domain;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,13 +52,12 @@ public class Reservation extends BaseUpdatableEntity {
         private List<Applicant> applicants = new ArrayList<>();
 
         private Reservation(
-                OwnerInfo ownerInfo,
-                ScheduledTime scheduledTime,
-                PlaceInfo placeInfo,
-                ShootingDurationOption shootingDuration,
-                RequestMessage requestMessage,
-                ReservationStatus status
-        ) {
+                        OwnerInfo ownerInfo,
+                        ScheduledTime scheduledTime,
+                        PlaceInfo placeInfo,
+                        ShootingDurationOption shootingDuration,
+                        RequestMessage requestMessage,
+                        ReservationStatus status) {
                 this.ownerInfo = ownerInfo;
                 this.scheduledTime = scheduledTime;
                 this.placeInfo = placeInfo;
@@ -67,30 +67,27 @@ public class Reservation extends BaseUpdatableEntity {
         }
 
         public static Reservation create(
-                OwnerInfo ownerInfo,
-                ScheduledTime scheduledTime,
-                PlaceInfo placeInfo,
-                ShootingDurationOption shootingDuration,
-                RequestMessage requestMessage
-        ) {
+                        OwnerInfo ownerInfo,
+                        ScheduledTime scheduledTime,
+                        PlaceInfo placeInfo,
+                        ShootingDurationOption shootingDuration,
+                        RequestMessage requestMessage) {
                 validateCreationData(ownerInfo, scheduledTime, placeInfo, shootingDuration);
 
                 return new Reservation(
-                        ownerInfo,
-                        scheduledTime,
-                        placeInfo,
-                        shootingDuration,
-                        requestMessage,
-                        ReservationStatus.RECRUITING
-                );
+                                ownerInfo,
+                                scheduledTime,
+                                placeInfo,
+                                shootingDuration,
+                                requestMessage,
+                                ReservationStatus.RECRUITING);
         }
 
         private static void validateCreationData(
-                OwnerInfo ownerInfo,
-                ScheduledTime scheduledTime,
-                PlaceInfo placeInfo,
-                ShootingDurationOption shootingDuration
-        ) {
+                        OwnerInfo ownerInfo,
+                        ScheduledTime scheduledTime,
+                        PlaceInfo placeInfo,
+                        ShootingDurationOption shootingDuration) {
                 if (ownerInfo == null) {
                         throw new IllegalArgumentException("작성자(Owner) 정보는 필수입니다.");
                 }
@@ -98,10 +95,9 @@ public class Reservation extends BaseUpdatableEntity {
         }
 
         private static void validateReservationData(
-                ScheduledTime scheduledTime,
-                PlaceInfo placeInfo,
-                ShootingDurationOption shootingDuration
-        ) {
+                        ScheduledTime scheduledTime,
+                        PlaceInfo placeInfo,
+                        ShootingDurationOption shootingDuration) {
                 if (scheduledTime == null) {
                         throw new IllegalArgumentException("예약 시간 정보는 필수입니다.");
                 }
@@ -113,12 +109,15 @@ public class Reservation extends BaseUpdatableEntity {
                 }
         }
 
-        public void apply(Applicant applicant) {
-                validateApply(applicant);
+        public void apply(Applicant applicant, LocalDateTime now) {
+                validateApply(applicant, now);
                 this.applicants.add(applicant);
         }
 
-        private void validateApply(Applicant applicant) {
+        private void validateApply(Applicant applicant, LocalDateTime now) {
+                if (this.scheduledTime.isExpired(now)) {
+                        throw new IllegalStateException("모집 기간이 지난 예약에는 지원할 수 없습니다.");
+                }
                 if (!this.status.isRecruiting()) {
                         throw new IllegalStateException("모집 중(RECRUITING)인 예약에만 지원할 수 있습니다.");
                 }
@@ -132,11 +131,12 @@ public class Reservation extends BaseUpdatableEntity {
 
         private boolean hasAlreadyApplied(Long userId) {
                 return this.applicants.stream()
-                        .anyMatch(a -> a.getUserId().equals(userId) && a.getStatus() == ApplicantStatus.APPLIED);
+                                .anyMatch(a -> a.getUserId().equals(userId)
+                                                && a.getStatus() == ApplicantStatus.APPLIED);
         }
 
-        public void acceptApplicant(Long ownerId, Long applicantId) {
-                validateAcceptApplicant(ownerId);
+        public void acceptApplicant(Long ownerId, Long applicantId, LocalDateTime now) {
+                validateAcceptApplicant(ownerId, now);
 
                 Applicant selectedApplicant = findApplicantById(applicantId);
                 selectedApplicant.markAsSelected();
@@ -145,7 +145,10 @@ public class Reservation extends BaseUpdatableEntity {
                 this.status = ReservationStatus.CONFIRMED;
         }
 
-        private void validateAcceptApplicant(Long ownerId) {
+        private void validateAcceptApplicant(Long ownerId, LocalDateTime now) {
+                if (this.scheduledTime.isExpired(now)) {
+                        throw new IllegalStateException("모집 기간이 지난 예약은 지원자를 수락할 수 없습니다.");
+                }
                 if (!this.ownerInfo.isOwner(ownerId)) {
                         throw new IllegalArgumentException("예약 작성자 본인만 지원자를 수락할 수 있습니다.");
                 }
@@ -156,25 +159,25 @@ public class Reservation extends BaseUpdatableEntity {
 
         private Applicant findApplicantById(Long applicantId) {
                 return this.applicants.stream()
-                        .filter(a -> a.getId() != null && a.getId().equals(applicantId))
-                        .findFirst()
-                        .orElseThrow(() -> new IllegalArgumentException("해당 지원자를 찾을 수 없습니다."));
+                                .filter(a -> a.getId() != null && a.getId().equals(applicantId))
+                                .findFirst()
+                                .orElseThrow(() -> new IllegalArgumentException("해당 지원자를 찾을 수 없습니다."));
         }
 
         private void rejectAllExcept(Applicant selectedApplicant) {
                 this.applicants.stream()
-                        .filter(a -> a.getStatus() == ApplicantStatus.APPLIED && !a.equals(selectedApplicant))
-                        .forEach(Applicant::markAsRejected);
+                                .filter(a -> a.getStatus() == ApplicantStatus.APPLIED && !a.equals(selectedApplicant))
+                                .forEach(Applicant::markAsRejected);
         }
 
         public void update(
-                Long requesterId,
-                ScheduledTime scheduledTime,
-                PlaceInfo placeInfo,
-                ShootingDurationOption shootingDuration,
-                RequestMessage requestMessage
-        ) {
-                validateUpdate(requesterId, scheduledTime, placeInfo, shootingDuration);
+                        Long requesterId,
+                        ScheduledTime scheduledTime,
+                        PlaceInfo placeInfo,
+                        ShootingDurationOption shootingDuration,
+                        RequestMessage requestMessage,
+                        LocalDateTime now) {
+                validateUpdate(requesterId, scheduledTime, placeInfo, shootingDuration, now);
                 this.scheduledTime = scheduledTime;
                 this.placeInfo = placeInfo;
                 this.shootingDuration = shootingDuration;
@@ -182,11 +185,14 @@ public class Reservation extends BaseUpdatableEntity {
         }
 
         private void validateUpdate(
-                Long requesterId,
-                ScheduledTime scheduledTime,
-                PlaceInfo placeInfo,
-                ShootingDurationOption shootingDuration
-        ) {
+                        Long requesterId,
+                        ScheduledTime scheduledTime,
+                        PlaceInfo placeInfo,
+                        ShootingDurationOption shootingDuration,
+                        LocalDateTime now) {
+                if (this.scheduledTime.isExpired(now)) {
+                        throw new IllegalStateException("모집 기간이 지난 예약 정보는 수정할 수 없습니다.");
+                }
                 if (!this.ownerInfo.isOwner(requesterId)) {
                         throw new IllegalArgumentException("예약 작성자 본인만 예약 정보를 수정할 수 있습니다.");
                 }
@@ -196,24 +202,47 @@ public class Reservation extends BaseUpdatableEntity {
                 validateReservationData(scheduledTime, placeInfo, shootingDuration);
         }
 
-        public void cancel(Long requesterId) {
-                validateCancel(requesterId);
+        public void cancel(Long requesterId, LocalDateTime now) {
+                validateCancel(requesterId, now);
                 this.status = ReservationStatus.CANCELED;
         }
 
-        private void validateCancel(Long requesterId) {
-                if (!this.ownerInfo.isOwner(requesterId)) {
-                        throw new IllegalArgumentException("예약 작성자 본인만 예약을 취소할 수 있습니다.");
+        private void validateCancel(Long requesterId, LocalDateTime now) {
+                if (this.scheduledTime.isExpired(now)) {
+                        throw new IllegalStateException("모집 기간이 지난 예약은 취소할 수 없습니다.");
                 }
-                if (!this.status.isRecruiting()) {
-                        throw new IllegalStateException("모집 중(RECRUITING)인 상태에서만 예약을 취소할 수 있습니다.");
+
+                if (this.status == ReservationStatus.RECRUITING) {
+                        if (!this.ownerInfo.isOwner(requesterId)) {
+                                throw new IllegalArgumentException("모집 중인 예약은 작성자 본인만 취소할 수 있습니다.");
+                        }
+                } else if (this.status == ReservationStatus.CONFIRMED) {
+                        boolean isOwner = this.ownerInfo.isOwner(requesterId);
+                        boolean isSelectedApplicant = this.applicants.stream()
+                                        .anyMatch(a -> a.getUserId().equals(requesterId)
+                                                        && a.getStatus() == ApplicantStatus.SELECTED);
+
+                        if (!isOwner && !isSelectedApplicant) {
+                                throw new IllegalArgumentException("확정된 예약은 작성자나 매칭된 동행자만 취소할 수 있습니다.");
+                        }
+                } else {
+                        throw new IllegalStateException("현재 상태에서는 예약을 취소할 수 없습니다.");
                 }
         }
 
-        public void complete() {
+        public void complete(LocalDateTime now) {
                 if (this.status != ReservationStatus.CONFIRMED) {
                         throw new IllegalStateException("확정됨(CONFIRMED) 상태인 예약만 완료 처리할 수 있습니다.");
                 }
+                if (!this.scheduledTime.isExpired(now)) {
+                        throw new IllegalStateException("약속 시간이 지나기 전에는 완료 처리할 수 없습니다.");
+                }
                 this.status = ReservationStatus.COMPLETED;
+        }
+
+        public void closeRecruitmentIfExpired(LocalDateTime now) {
+                if (this.status.isRecruiting() && this.scheduledTime.isExpired(now)) {
+                        this.status = ReservationStatus.RECRUITMENT_CLOSED;
+                }
         }
 }

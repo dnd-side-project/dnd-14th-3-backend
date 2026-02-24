@@ -33,33 +33,30 @@ public class ReservationService {
 
         public Long createReservation(CreateReservationCommand command) {
                 User user = userRepository.findByIdWithPhotoStyles(command.userId())
-                        .orElseThrow(UserNotFoundException::new);
+                                .orElseThrow(UserNotFoundException::new);
 
                 OwnerInfo ownerInfo = OwnerInfo.of(
-                        user.getId(),
-                        user.getPhotoStyles().stream()
-                                .map(UserPhotoStyle::getPhotoStyle)
-                                .map(PhotoStyle::getName)
-                                .map(Enum::name)
-                                .toList()
-                );
+                                user.getId(),
+                                user.getPhotoStyles().stream()
+                                                .map(UserPhotoStyle::getPhotoStyle)
+                                                .map(PhotoStyle::getName)
+                                                .map(Enum::name)
+                                                .toList());
 
                 ScheduledTime scheduledTime = ScheduledTime.of(command.scheduledAt(), LocalDateTime.now());
                 PlaceInfo placeInfo = PlaceInfo.of(
-                        command.region1Depth(),
-                        command.specificPlace(),
-                        command.latitude(),
-                        command.longitude()
-                );
+                                command.region1Depth(),
+                                command.specificPlace(),
+                                command.latitude(),
+                                command.longitude());
                 RequestMessage requestMessage = RequestMessage.from(command.requestMessage());
 
                 Reservation reservation = Reservation.create(
-                        ownerInfo,
-                        scheduledTime,
-                        placeInfo,
-                        command.shootingDuration(),
-                        requestMessage
-                );
+                                ownerInfo,
+                                scheduledTime,
+                                placeInfo,
+                                command.shootingDuration(),
+                                requestMessage);
 
                 return reservationRepository.save(reservation).getId();
         }
@@ -67,22 +64,22 @@ public class ReservationService {
         public void updateReservation(UpdateReservationCommand command) {
                 Reservation reservation = findReservationById(command.reservationId());
 
-                ScheduledTime scheduledTime = ScheduledTime.of(command.scheduledAt(), LocalDateTime.now());
+                LocalDateTime now = LocalDateTime.now();
+                ScheduledTime scheduledTime = ScheduledTime.of(command.scheduledAt(), now);
                 PlaceInfo placeInfo = PlaceInfo.of(
-                        command.region1Depth(),
-                        command.specificPlace(),
-                        command.latitude(),
-                        command.longitude()
-                );
+                                command.region1Depth(),
+                                command.specificPlace(),
+                                command.latitude(),
+                                command.longitude());
                 RequestMessage requestMessage = RequestMessage.from(command.requestMessage());
 
                 reservation.update(
-                        command.userId(),
-                        scheduledTime,
-                        placeInfo,
-                        command.shootingDuration(),
-                        requestMessage
-                );
+                                command.userId(),
+                                scheduledTime,
+                                placeInfo,
+                                command.shootingDuration(),
+                                requestMessage,
+                                now);
         }
 
         public void applyToReservation(Long reservationId, Long userId) {
@@ -93,32 +90,32 @@ public class ReservationService {
                 }
 
                 Applicant applicant = Applicant.create(reservation, userId);
-                reservation.apply(applicant);
+                reservation.apply(applicant, LocalDateTime.now());
                 // TODO: 예약 작성자에게 지원 알림 발송 (Event Publisher 활용 권장)
         }
 
         public void acceptApplicant(Long reservationId, Long ownerId, Long applicantId) {
                 Reservation reservation = findReservationById(reservationId);
 
-                reservation.acceptApplicant(ownerId, applicantId);
+                reservation.acceptApplicant(ownerId, applicantId, LocalDateTime.now());
                 // TODO: 양쪽 사용자에게 매칭 확정 푸시 알림 발송 (명세서 2번)
         }
 
         public void cancelReservation(Long reservationId, Long userId) {
                 Reservation reservation = findReservationById(reservationId);
 
-                reservation.cancel(userId);
+                reservation.cancel(userId, LocalDateTime.now());
                 // TODO: 매칭이 확정된 상태였다면 상대방에게 취소 알림 발송
         }
 
         public void completeReservation(Long reservationId) {
                 Reservation reservation = findReservationById(reservationId);
 
-                reservation.complete();
+                reservation.complete(LocalDateTime.now());
         }
 
         private Reservation findReservationById(Long reservationId) {
                 return reservationRepository.findById(reservationId)
-                        .orElseThrow(ReservationNotFoundException::new);
+                                .orElseThrow(ReservationNotFoundException::new);
         }
 }

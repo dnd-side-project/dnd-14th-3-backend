@@ -26,52 +26,52 @@ import com.dnd.jjigeojulge.reservation.domain.vo.ScheduledTime;
 @Import({ReservationRepositoryImpl.class, AppConfig.class})
 class ReservationRepositoryTest {
 
-	@Autowired
-	private ReservationRepository reservationRepository;
+        @Autowired
+        private ReservationRepository reservationRepository;
 
-	@Test
-	@DisplayName("Reservation 엔티티를 영속화하고 조회할 수 있다.")
-	void saveAndFind() {
-		// given
-		OwnerInfo ownerInfo = OwnerInfo.of(1L, List.of("SNS_UPLOAD", "FULL_BODY"));
-		LocalDateTime future = LocalDateTime.now().plusDays(1).withMinute(30).withSecond(0).withNano(0);
-		ScheduledTime scheduledTime = ScheduledTime.of(future, LocalDateTime.now());
-		PlaceInfo placeInfo = PlaceInfo.of("서울특별시", "강남역", 37.4979, 127.0276);
-		ShootingDurationOption shootingDuration = ShootingDurationOption.TWENTY_MINUTES;
-		RequestMessage requestMessage = RequestMessage.from("사진 이쁘게 찍어주세요");
+        @Test
+        @DisplayName("Reservation 엔티티를 영속화하고 조회할 수 있다.")
+        void saveAndFind() {
+                // given
+                OwnerInfo ownerInfo = OwnerInfo.of(1L, List.of("SNS_UPLOAD", "FULL_BODY"));
+                LocalDateTime future = LocalDateTime.now().plusDays(1).withMinute(30).withSecond(0).withNano(0);
+                ScheduledTime scheduledTime = ScheduledTime.of(future, LocalDateTime.now());
+                PlaceInfo placeInfo = PlaceInfo.of("서울특별시", "강남역", 37.4979, 127.0276);
+                ShootingDurationOption shootingDuration = ShootingDurationOption.TWENTY_MINUTES;
+                RequestMessage requestMessage = RequestMessage.from("사진 이쁘게 찍어주세요");
 
-		Reservation reservation = Reservation.create(ownerInfo, scheduledTime, placeInfo, shootingDuration, requestMessage);
-		
-		// when
-		Reservation savedReservation = reservationRepository.save(reservation);
-		Reservation foundReservation = reservationRepository.findById(savedReservation.getId()).orElseThrow();
+                Reservation reservation = Reservation.create(ownerInfo, scheduledTime, placeInfo, shootingDuration, requestMessage);
 
-		// then
-		assertThat(foundReservation.getId()).isNotNull();
-		assertThat(foundReservation.getOwnerInfo().getUserId()).isEqualTo(1L);
-		assertThat(foundReservation.getStatus()).isEqualTo(ReservationStatus.RECRUITING);
-		assertThat(foundReservation.getOwnerInfo().getPhotoStyleSnapshot()).containsExactly("SNS_UPLOAD", "FULL_BODY");
-	}
+                // when
+                Reservation savedReservation = reservationRepository.save(reservation);
+                Reservation foundReservation = reservationRepository.findById(savedReservation.getId()).orElseThrow();
 
-	@Test
-	@DisplayName("Reservation에 Applicant를 추가하여 영속화(Cascade) 할 수 있다.")
-	void saveWithApplicants() {
-		// given
-		OwnerInfo ownerInfo = OwnerInfo.of(1L, List.of("SNS_UPLOAD"));
-		LocalDateTime future = LocalDateTime.now().plusDays(1).withMinute(30).withSecond(0).withNano(0);
-		ScheduledTime scheduledTime = ScheduledTime.of(future, LocalDateTime.now());
-		PlaceInfo placeInfo = PlaceInfo.of("서울특별시", "강남역", 37.4979, 127.0276);
-		Reservation reservation = Reservation.create(ownerInfo, scheduledTime, placeInfo, ShootingDurationOption.TEN_MINUTES, RequestMessage.from(""));
+                // then
+                assertThat(foundReservation.getId()).isNotNull();
+                assertThat(foundReservation.getOwnerInfo().getUserId()).isEqualTo(1L);
+                assertThat(foundReservation.getStatus()).isEqualTo(ReservationStatus.RECRUITING);
+                assertThat(foundReservation.getOwnerInfo().getPhotoStyleSnapshot()).containsExactly("SNS_UPLOAD", "FULL_BODY");
+        }
 
-		Applicant applicant1 = Applicant.create(reservation, 2L);
-		reservation.apply(applicant1);
+        @Test
+        @DisplayName("Reservation에 Applicant를 추가하여 영속화(Cascade) 할 수 있다.")
+        void saveWithApplicants() {
+                // given
+                OwnerInfo ownerInfo = OwnerInfo.of(1L, List.of("SNS_UPLOAD"));
+                LocalDateTime future = LocalDateTime.now().plusDays(1).withMinute(30).withSecond(0).withNano(0);
+                ScheduledTime scheduledTime = ScheduledTime.of(future, LocalDateTime.now());
+                PlaceInfo placeInfo = PlaceInfo.of("서울특별시", "강남역", 37.4979, 127.0276);
+                Reservation reservation = Reservation.create(ownerInfo, scheduledTime, placeInfo, ShootingDurationOption.TEN_MINUTES, RequestMessage.from(""));
 
-		// when
-		Reservation savedReservation = reservationRepository.save(reservation);
-		Reservation foundReservation = reservationRepository.findById(savedReservation.getId()).orElseThrow();
+                Applicant applicant1 = Applicant.create(reservation, 2L);
+                reservation.apply(applicant1, LocalDateTime.now());
 
-		// then
-		assertThat(foundReservation.getApplicants()).hasSize(1);
-		assertThat(foundReservation.getApplicants().get(0).getUserId()).isEqualTo(2L);
-	}
+                // when
+                Reservation savedReservation = reservationRepository.save(reservation);
+                Reservation foundReservation = reservationRepository.findById(savedReservation.getId()).orElseThrow();
+
+                // then
+                assertThat(foundReservation.getApplicants()).hasSize(1);
+                assertThat(foundReservation.getApplicants().get(0).getUserId()).isEqualTo(2L);
+        }
 }

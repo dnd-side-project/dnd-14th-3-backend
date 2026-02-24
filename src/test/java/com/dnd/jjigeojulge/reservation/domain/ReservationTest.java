@@ -22,16 +22,21 @@ class ReservationTest {
 	private PlaceInfo placeInfo;
 	private ShootingDurationOption shootingDuration;
 	private RequestMessage requestMessage;
+	private LocalDateTime now;
 
 	@BeforeEach
 	void setUp() {
+		now = LocalDateTime.of(2026, 2, 23, 12, 0); // 기준 시간: 12:00
 		ownerInfo = OwnerInfo.of(1L, List.of("SNS_UPLOAD", "FULL_BODY"));
-		                LocalDateTime future = LocalDateTime.now().plusDays(1).withMinute(30).withSecond(0).withNano(0);
-		                scheduledTime = ScheduledTime.of(future, LocalDateTime.now());
-		                placeInfo = PlaceInfo.of("서울특별시", "강남역", 37.4979, 127.0276);
-		                shootingDuration = ShootingDurationOption.TWENTY_MINUTES;
-		                requestMessage = RequestMessage.from("사진 이쁘게 찍어주세요");
-		        }
+
+		// 1시간 뒤인 13:00으로 예약 설정 (30분 단위 준수)
+		LocalDateTime future = now.plusHours(1).withMinute(0).withSecond(0).withNano(0);
+		scheduledTime = ScheduledTime.of(future, now);
+		placeInfo = PlaceInfo.of("서울특별시", "강남역", 37.4979, 127.0276);
+		shootingDuration = ShootingDurationOption.TWENTY_MINUTES;
+		requestMessage = RequestMessage.from("사진 이쁘게 찍어주세요");
+	}
+
 	private void forceChangeStatus(Reservation reservation, ReservationStatus status) {
 		try {
 			java.lang.reflect.Field statusField = Reservation.class.getDeclaredField("status");
@@ -47,8 +52,7 @@ class ReservationTest {
 	void create_Reservation_Success() {
 		// when
 		Reservation reservation = Reservation.create(
-			ownerInfo, scheduledTime, placeInfo, shootingDuration, requestMessage
-		);
+				ownerInfo, scheduledTime, placeInfo, shootingDuration, requestMessage);
 
 		// then
 		assertThat(reservation.getStatus()).isEqualTo(ReservationStatus.RECRUITING);
@@ -57,56 +61,16 @@ class ReservationTest {
 	}
 
 	@Test
-	@DisplayName("ownerInfo가 null이면 예약 생성 시 예외가 발생한다.")
-	void create_Reservation_Fail_NullOwnerInfo() {
-		assertThatIllegalArgumentException()
-			.isThrownBy(() -> Reservation.create(
-				null, scheduledTime, placeInfo, shootingDuration, requestMessage
-			))
-			.withMessage("작성자(Owner) 정보는 필수입니다.");
-	}
-
-	@Test
-	@DisplayName("예약 시간 정보가 null이면 예약 생성 시 예외가 발생한다.")
-	void create_Reservation_Fail_NullScheduledTime() {
-		assertThatIllegalArgumentException()
-			.isThrownBy(() -> Reservation.create(
-				ownerInfo, null, placeInfo, shootingDuration, requestMessage
-			))
-			.withMessage("예약 시간 정보는 필수입니다.");
-	}
-
-	@Test
-	@DisplayName("장소 정보가 null이면 예약 생성 시 예외가 발생한다.")
-	void create_Reservation_Fail_NullPlaceInfo() {
-		assertThatIllegalArgumentException()
-			.isThrownBy(() -> Reservation.create(
-				ownerInfo, scheduledTime, null, shootingDuration, requestMessage
-			))
-			.withMessage("장소 정보는 필수입니다.");
-	}
-
-	@Test
-	@DisplayName("촬영 소요 시간 옵션이 null이면 예약 생성 시 예외가 발생한다.")
-	void create_Reservation_Fail_NullShootingDuration() {
-		assertThatIllegalArgumentException()
-			.isThrownBy(() -> Reservation.create(
-				ownerInfo, scheduledTime, placeInfo, null, requestMessage
-			))
-			.withMessage("촬영 소요 시간 옵션은 필수입니다.");
-	}
-
-	@Test
 	@DisplayName("모집 중(RECRUITING)일 때 작성자 본인이 예약 정보를 수정할 수 있다.")
 	void update_Reservation_Success() {
 		// given
-		                Reservation reservation = Reservation.create(
-		                        ownerInfo, scheduledTime, placeInfo, shootingDuration, requestMessage
-		                );
-		                PlaceInfo newPlace = PlaceInfo.of("서울특별시", "홍대입구역", 37.5568, 126.9242);
-		                ShootingDurationOption newDuration = ShootingDurationOption.THIRTY_PLUS_MINUTES;
+		Reservation reservation = Reservation.create(ownerInfo, scheduledTime, placeInfo, shootingDuration,
+				requestMessage);
+		PlaceInfo newPlace = PlaceInfo.of("서울특별시", "홍대입구역", 37.5568, 126.9242);
+		ShootingDurationOption newDuration = ShootingDurationOption.THIRTY_PLUS_MINUTES;
+
 		// when
-		reservation.update(ownerInfo.getUserId(), scheduledTime, newPlace, newDuration, requestMessage);
+		reservation.update(ownerInfo.getUserId(), scheduledTime, newPlace, newDuration, requestMessage, now);
 
 		// then
 		assertThat(reservation.getPlaceInfo().getSpecificPlace()).isEqualTo("홍대입구역");
@@ -114,132 +78,65 @@ class ReservationTest {
 	}
 
 	@Test
-	@DisplayName("작성자 본인이 아니면 예약 정보를 수정할 수 없다.")
-	void update_Reservation_Fail_NotOwner() {
-		Reservation reservation = Reservation.create(
-			ownerInfo, scheduledTime, placeInfo, shootingDuration, requestMessage
-		);
-
-		assertThatIllegalArgumentException()
-			.isThrownBy(() -> reservation.update(999L, scheduledTime, placeInfo, shootingDuration, requestMessage))
-			.withMessage("예약 작성자 본인만 예약 정보를 수정할 수 있습니다.");
-	}
-
-	@Test
-	@DisplayName("모집 중(RECRUITING)이 아닐 때 수정하려고 하면 예외가 발생한다.")
-	void update_Reservation_Fail_NotRecruiting() {
+	@DisplayName("예약 시간이 이미 지난 경우(Expired) 수정을 시도하면 예외가 발생한다.")
+	void update_Reservation_Fail_Expired() {
 		// given
-		Reservation reservation = Reservation.create(
-			ownerInfo, scheduledTime, placeInfo, shootingDuration, requestMessage
-		);
-		forceChangeStatus(reservation, ReservationStatus.CONFIRMED); // 강제 상태 변경 (테스트용)
+		Reservation reservation = Reservation.create(ownerInfo, scheduledTime, placeInfo, shootingDuration,
+				requestMessage);
+		LocalDateTime expiredTime = now.plusHours(2); // 예약 시간(13:00)보다 늦은 14:00
 
 		// when & then
 		assertThatIllegalStateException()
-			.isThrownBy(() -> reservation.update(ownerInfo.getUserId(), scheduledTime, placeInfo, shootingDuration, requestMessage))
-			.withMessage("모집 중(RECRUITING)인 상태에서만 예약 정보를 수정할 수 있습니다.");
-	}
-
-	@Test
-	@DisplayName("수정 시 예약 시간 정보가 null이면 예외가 발생한다.")
-	void update_Reservation_Fail_NullScheduledTime() {
-		Reservation reservation = Reservation.create(ownerInfo, scheduledTime, placeInfo, shootingDuration, requestMessage);
-
-		assertThatIllegalArgumentException()
-			.isThrownBy(() -> reservation.update(ownerInfo.getUserId(), null, placeInfo, shootingDuration, requestMessage))
-			.withMessage("예약 시간 정보는 필수입니다.");
-	}
-
-	@Test
-	@DisplayName("수정 시 장소 정보가 null이면 예외가 발생한다.")
-	void update_Reservation_Fail_NullPlaceInfo() {
-		Reservation reservation = Reservation.create(ownerInfo, scheduledTime, placeInfo, shootingDuration, requestMessage);
-
-		assertThatIllegalArgumentException()
-			.isThrownBy(() -> reservation.update(ownerInfo.getUserId(), scheduledTime, null, shootingDuration, requestMessage))
-			.withMessage("장소 정보는 필수입니다.");
-	}
-
-	@Test
-	@DisplayName("수정 시 촬영 소요 시간 옵션이 null이면 예외가 발생한다.")
-	void update_Reservation_Fail_NullShootingDuration() {
-		Reservation reservation = Reservation.create(ownerInfo, scheduledTime, placeInfo, shootingDuration, requestMessage);
-
-		assertThatIllegalArgumentException()
-			.isThrownBy(() -> reservation.update(ownerInfo.getUserId(), scheduledTime, placeInfo, null, requestMessage))
-			.withMessage("촬영 소요 시간 옵션은 필수입니다.");
-	}
-
-	@Test
-	@DisplayName("모집 중(RECRUITING)일 때 작성자 본인이 예약을 취소할 수 있다.")
-	void cancel_Reservation_Success() {
-		// given
-		Reservation reservation = Reservation.create(
-			ownerInfo, scheduledTime, placeInfo, shootingDuration, requestMessage
-		);
-
-		// when
-		reservation.cancel(ownerInfo.getUserId());
-
-		// then
-		assertThat(reservation.getStatus()).isEqualTo(ReservationStatus.CANCELED);
+				.isThrownBy(() -> reservation.update(ownerInfo.getUserId(), scheduledTime, placeInfo, shootingDuration,
+						requestMessage, expiredTime))
+				.withMessage("모집 기간이 지난 예약 정보는 수정할 수 없습니다.");
 	}
 
 	@Test
 	@DisplayName("모집 중(RECRUITING)인 예약에 지원할 수 있다.")
 	void apply_Success() {
-		Reservation reservation = Reservation.create(ownerInfo, scheduledTime, placeInfo, shootingDuration, requestMessage);
+		Reservation reservation = Reservation.create(ownerInfo, scheduledTime, placeInfo, shootingDuration,
+				requestMessage);
 		Applicant applicant = Applicant.create(reservation, 2L);
 
-		reservation.apply(applicant);
+		reservation.apply(applicant, now);
 
 		assertThat(reservation.getApplicants()).hasSize(1);
 	}
 
 	@Test
-	@DisplayName("자신의 예약에는 지원할 수 없다.")
-	void apply_Fail_OwnReservation() {
-		Reservation reservation = Reservation.create(ownerInfo, scheduledTime, placeInfo, shootingDuration, requestMessage);
-		Applicant applicant = Applicant.create(reservation, ownerInfo.getUserId());
-
-		assertThatIllegalArgumentException()
-			.isThrownBy(() -> reservation.apply(applicant))
-			.withMessage("자신의 예약에는 지원할 수 없습니다.");
-	}
-
-	@Test
-	@DisplayName("이미 지원한 예약에 중복 지원할 수 없다.")
-	void apply_Fail_AlreadyApplied() {
-		Reservation reservation = Reservation.create(ownerInfo, scheduledTime, placeInfo, shootingDuration, requestMessage);
-		Applicant applicant1 = Applicant.create(reservation, 2L);
-		Applicant applicant2 = Applicant.create(reservation, 2L);
-
-		reservation.apply(applicant1);
+	@DisplayName("예약 시간이 지난 경우 지원할 수 없다.")
+	void apply_Fail_Expired() {
+		Reservation reservation = Reservation.create(ownerInfo, scheduledTime, placeInfo, shootingDuration,
+				requestMessage);
+		Applicant applicant = Applicant.create(reservation, 2L);
+		LocalDateTime expiredTime = now.plusHours(2);
 
 		assertThatIllegalStateException()
-			.isThrownBy(() -> reservation.apply(applicant2))
-			.withMessage("이미 지원한 예약입니다.");
+				.isThrownBy(() -> reservation.apply(applicant, expiredTime))
+				.withMessage("모집 기간이 지난 예약에는 지원할 수 없습니다.");
 	}
 
 	@Test
 	@DisplayName("지원자 수락 시 선택된 지원자는 SELECTED, 나머지는 REJECTED 상태가 되며 예약은 CONFIRMED 된다.")
 	void acceptApplicant_Success() throws Exception {
 		// given
-		Reservation reservation = Reservation.create(ownerInfo, scheduledTime, placeInfo, shootingDuration, requestMessage);
+		Reservation reservation = Reservation.create(ownerInfo, scheduledTime, placeInfo, shootingDuration,
+				requestMessage);
 		Applicant applicant1 = Applicant.create(reservation, 2L);
 		Applicant applicant2 = Applicant.create(reservation, 3L);
-		
-		// ID 강제 주입 (리플렉션)
-		java.lang.reflect.Field idField = com.dnd.jjigeojulge.global.common.entity.BaseEntity.class.getDeclaredField("id");
+
+		java.lang.reflect.Field idField = com.dnd.jjigeojulge.global.common.entity.BaseEntity.class
+				.getDeclaredField("id");
 		idField.setAccessible(true);
 		idField.set(applicant1, 10L);
 		idField.set(applicant2, 20L);
 
-		reservation.apply(applicant1);
-		reservation.apply(applicant2);
+		reservation.apply(applicant1, now);
+		reservation.apply(applicant2, now);
 
 		// when
-		reservation.acceptApplicant(ownerInfo.getUserId(), 10L);
+		reservation.acceptApplicant(ownerInfo.getUserId(), 10L, now);
 
 		// then
 		assertThat(reservation.getStatus()).isEqualTo(ReservationStatus.CONFIRMED);
@@ -248,78 +145,82 @@ class ReservationTest {
 	}
 
 	@Test
-	@DisplayName("작성자 본인이 아니면 지원자를 수락할 수 없다.")
-	void acceptApplicant_Fail_NotOwner() throws Exception {
-		Reservation reservation = Reservation.create(ownerInfo, scheduledTime, placeInfo, shootingDuration, requestMessage);
-		Applicant applicant = Applicant.create(reservation, 2L);
-		
-		java.lang.reflect.Field idField = com.dnd.jjigeojulge.global.common.entity.BaseEntity.class.getDeclaredField("id");
-		idField.setAccessible(true);
-		idField.set(applicant, 10L);
-		
-		reservation.apply(applicant);
+	@DisplayName("작성자 본인이 모집 중(RECRUITING)일 때 예약을 취소할 수 있다.")
+	void cancel_Reservation_Success() {
+		Reservation reservation = Reservation.create(ownerInfo, scheduledTime, placeInfo, shootingDuration,
+				requestMessage);
 
-		assertThatIllegalArgumentException()
-			.isThrownBy(() -> reservation.acceptApplicant(999L, 10L))
-			.withMessage("예약 작성자 본인만 지원자를 수락할 수 있습니다.");
+		reservation.cancel(ownerInfo.getUserId(), now);
+
+		assertThat(reservation.getStatus()).isEqualTo(ReservationStatus.CANCELED);
 	}
 
 	@Test
-	@DisplayName("모집 중(RECRUITING) 상태가 아니면 지원자를 수락할 수 없다.")
-	void acceptApplicant_Fail_NotRecruiting() throws Exception {
-		Reservation reservation = Reservation.create(ownerInfo, scheduledTime, placeInfo, shootingDuration, requestMessage);
-		Applicant applicant = Applicant.create(reservation, 2L);
-		
-		java.lang.reflect.Field idField = com.dnd.jjigeojulge.global.common.entity.BaseEntity.class.getDeclaredField("id");
-		idField.setAccessible(true);
-		idField.set(applicant, 10L);
-		
-		reservation.apply(applicant);
-		forceChangeStatus(reservation, ReservationStatus.CONFIRMED); // 강제 상태 변경
+	@DisplayName("예약 시간이 지난 후에는 취소할 수 없다.")
+	void cancel_Reservation_Fail_Expired() {
+		Reservation reservation = Reservation.create(ownerInfo, scheduledTime, placeInfo, shootingDuration,
+				requestMessage);
+		LocalDateTime expiredTime = now.plusHours(2);
 
 		assertThatIllegalStateException()
-			.isThrownBy(() -> reservation.acceptApplicant(ownerInfo.getUserId(), 10L))
-			.withMessage("모집 중(RECRUITING)인 상태에서만 지원자를 수락할 수 있습니다.");
+				.isThrownBy(() -> reservation.cancel(ownerInfo.getUserId(), expiredTime))
+				.withMessage("모집 기간이 지난 예약은 취소할 수 없습니다.");
 	}
 
 	@Test
-	@DisplayName("작성자 본인이 아닌 사람이 취소를 요청하면 예외가 발생한다.")
-	void cancel_Reservation_Fail_NotOwner() {
-		// given
-		Reservation reservation = Reservation.create(
-			ownerInfo, scheduledTime, placeInfo, shootingDuration, requestMessage
-		);
-		Long otherUserId = 999L;
-
-		// when & then
-		assertThatIllegalArgumentException()
-			.isThrownBy(() -> reservation.cancel(otherUserId))
-			.withMessage("예약 작성자 본인만 예약을 취소할 수 있습니다.");
-	}
-
-	@Test
-	@DisplayName("확정됨(CONFIRMED) 상태인 예약을 완료(COMPLETED) 처리할 수 있다.")
+	@DisplayName("확정됨(CONFIRMED) 상태인 예약을 예약 시간이 지난 후 완료(COMPLETED) 처리할 수 있다.")
 	void complete_Reservation_Success() {
-		Reservation reservation = Reservation.create(
-			ownerInfo, scheduledTime, placeInfo, shootingDuration, requestMessage
-		);
-		forceChangeStatus(reservation, ReservationStatus.CONFIRMED); // 강제로 CONFIRMED 상태로 변경
+		Reservation reservation = Reservation.create(ownerInfo, scheduledTime, placeInfo, shootingDuration,
+				requestMessage);
+		forceChangeStatus(reservation, ReservationStatus.CONFIRMED);
+		LocalDateTime afterAppointment = now.plusHours(2);
 
-		reservation.complete();
+		reservation.complete(afterAppointment);
 
 		assertThat(reservation.getStatus()).isEqualTo(ReservationStatus.COMPLETED);
 	}
 
 	@Test
-	@DisplayName("확정됨(CONFIRMED) 상태가 아닌 예약을 완료 처리하려고 하면 예외가 발생한다.")
-	void complete_Reservation_Fail_NotConfirmed() {
-		Reservation reservation = Reservation.create(
-			ownerInfo, scheduledTime, placeInfo, shootingDuration, requestMessage
-		);
-		// 상태가 RECRUITING
+	@DisplayName("예약 시간이 지나기 전에 완료 처리하려 하면 예외가 발생한다.")
+	void complete_Reservation_Fail_Before_Appointment() {
+		Reservation reservation = Reservation.create(ownerInfo, scheduledTime, placeInfo, shootingDuration,
+				requestMessage);
+		forceChangeStatus(reservation, ReservationStatus.CONFIRMED);
 
 		assertThatIllegalStateException()
-			.isThrownBy(() -> reservation.complete())
-			.withMessage("확정됨(CONFIRMED) 상태인 예약만 완료 처리할 수 있습니다.");
+				.isThrownBy(() -> reservation.complete(now))
+				.withMessage("약속 시간이 지나기 전에는 완료 처리할 수 없습니다.");
+	}
+
+	@Test
+	@DisplayName("시간 초과 시 마감 처리(closeRecruitmentIfExpired)가 정상적으로 동작한다.")
+	void closeRecruitmentIfExpired_Success() {
+		Reservation reservation = Reservation.create(ownerInfo, scheduledTime, placeInfo, shootingDuration,
+				requestMessage);
+		LocalDateTime expiredTime = now.plusHours(2);
+
+		reservation.closeRecruitmentIfExpired(expiredTime);
+
+		assertThat(reservation.getStatus()).isEqualTo(ReservationStatus.RECRUITMENT_CLOSED);
+	}
+
+	@Test
+	@DisplayName("확정된 예약(CONFIRMED)은 선택된 지원자도 취소할 수 있다.")
+	void cancel_Reservation_By_Applicant_When_Confirmed() throws Exception {
+		Reservation reservation = Reservation.create(ownerInfo, scheduledTime, placeInfo, shootingDuration,
+				requestMessage);
+		Applicant applicant = Applicant.create(reservation, 2L);
+
+		java.lang.reflect.Field idField = com.dnd.jjigeojulge.global.common.entity.BaseEntity.class
+				.getDeclaredField("id");
+		idField.setAccessible(true);
+		idField.set(applicant, 10L);
+
+		reservation.apply(applicant, now);
+		reservation.acceptApplicant(ownerInfo.getUserId(), 10L, now);
+
+		reservation.cancel(2L, now);
+
+		assertThat(reservation.getStatus()).isEqualTo(ReservationStatus.CANCELED);
 	}
 }

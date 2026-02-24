@@ -45,32 +45,32 @@ class ReservationServiceTest {
                 // given
                 Long userId = 1L;
                 CreateReservationCommand command = new CreateReservationCommand(
-                        userId,
-                        "서울특별시",
-                        "강남역",
-                        37.4979,
-                        127.0276,
-                        LocalDateTime.now().plusDays(1).withMinute(30).withSecond(0).withNano(0),
-                        ShootingDurationOption.TWENTY_MINUTES,
-                        "잘 부탁드려요"
-                );
+                                userId,
+                                "서울특별시",
+                                "강남역",
+                                37.4979,
+                                127.0276,
+                                LocalDateTime.now().plusDays(1).withMinute(30).withSecond(0).withNano(0),
+                                ShootingDurationOption.TWENTY_MINUTES,
+                                "잘 부탁드려요");
 
                 User user = User.create(null, "nickname", Gender.MALE, "image", Set.of(
-                        new PhotoStyle(StyleName.SNS_UPLOAD),
-                        new PhotoStyle(StyleName.FULL_BODY)
-                ));
+                                new PhotoStyle(StyleName.SNS_UPLOAD),
+                                new PhotoStyle(StyleName.FULL_BODY)));
                 setId(user, userId);
 
                 given(userRepository.findByIdWithPhotoStyles(userId)).willReturn(Optional.of(user));
-                given(reservationRepository.save(any(Reservation.class))).willAnswer(invocation -> invocation.getArgument(0));
+                given(reservationRepository.save(any(Reservation.class)))
+                                .willAnswer(invocation -> invocation.getArgument(0));
 
                 // when
                 Long reservationId = reservationService.createReservation(command);
 
                 // then
                 verify(reservationRepository).save(argThat(reservation -> {
-                        return reservation.getOwnerInfo().getPhotoStyleSnapshot().containsAll(List.of("SNS_UPLOAD", "FULL_BODY")) &&
-                                reservation.getOwnerInfo().getUserId().equals(userId);
+                        return reservation.getOwnerInfo().getPhotoStyleSnapshot()
+                                        .containsAll(List.of("SNS_UPLOAD", "FULL_BODY")) &&
+                                        reservation.getOwnerInfo().getUserId().equals(userId);
                 }));
         }
 
@@ -81,10 +81,9 @@ class ReservationServiceTest {
                 Long reservationId = 1L;
                 Long ownerId = 10L;
                 UpdateReservationCommand command = new UpdateReservationCommand(
-                        reservationId, ownerId, "서울특별시", "홍대입구역", 37.5568, 126.9242,
-                        LocalDateTime.now().plusDays(2).withMinute(0).withSecond(0).withNano(0),
-                        ShootingDurationOption.THIRTY_PLUS_MINUTES, "메시지 수정"
-                );
+                                reservationId, ownerId, "서울특별시", "홍대입구역", 37.5568, 126.9242,
+                                LocalDateTime.now().plusDays(2).withMinute(0).withSecond(0).withNano(0),
+                                ShootingDurationOption.THIRTY_PLUS_MINUTES, "메시지 수정");
                 Reservation reservation = mock(Reservation.class);
                 given(reservationRepository.findById(reservationId)).willReturn(Optional.of(reservation));
 
@@ -92,7 +91,8 @@ class ReservationServiceTest {
                 reservationService.updateReservation(command);
 
                 // then
-                verify(reservation).update(eq(ownerId), any(), any(), eq(ShootingDurationOption.THIRTY_PLUS_MINUTES), any());
+                verify(reservation).update(eq(ownerId), any(), any(), eq(ShootingDurationOption.THIRTY_PLUS_MINUTES),
+                                any(), any(LocalDateTime.class));
         }
 
         @Test
@@ -110,7 +110,7 @@ class ReservationServiceTest {
                 reservationService.applyToReservation(reservationId, applicantId);
 
                 // then
-                verify(reservation).apply(any(Applicant.class));
+                verify(reservation).apply(any(Applicant.class), any(LocalDateTime.class));
         }
 
         @Test
@@ -128,7 +128,7 @@ class ReservationServiceTest {
                 reservationService.acceptApplicant(reservationId, ownerId, applicantId);
 
                 // then
-                verify(reservation).acceptApplicant(ownerId, applicantId);
+                verify(reservation).acceptApplicant(eq(ownerId), eq(applicantId), any(LocalDateTime.class));
         }
 
         @Test
@@ -145,12 +145,12 @@ class ReservationServiceTest {
                 reservationService.cancelReservation(reservationId, userId);
 
                 // then
-                verify(reservation).cancel(userId);
+                verify(reservation).cancel(eq(userId), any(LocalDateTime.class));
         }
 
         @Test
-        @DisplayName("확정된 일정을 완료 처리한다.")
-        void completeReservation_Success() {
+        @DisplayName("완료(COMPLETED) 처리는 Service를 통해 이루어질 수 있다.")
+        void completeReservation() {
                 // given
                 Long reservationId = 1L;
                 Reservation reservation = mock(Reservation.class);
@@ -160,12 +160,13 @@ class ReservationServiceTest {
                 reservationService.completeReservation(reservationId);
 
                 // then
-                verify(reservation).complete();
+                verify(reservation).complete(any(LocalDateTime.class));
         }
 
         private void setId(Object entity, Long id) {
                 try {
-                        java.lang.reflect.Field idField = com.dnd.jjigeojulge.global.common.entity.BaseEntity.class.getDeclaredField("id");
+                        java.lang.reflect.Field idField = com.dnd.jjigeojulge.global.common.entity.BaseEntity.class
+                                        .getDeclaredField("id");
                         idField.setAccessible(true);
                         idField.set(entity, id);
                 } catch (Exception e) {

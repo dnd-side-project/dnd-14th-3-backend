@@ -36,4 +36,8 @@ public class ScheduledTime {
 			throw new IllegalArgumentException("예약 시간은 30분 단위여야 합니다.");
 		}
 	}
+
+	public boolean isExpired(LocalDateTime now) {
+		return this.time.isBefore(now) || this.time.isEqual(now);
+	}
 }
