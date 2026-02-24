@@ -3,6 +3,8 @@ services:
     image: nginx:1.29.5-alpine
     container_name: reverse-proxy
     restart: unless-stopped
+    networks:
+      - jjigeo-network
     depends_on:
       - backend
     ports:
@@ -16,7 +18,8 @@ services:
   backend:
     image: rhlanfwlghks/jjigeojulge-server:latest
     depends_on:
-      - redis
+      redis:
+        condition: service_healthy
     restart: unless-stopped
     env_file:
       - .env
@@ -26,7 +29,6 @@ services:
       - 8080
     networks:
       - jjigeo-network
-    
     volumes:
       - ./logs:/app/.logs
     logging:
@@ -47,6 +49,11 @@ services:
     volumes:
       - redis-data:/data
     command: redis-server --appendonly yes
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
 
 networks:
   jjigeo-network:
