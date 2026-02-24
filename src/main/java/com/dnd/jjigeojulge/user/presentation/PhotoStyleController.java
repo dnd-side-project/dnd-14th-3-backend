@@ -32,7 +32,7 @@ public class PhotoStyleController {
 	public ResponseEntity<ApiResponse<List<PhotoStyleDto>>> findAll() {
 		List<PhotoStyle> photoStyles = photoStyleRepository.findAll();
 		List<PhotoStyleDto> dtos = photoStyles.stream()
-			.map(photoStyle -> new PhotoStyleDto(photoStyle.getId(), photoStyle.getName().getLabel()))
+			.map(PhotoStyleDto::from)
 			.toList();
 		return ResponseEntity.ok(ApiResponse.success(dtos));
 	}
