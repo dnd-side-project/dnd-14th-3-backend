@@ -135,6 +135,23 @@ public class Reservation extends BaseUpdatableEntity {
                                                 && a.getStatus() == ApplicantStatus.APPLIED);
         }
 
+        public void cancelApplication(Long applicantUserId, LocalDateTime now) {
+                if (!this.status.isRecruiting()) {
+                        throw new IllegalStateException("모집 중(RECRUITING)인 상태에서만 지원을 취소할 수 있습니다.");
+                }
+                if (this.scheduledTime.isExpired(now)) {
+                        throw new IllegalStateException("모집 기간이 지난 예약의 지원은 취소할 수 없습니다.");
+                }
+                Applicant applicant = this.applicants.stream()
+                                .filter(a -> a.getUserId().equals(applicantUserId)
+                                                && (a.getStatus() == ApplicantStatus.APPLIED
+                                                                || a.getStatus() == ApplicantStatus.SELECTED))
+                                .findFirst()
+                                .orElseThrow(() -> new IllegalArgumentException("취소할 지원 내역이 없습니다."));
+
+                applicant.cancelApplication();
+        }
+
         public void acceptApplicant(Long ownerId, Long applicantId, LocalDateTime now) {
                 validateAcceptApplicant(ownerId, now);
 
@@ -212,19 +229,18 @@ public class Reservation extends BaseUpdatableEntity {
                         throw new IllegalStateException("모집 기간이 지난 예약은 취소할 수 없습니다.");
                 }
 
-                if (this.status == ReservationStatus.RECRUITING) {
-                        if (!this.ownerInfo.isOwner(requesterId)) {
-                                throw new IllegalArgumentException("모집 중인 예약은 작성자 본인만 취소할 수 있습니다.");
-                        }
-                } else if (this.status == ReservationStatus.CONFIRMED) {
-                        boolean isOwner = this.ownerInfo.isOwner(requesterId);
-                        boolean isSelectedApplicant = this.applicants.stream()
-                                        .anyMatch(a -> a.getUserId().equals(requesterId)
-                                                        && a.getStatus() == ApplicantStatus.SELECTED);
+                if (!this.ownerInfo.isOwner(requesterId)) {
+                        throw new IllegalArgumentException("예약은 작성자 본인만 취소할 수 있습니다.");
+                }
 
-                        if (!isOwner && !isSelectedApplicant) {
-                                throw new IllegalArgumentException("확정된 예약은 작성자나 매칭된 동행자만 취소할 수 있습니다.");
-                        }
+                if (this.status == ReservationStatus.RECRUITING) {
+                        this.applicants.stream()
+                                        .filter(a -> a.getStatus() == ApplicantStatus.APPLIED)
+                                        .forEach(Applicant::cancelApplication);
+                } else if (this.status == ReservationStatus.CONFIRMED) {
+                        this.applicants.stream()
+                                        .filter(a -> a.getStatus() == ApplicantStatus.SELECTED)
+                                        .forEach(Applicant::cancelApplication);
                 } else {
                         throw new IllegalStateException("현재 상태에서는 예약을 취소할 수 없습니다.");
                 }

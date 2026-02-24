@@ -118,6 +118,39 @@ class ReservationTest {
 	}
 
 	@Test
+	@DisplayName("예약을 취소하면 관련된 지원자(APPLIED, SELECTED)의 상태도 CANCELED로 변경된다.")
+	void cancel_Reservation_Changes_Applicants_State() throws Exception {
+		Reservation reservation = Reservation.create(ownerInfo, scheduledTime, placeInfo, shootingDuration,
+				requestMessage);
+		Applicant applicant1 = Applicant.create(reservation, 2L); // APPLIED
+		Applicant applicant2 = Applicant.create(reservation, 3L); // SELECTED
+		Applicant applicant3 = Applicant.create(reservation, 4L); // REJECTED
+
+		java.lang.reflect.Field idField = com.dnd.jjigeojulge.global.common.entity.BaseEntity.class
+				.getDeclaredField("id");
+		idField.setAccessible(true);
+		idField.set(applicant1, 10L);
+		idField.set(applicant2, 20L);
+		idField.set(applicant3, 30L);
+
+		reservation.apply(applicant1, now);
+		reservation.apply(applicant2, now);
+		reservation.apply(applicant3, now);
+
+		// applicant2 수락 (applicant2: SELECTED, applicant1&3: REJECTED가 됨)
+		reservation.acceptApplicant(ownerInfo.getUserId(), 20L, now);
+
+		// 이제 확정된 상태에서 예약 취소
+		reservation.cancel(ownerInfo.getUserId(), now);
+
+		// SELECTED 였던 applicant2는 CANCELED가 되어야 함
+		assertThat(applicant2.getStatus()).isEqualTo(ApplicantStatus.CANCELED);
+		// REJECTED 였던 1,3 은 그대로 REJECTED 여야 함
+		assertThat(applicant1.getStatus()).isEqualTo(ApplicantStatus.REJECTED);
+		assertThat(applicant3.getStatus()).isEqualTo(ApplicantStatus.REJECTED);
+	}
+
+	@Test
 	@DisplayName("지원자 수락 시 선택된 지원자는 SELECTED, 나머지는 REJECTED 상태가 되며 예약은 CONFIRMED 된다.")
 	void acceptApplicant_Success() throws Exception {
 		// given
@@ -205,8 +238,8 @@ class ReservationTest {
 	}
 
 	@Test
-	@DisplayName("확정된 예약(CONFIRMED)은 선택된 지원자도 취소할 수 있다.")
-	void cancel_Reservation_By_Applicant_When_Confirmed() throws Exception {
+	@DisplayName("확정된 예약(CONFIRMED)을 취소하려 할 때 작성자가 아니면 예외가 발생한다.")
+	void cancel_Reservation_Fail_Not_Owner_When_Confirmed() throws Exception {
 		Reservation reservation = Reservation.create(ownerInfo, scheduledTime, placeInfo, shootingDuration,
 				requestMessage);
 		Applicant applicant = Applicant.create(reservation, 2L);
@@ -219,8 +252,46 @@ class ReservationTest {
 		reservation.apply(applicant, now);
 		reservation.acceptApplicant(ownerInfo.getUserId(), 10L, now);
 
-		reservation.cancel(2L, now);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> reservation.cancel(2L, now))
+				.withMessage("예약은 작성자 본인만 취소할 수 있습니다.");
+	}
 
-		assertThat(reservation.getStatus()).isEqualTo(ReservationStatus.CANCELED);
+	@Test
+	@DisplayName("모집 중(RECRUITING)일 때 지원자는 본인의 지원을 취소할 수 있다.")
+	void cancelApplication_Success() {
+		Reservation reservation = Reservation.create(ownerInfo, scheduledTime, placeInfo, shootingDuration,
+				requestMessage);
+		Applicant applicant = Applicant.create(reservation, 2L);
+		reservation.apply(applicant, now);
+
+		reservation.cancelApplication(2L, now);
+
+		assertThat(applicant.getStatus()).isEqualTo(ApplicantStatus.CANCELED);
+	}
+
+	@Test
+	@DisplayName("모집 중(RECRUITING)이 아닌 상태에서는 지원을 취소할 수 없다.")
+	void cancelApplication_Fail_Not_Recruiting() {
+		Reservation reservation = Reservation.create(ownerInfo, scheduledTime, placeInfo, shootingDuration,
+				requestMessage);
+		Applicant applicant = Applicant.create(reservation, 2L);
+		reservation.apply(applicant, now);
+		forceChangeStatus(reservation, ReservationStatus.CONFIRMED);
+
+		assertThatIllegalStateException()
+				.isThrownBy(() -> reservation.cancelApplication(2L, now))
+				.withMessage("모집 중(RECRUITING)인 상태에서만 지원을 취소할 수 있습니다.");
+	}
+
+	@Test
+	@DisplayName("지원 내역이 없는 사용자가 지원 취소를 시도하면 예외가 발생한다.")
+	void cancelApplication_Fail_Not_Applied() {
+		Reservation reservation = Reservation.create(ownerInfo, scheduledTime, placeInfo, shootingDuration,
+				requestMessage);
+
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> reservation.cancelApplication(2L, now))
+				.withMessage("취소할 지원 내역이 없습니다.");
 	}
 }

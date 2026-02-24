@@ -94,6 +94,11 @@ public class ReservationService {
                 // TODO: 예약 작성자에게 지원 알림 발송 (Event Publisher 활용 권장)
         }
 
+        public void cancelApplicationToReservation(Long reservationId, Long userId) {
+                Reservation reservation = findReservationById(reservationId);
+                reservation.cancelApplication(userId, LocalDateTime.now());
+        }
+
         public void acceptApplicant(Long reservationId, Long ownerId, Long applicantId) {
                 Reservation reservation = findReservationById(reservationId);
 

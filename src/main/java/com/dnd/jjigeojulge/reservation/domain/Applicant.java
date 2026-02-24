@@ -68,10 +68,10 @@ public class Applicant extends BaseUpdatableEntity {
 		this.status = ApplicantStatus.REJECTED;
 	}
 
-	// 지원자(Applicant) 본인이 지원을 취소했을 때 호출
+	// 지원자(Applicant) 본인이 지원을 취소하거나 혹은 예약 작성자가 예약을 취소했을 때 호출
 	public void cancelApplication() {
-		if (this.status != ApplicantStatus.APPLIED) {
-			throw new IllegalStateException("지원 대기 중(APPLIED)일 때만 지원을 취소할 수 있습니다.");
+		if (this.status != ApplicantStatus.APPLIED && this.status != ApplicantStatus.SELECTED) {
+			throw new IllegalStateException("지원 대기 중(APPLIED)이거나 선택된(SELECTED) 상태일 때만 취소할 수 있습니다.");
 		}
 		this.status = ApplicantStatus.CANCELED;
 	}

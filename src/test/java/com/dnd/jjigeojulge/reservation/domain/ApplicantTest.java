@@ -25,16 +25,16 @@ class ApplicantTest {
 	@DisplayName("예약 정보가 null이면 지원자를 생성할 수 없다.")
 	void create_Fail_NullReservation() {
 		assertThatIllegalArgumentException()
-			.isThrownBy(() -> Applicant.create(null, stubUserId))
-			.withMessage("예약 정보는 필수입니다.");
+				.isThrownBy(() -> Applicant.create(null, stubUserId))
+				.withMessage("예약 정보는 필수입니다.");
 	}
 
 	@Test
 	@DisplayName("사용자 ID가 null이면 지원자를 생성할 수 없다.")
 	void create_Fail_NullUserId() {
 		assertThatIllegalArgumentException()
-			.isThrownBy(() -> Applicant.create(stubReservation, null))
-			.withMessage("지원자 사용자 ID는 필수입니다.");
+				.isThrownBy(() -> Applicant.create(stubReservation, null))
+				.withMessage("지원자 사용자 ID는 필수입니다.");
 	}
 
 	@Test
@@ -77,15 +77,16 @@ class ApplicantTest {
 	}
 
 	@Test
-	@DisplayName("이미 선택된(SELECTED) 지원자를 취소하려고 하면 예외가 발생한다.")
-	void cancelApplication_Fail_AlreadySelected() {
+	@DisplayName("선택된(SELECTED) 지원자도 예약을 취소하면 CANCELED 로 변경된다.")
+	void cancelApplication_Success_When_Selected() {
 		// given (상태가 변경됨)
 		applicant.markAsSelected();
 
-		// when & then
-		assertThatIllegalStateException()
-			.isThrownBy(() -> applicant.cancelApplication())
-			.withMessage("지원 대기 중(APPLIED)일 때만 지원을 취소할 수 있습니다.");
+		// when
+		applicant.cancelApplication();
+
+		// then
+		assertThat(applicant.getStatus()).isEqualTo(ApplicantStatus.CANCELED);
 	}
 
 	@Test
@@ -96,7 +97,19 @@ class ApplicantTest {
 
 		// when & then
 		assertThatIllegalStateException()
-			.isThrownBy(() -> applicant.markAsSelected())
-			.withMessage("지원 대기 중(APPLIED)인 상태에서만 선택할 수 있습니다.");
+				.isThrownBy(() -> applicant.markAsSelected())
+				.withMessage("지원 대기 중(APPLIED)인 상태에서만 선택할 수 있습니다.");
+	}
+
+	@Test
+	@DisplayName("거절된(REJECTED) 지원자를 취소하려고 하면 예외가 발생한다.")
+	void cancelApplication_Fail_Rejected() {
+		// given (상태가 변경됨)
+		applicant.markAsRejected();
+
+		// when & then
+		assertThatIllegalStateException()
+				.isThrownBy(() -> applicant.cancelApplication())
+				.withMessage("지원 대기 중(APPLIED)이거나 선택된(SELECTED) 상태일 때만 취소할 수 있습니다.");
 	}
 }

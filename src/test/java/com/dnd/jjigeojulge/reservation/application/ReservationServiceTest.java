@@ -163,6 +163,23 @@ class ReservationServiceTest {
                 verify(reservation).complete(any(LocalDateTime.class));
         }
 
+        @Test
+        @DisplayName("지원자는 예약에 대한 지원을 취소할 수 있다.")
+        void cancelApplicationToReservation_Success() {
+                // given
+                Long reservationId = 1L;
+                Long applicantId = 2L;
+                Reservation reservation = mock(Reservation.class);
+
+                given(reservationRepository.findById(reservationId)).willReturn(Optional.of(reservation));
+
+                // when
+                reservationService.cancelApplicationToReservation(reservationId, applicantId);
+
+                // then
+                verify(reservation).cancelApplication(eq(applicantId), any(LocalDateTime.class));
+        }
+
         private void setId(Object entity, Long id) {
                 try {
                         java.lang.reflect.Field idField = com.dnd.jjigeojulge.global.common.entity.BaseEntity.class
