@@ -47,8 +47,7 @@ public class SecurityConfig {
 					"/swagger-ui/**",
 					"/v3/api-docs/**",
 					"/v3/api-docs.yaml",
-					"/api/v1/examples/**",
-					"/api/sse/**"  // 임시 등록
+					"/api/v1/examples/**"
 				).permitAll()
 				.anyRequest().authenticated()
 			)

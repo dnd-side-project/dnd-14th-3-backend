@@ -7,8 +7,8 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.dnd.jjigeojulge.event.MatchConfirmedEvent;
 import com.dnd.jjigeojulge.event.MatchProposalCreatedEvent;
-import com.dnd.jjigeojulge.event.listener.MatchConfirmedEvent;
 import com.dnd.jjigeojulge.matchproposal.data.MatchProposalDto;
 import com.dnd.jjigeojulge.matchproposal.domain.MatchProposal;
 import com.dnd.jjigeojulge.matchproposal.domain.MatchProposalStatus;

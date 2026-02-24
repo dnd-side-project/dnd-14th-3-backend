@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
+import com.dnd.jjigeojulge.event.MatchConfirmedEvent;
 import com.dnd.jjigeojulge.event.MatchProposalCreatedEvent;
 import com.dnd.jjigeojulge.event.MatchRequestExpiredEvent;
 import com.dnd.jjigeojulge.matchproposal.data.MatchProposalDto;

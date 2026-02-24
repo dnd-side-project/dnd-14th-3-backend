@@ -48,7 +48,7 @@ public class MatchRequestService {
 		}
 
 		LocalDateTime now = LocalDateTime.now();
-		LocalDateTime expiresAt = now.minusMinutes(REQUEST_TTL_MIN);
+		LocalDateTime expiresAt = now.plusMinutes(REQUEST_TTL_MIN);
 
 		// 3. 생성 및 저장 (정적메 엔티티 내부에 생성)
 		GeoPoint location = request.location();

@@ -1,4 +1,4 @@
-package com.dnd.jjigeojulge.event.listener;
+package com.dnd.jjigeojulge.event;
 
 import com.dnd.jjigeojulge.matchsession.data.MatchSessionDto;
 
