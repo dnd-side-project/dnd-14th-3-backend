@@ -16,7 +16,7 @@ import com.dnd.jjigeojulge.global.exception.ErrorCode;
 import com.dnd.jjigeojulge.user.domain.OAuthInfo;
 import com.dnd.jjigeojulge.user.domain.PhotoStyle;
 import com.dnd.jjigeojulge.user.domain.User;
-import com.dnd.jjigeojulge.user.domain.exception.InvalidPhotoStyleException;
+import com.dnd.jjigeojulge.user.exception.InvalidPhotoStyleException;
 import com.dnd.jjigeojulge.user.infra.PhotoStyleRepository;
 import com.dnd.jjigeojulge.user.infra.UserRepository;
 

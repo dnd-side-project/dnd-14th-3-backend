@@ -1,4 +1,4 @@
-package com.dnd.jjigeojulge.user.domain.exception;
+package com.dnd.jjigeojulge.user.exception;
 
 import com.dnd.jjigeojulge.global.exception.ErrorCode;
 

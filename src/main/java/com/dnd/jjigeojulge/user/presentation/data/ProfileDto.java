@@ -10,6 +10,7 @@ import com.dnd.jjigeojulge.user.domain.UserPhotoStyle;
 import com.dnd.jjigeojulge.user.domain.UserSetting;
 
 public record ProfileDto(
+	Long userId,
 	String nickname,
 	Gender gender,
 	String profileImageUrl,
@@ -25,6 +26,7 @@ public record ProfileDto(
 		UserSetting userSetting = user.getUserSetting();
 
 		return new ProfileDto(
+			user.getId(),
 			user.getNickname(),
 			user.getGender(),
 			user.getProfileImageUrl(),

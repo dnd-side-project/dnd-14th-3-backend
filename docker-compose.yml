@@ -3,6 +3,8 @@ services:
     image: nginx:1.29.5-alpine
     container_name: reverse-proxy
     restart: unless-stopped
+    networks:
+      - jjigeo-network
     depends_on:
       - backend
     ports:
@@ -15,6 +17,9 @@ services:
 
   backend:
     image: rhlanfwlghks/jjigeojulge-server:latest
+    depends_on:
+      redis:
+        condition: service_healthy
     restart: unless-stopped
     env_file:
       - .env
@@ -22,6 +27,8 @@ services:
       TZ: Asia/Seoul
     expose:
       - 8080
+    networks:
+      - jjigeo-network
     volumes:
       - ./logs:/app/.logs
     logging:
@@ -31,3 +38,23 @@ services:
         awslogs-group: /aws/ec2/jjigeojulge-server
         awslogs-create-group: "true"
         awslogs-multiline-pattern: '^\d{4}-\d{2}-\d{2}'
+
+  redis:
+    image: redis:7.2-alpine
+    container_name: redis
+    expose:
+      - 6379
+    networks:
+      - jjigeo-network
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+networks:
+  jjigeo-network:
+    driver: bridge
