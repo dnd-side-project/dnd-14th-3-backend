@@ -53,4 +53,24 @@ class ReservationCommentTest {
                 .isThrownBy(() -> comment.updateContent(2L, newContent))
                 .withMessage("댓글 작성자 본인만 수정할 수 있습니다.");
     }
+
+    @Test
+    @DisplayName("작성자 본인이면 댓글을 삭제(Soft Delete) 할 수 있다.")
+    void delete_Success() {
+        ReservationComment comment = ReservationComment.create(100L, 1L, CommentContent.from("기존 내용"));
+
+        comment.delete(1L);
+
+        assertThat(comment.isDeleted()).isTrue();
+    }
+
+    @Test
+    @DisplayName("작성자 본인이 아니면 댓글을 삭제할 수 없다.")
+    void delete_Fail_NotAuthor() {
+        ReservationComment comment = ReservationComment.create(100L, 1L, CommentContent.from("기존 내용"));
+
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> comment.delete(2L))
+                .withMessage("댓글 작성자 본인만 삭제할 수 있습니다.");
+    }
 }

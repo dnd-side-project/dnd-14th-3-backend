@@ -5,6 +5,8 @@ import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 
+import org.hibernate.annotations.SQLRestriction;
+
 import com.dnd.jjigeojulge.global.common.entity.BaseUpdatableEntity;
 import com.dnd.jjigeojulge.reservation.domain.vo.CommentContent;
 
@@ -15,6 +17,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @Table(name = "reservation_comment")
+@SQLRestriction("is_deleted = false")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ReservationComment extends BaseUpdatableEntity {
 
@@ -26,6 +29,9 @@ public class ReservationComment extends BaseUpdatableEntity {
 
     @Embedded
     private CommentContent content;
+
+    @Column(name = "is_deleted", nullable = false)
+    private boolean isDeleted = false;
 
     private ReservationComment(Long reservationId, Long authorId, CommentContent content) {
         validate(reservationId, authorId, content);
@@ -59,5 +65,12 @@ public class ReservationComment extends BaseUpdatableEntity {
 
     public boolean isAuthor(Long userId) {
         return this.authorId.equals(userId);
+    }
+
+    public void delete(Long requesterId) {
+        if (!isAuthor(requesterId)) {
+            throw new IllegalArgumentException("댓글 작성자 본인만 삭제할 수 있습니다.");
+        }
+        this.isDeleted = true;
     }
 }

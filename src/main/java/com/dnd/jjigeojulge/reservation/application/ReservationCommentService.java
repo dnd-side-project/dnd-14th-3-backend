@@ -36,8 +36,7 @@ public class ReservationCommentService {
         ReservationComment comment = ReservationComment.create(
                 command.reservationId(),
                 command.authorId(),
-                CommentContent.from(command.content())
-        );
+                CommentContent.from(command.content()));
 
         return reservationCommentRepository.save(comment).getId();
     }
@@ -53,10 +52,6 @@ public class ReservationCommentService {
         ReservationComment comment = reservationCommentRepository.findById(commentId)
                 .orElseThrow(CommentNotFoundException::new);
 
-        if (!comment.isAuthor(userId)) {
-            throw new IllegalArgumentException("댓글 작성자 본인만 삭제할 수 있습니다.");
-        }
-
-        reservationCommentRepository.delete(comment);
+        comment.delete(userId);
     }
 }

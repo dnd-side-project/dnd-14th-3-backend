@@ -42,9 +42,11 @@ class ReservationCommentServiceTest {
         Long authorId = 2L;
         AddCommentCommand command = new AddCommentCommand(reservationId, authorId, "테스트 댓글");
 
-        given(reservationRepository.findById(reservationId)).willReturn(Optional.of(mock(com.dnd.jjigeojulge.reservation.domain.Reservation.class)));
+        given(reservationRepository.findById(reservationId))
+                .willReturn(Optional.of(mock(com.dnd.jjigeojulge.reservation.domain.Reservation.class)));
         given(userRepository.existsById(authorId)).willReturn(true);
-        given(reservationCommentRepository.save(any(ReservationComment.class))).willAnswer(invocation -> invocation.getArgument(0));
+        given(reservationCommentRepository.save(any(ReservationComment.class)))
+                .willAnswer(invocation -> invocation.getArgument(0));
 
         // when
         Long commentId = reservationCommentService.addComment(command);
@@ -80,13 +82,12 @@ class ReservationCommentServiceTest {
         ReservationComment comment = mock(ReservationComment.class);
 
         given(reservationCommentRepository.findById(commentId)).willReturn(Optional.of(comment));
-        given(comment.isAuthor(userId)).willReturn(true);
 
         // when
         reservationCommentService.deleteComment(commentId, userId);
 
         // then
-        verify(reservationCommentRepository).delete(comment);
+        verify(comment).delete(userId);
     }
 
     @Test
@@ -98,7 +99,8 @@ class ReservationCommentServiceTest {
         ReservationComment comment = mock(ReservationComment.class);
 
         given(reservationCommentRepository.findById(commentId)).willReturn(Optional.of(comment));
-        given(comment.isAuthor(userId)).willReturn(false);
+        willThrow(new IllegalArgumentException("댓글 작성자 본인만 삭제할 수 있습니다."))
+                .given(comment).delete(userId);
 
         // when & then
         assertThatIllegalArgumentException()
