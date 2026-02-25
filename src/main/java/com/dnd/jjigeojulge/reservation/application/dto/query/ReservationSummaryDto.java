@@ -14,5 +14,7 @@ public record ReservationSummaryDto(
         Integer trustScore,
         ReservationStatus status,
         Long ownerId,
-        String ownerNickname) {
+        String ownerNickname,
+        com.dnd.jjigeojulge.user.domain.Gender ownerGender,
+        String ownerProfileImageUrl) {
 }

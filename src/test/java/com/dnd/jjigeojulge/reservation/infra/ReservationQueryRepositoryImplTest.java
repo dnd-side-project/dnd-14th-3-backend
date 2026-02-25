@@ -118,6 +118,10 @@ class ReservationQueryRepositoryImplTest {
 
         ReservationSearchCondition condition = ReservationSearchCondition.builder()
                 .region1Depth(Region1Depth.SEOUL)
+                .date(null)
+                .photoStyle(null)
+                .gender(null)
+                .keyword(null)
                 .build();
 
         // when
@@ -126,5 +130,85 @@ class ReservationQueryRepositoryImplTest {
         // then
         assertThat(result.getTotalElements()).isEqualTo(1);
         assertThat(result.getContent().get(0).specificPlace()).isEqualTo("서울숲");
+    }
+
+    @Test
+    @DisplayName("키워드 필터(제목, 장소명)로 예약 목록을 조회할 수 있다.")
+    void searchReservations_WithKeywordFilter() {
+        // given
+        User user = User.create(new OAuthInfo("123", OAuthProvider.KAKAO), "testUser", Gender.MALE, "url", null);
+        em.persist(user);
+
+        OwnerInfo ownerInfo1 = OwnerInfo.of(user.getId(), new ArrayList<>(List.of(StyleName.SNS_UPLOAD.name())));
+        LocalDateTime startTime = LocalDateTime.now().plusDays(1).withMinute(0).withSecond(0).withNano(0);
+        ScheduledTime scheduledTime = ScheduledTime.of(startTime, startTime.minusDays(1));
+        RequestMessage message = RequestMessage.from("사진 찍어주세요");
+
+        Reservation seoulRes = Reservation.create(ownerInfo1, ReservationTitle.from("멋진 프로필"), scheduledTime,
+                PlaceInfo.of(Region1Depth.SEOUL.getLabel(), "망원 한강공원", 37.5, 127.0),
+                ShootingDurationOption.TEN_MINUTES, message);
+        em.persist(seoulRes);
+
+        OwnerInfo ownerInfo2 = OwnerInfo.of(user.getId(), new ArrayList<>(List.of(StyleName.SNS_UPLOAD.name())));
+        Reservation busanRes = Reservation.create(ownerInfo2, ReservationTitle.from("가족 사진"), scheduledTime,
+                PlaceInfo.of(Region1Depth.BUSAN.getLabel(), "해운대", 35.1, 129.0),
+                ShootingDurationOption.TEN_MINUTES, message);
+        em.persist(busanRes);
+
+        em.flush();
+        em.clear();
+
+        ReservationSearchCondition condition = ReservationSearchCondition.builder()
+                .keyword("망원")
+                .build();
+
+        // when
+        Page<ReservationSummaryDto> result = queryRepository.searchReservations(condition, PageRequest.of(0, 10));
+
+        // then
+        assertThat(result.getTotalElements()).isEqualTo(1);
+        assertThat(result.getContent().get(0).title()).isEqualTo("멋진 프로필");
+    }
+
+    @Test
+    @DisplayName("성별 필터로 예약 목록을 조회할 수 있다.")
+    void searchReservations_WithGenderFilter() {
+        // given
+        User maleUser = User.create(new OAuthInfo("123", OAuthProvider.KAKAO), "maleUser", Gender.MALE, "url", null);
+        em.persist(maleUser);
+        User femaleUser = User.create(new OAuthInfo("456", OAuthProvider.KAKAO), "femaleUser", Gender.FEMALE, "url",
+                null);
+        em.persist(femaleUser);
+
+        OwnerInfo maleOwner = OwnerInfo.of(maleUser.getId(), new ArrayList<>(List.of(StyleName.SNS_UPLOAD.name())));
+        OwnerInfo femaleOwner = OwnerInfo.of(femaleUser.getId(), new ArrayList<>(List.of(StyleName.SNS_UPLOAD.name())));
+
+        LocalDateTime startTime = LocalDateTime.now().plusDays(1).withMinute(0).withSecond(0).withNano(0);
+        ScheduledTime scheduledTime = ScheduledTime.of(startTime, startTime.minusDays(1));
+        RequestMessage message = RequestMessage.from("사진 찍어주세요");
+
+        Reservation maleRes = Reservation.create(maleOwner, ReservationTitle.from("남자 동행 구해"), scheduledTime,
+                PlaceInfo.of(Region1Depth.SEOUL.getLabel(), "서울숲", 37.5, 127.0),
+                ShootingDurationOption.TEN_MINUTES, message);
+        em.persist(maleRes);
+
+        Reservation femaleRes = Reservation.create(femaleOwner, ReservationTitle.from("여자 동행 구해"), scheduledTime,
+                PlaceInfo.of(Region1Depth.SEOUL.getLabel(), "합정", 37.5, 127.0),
+                ShootingDurationOption.TEN_MINUTES, message);
+        em.persist(femaleRes);
+
+        em.flush();
+        em.clear();
+
+        ReservationSearchCondition condition = ReservationSearchCondition.builder()
+                .gender(Gender.FEMALE)
+                .build();
+
+        // when
+        Page<ReservationSummaryDto> result = queryRepository.searchReservations(condition, PageRequest.of(0, 10));
+
+        // then
+        assertThat(result.getTotalElements()).isEqualTo(1);
+        assertThat(result.getContent().get(0).title()).isEqualTo("여자 동행 구해");
     }
 }

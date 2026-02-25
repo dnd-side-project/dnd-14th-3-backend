@@ -4,6 +4,10 @@ import static com.dnd.jjigeojulge.reservation.domain.QApplicant.*;
 import static com.dnd.jjigeojulge.reservation.domain.QReservation.*;
 import static com.dnd.jjigeojulge.user.domain.QUser.*;
 
+import static com.dnd.jjigeojulge.reservation.domain.QApplicant.applicant;
+import static com.dnd.jjigeojulge.reservation.domain.QReservation.reservation;
+import static com.dnd.jjigeojulge.user.domain.QUser.user;
+
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -19,6 +23,7 @@ import com.dnd.jjigeojulge.reservation.application.dto.query.ReservationDetailDt
 import com.dnd.jjigeojulge.reservation.application.dto.query.ReservationSearchCondition;
 import com.dnd.jjigeojulge.reservation.application.dto.query.ReservationSummaryDto;
 import com.dnd.jjigeojulge.reservation.domain.Reservation;
+import com.dnd.jjigeojulge.reservation.domain.ReservationStatus;
 import com.dnd.jjigeojulge.reservation.domain.repository.ReservationQueryRepository;
 import com.dnd.jjigeojulge.reservation.domain.vo.Region1Depth;
 import com.dnd.jjigeojulge.user.domain.PhotoStyle;
@@ -37,13 +42,16 @@ public class ReservationQueryRepositoryImpl implements ReservationQueryRepositor
 	@Override
 	public Page<ReservationSummaryDto> searchReservations(ReservationSearchCondition condition, Pageable pageable) {
 		List<Tuple> results = queryFactory
-				.select(reservation, user.nickname)
+				.select(reservation, user.nickname, user.gender, user.profileImageUrl)
 				.from(reservation)
 				.leftJoin(user).on(reservation.ownerInfo.userId.eq(user.id))
 				.where(
 						region1DepthEq(condition.region1Depth()),
 						scheduledAtEq(condition.date()),
-						photoStyleContains(condition.photoStyle()))
+						photoStyleContains(condition.photoStyle()),
+						genderEq(condition.gender()),
+						keywordContains(condition.keyword()),
+						reservation.status.in(ReservationStatus.RECRUITING, ReservationStatus.CONFIRMED))
 				.orderBy(reservation.scheduledTime.time.asc())
 				.offset(pageable.getOffset())
 				.limit(pageable.getPageSize())
@@ -52,6 +60,8 @@ public class ReservationQueryRepositoryImpl implements ReservationQueryRepositor
 		List<ReservationSummaryDto> content = results.stream().map(tuple -> {
 			Reservation r = tuple.get(reservation);
 			String nickname = tuple.get(user.nickname);
+			com.dnd.jjigeojulge.user.domain.Gender userGender = tuple.get(user.gender);
+			String profileImageUrl = tuple.get(user.profileImageUrl);
 			return new ReservationSummaryDto(
 					r.getId(),
 					r.getTitle().getValue(),
@@ -61,16 +71,22 @@ public class ReservationQueryRepositoryImpl implements ReservationQueryRepositor
 					0,
 					r.getStatus(),
 					r.getOwnerInfo().getUserId(),
-					nickname);
+					nickname,
+					userGender,
+					profileImageUrl);
 		}).toList();
 
 		Long totalCount = queryFactory
 				.select(reservation.count())
 				.from(reservation)
+				.leftJoin(user).on(reservation.ownerInfo.userId.eq(user.id))
 				.where(
 						region1DepthEq(condition.region1Depth()),
 						scheduledAtEq(condition.date()),
-						photoStyleContains(condition.photoStyle()))
+						photoStyleContains(condition.photoStyle()),
+						genderEq(condition.gender()),
+						keywordContains(condition.keyword()),
+						reservation.status.in(ReservationStatus.RECRUITING, ReservationStatus.CONFIRMED))
 				.fetchOne();
 
 		return new PageImpl<>(content, pageable, totalCount != null ? totalCount : 0L);
@@ -177,5 +193,17 @@ public class ReservationQueryRepositoryImpl implements ReservationQueryRepositor
 	private BooleanExpression photoStyleContains(PhotoStyle photoStyle) {
 		return photoStyle != null ? reservation.ownerInfo.photoStyleSnapshot.contains(photoStyle.getName().name())
 				: null;
+	}
+
+	private BooleanExpression genderEq(com.dnd.jjigeojulge.user.domain.Gender gender) {
+		return gender != null ? user.gender.eq(gender) : null;
+	}
+
+	private BooleanExpression keywordContains(String keyword) {
+		if (keyword == null || keyword.isBlank()) {
+			return null;
+		}
+		return reservation.title.value.containsIgnoreCase(keyword)
+				.or(reservation.placeInfo.specificPlace.containsIgnoreCase(keyword));
 	}
 }
