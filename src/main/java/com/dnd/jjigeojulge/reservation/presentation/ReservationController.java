@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.dnd.jjigeojulge.global.common.response.ApiResponse;
 import com.dnd.jjigeojulge.global.common.response.PageResponse;
+import com.dnd.jjigeojulge.reservation.application.dto.query.AppliedReservationListDto;
+import com.dnd.jjigeojulge.reservation.application.dto.query.CreatedReservationListDto;
 import com.dnd.jjigeojulge.reservation.presentation.api.ReservationApi;
 import com.dnd.jjigeojulge.reservation.presentation.data.ReservationDto;
 import com.dnd.jjigeojulge.reservation.presentation.request.ReservationCreateRequest;
@@ -27,9 +29,8 @@ public class ReservationController implements ReservationApi {
 	@Override
 	@GetMapping
 	public ResponseEntity<ApiResponse<PageResponse<ReservationDto>>> getList(
-		@RequestParam(value = "cursor", required = false) Long cursor,
-		@RequestParam(defaultValue = "10") int limit
-	) {
+			@RequestParam(value = "cursor", required = false) Long cursor,
+			@RequestParam(defaultValue = "10") int limit) {
 		return ResponseEntity.ok(ApiResponse.success(null));
 	}
 
@@ -43,5 +44,23 @@ public class ReservationController implements ReservationApi {
 	@PostMapping
 	public ResponseEntity<ApiResponse<ReservationDto>> create(@RequestBody @Valid ReservationCreateRequest request) {
 		return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(null));
+	}
+
+	@Override
+	@GetMapping("/created")
+	public ResponseEntity<ApiResponse<PageResponse<CreatedReservationListDto>>> getMyCreatedReservations(
+			Long currentUserId,
+			@RequestParam(required = false) Long cursor,
+			@RequestParam(defaultValue = "10") int limit) {
+		return ResponseEntity.ok(ApiResponse.success(null));
+	}
+
+	@Override
+	@GetMapping("/applied")
+	public ResponseEntity<ApiResponse<PageResponse<AppliedReservationListDto>>> getMyAppliedReservations(
+			Long currentUserId,
+			@RequestParam(required = false) Long cursor,
+			@RequestParam(defaultValue = "10") int limit) {
+		return ResponseEntity.ok(ApiResponse.success(null));
 	}
 }
