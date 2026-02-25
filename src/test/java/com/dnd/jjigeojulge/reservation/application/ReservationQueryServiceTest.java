@@ -17,6 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 
+import com.dnd.jjigeojulge.global.common.enums.ShootingDurationOption;
 import com.dnd.jjigeojulge.reservation.application.dto.query.ReservationListResponseDto;
 import com.dnd.jjigeojulge.reservation.application.dto.query.ReservationSearchCondition;
 import com.dnd.jjigeojulge.reservation.application.dto.query.ReservationSummaryDto;
@@ -42,7 +43,8 @@ class ReservationQueryServiceTest {
                 LocalDateTime scheduledAt = now.plusHours(10);
 
                 ReservationSummaryDto dto = new ReservationSummaryDto(
-                                1L, "테스트 제목", scheduledAt, Region1Depth.SEOUL, "장소", List.of(), 50,
+                                1L, "테스트 제목", scheduledAt, Region1Depth.SEOUL, "장소", ShootingDurationOption.TEN_MINUTES,
+                                List.of(), 50,
                                 ReservationStatus.RECRUITING, 1L, "nick", Gender.MALE,
                                 "url");
                 Page<ReservationSummaryDto> page = new PageImpl<>(List.of(dto), PageRequest.of(0, 10), 1);
@@ -65,7 +67,8 @@ class ReservationQueryServiceTest {
                 LocalDateTime scheduledAt = now.plusHours(25);
 
                 ReservationSummaryDto dto = new ReservationSummaryDto(
-                                1L, "테스트 제목", scheduledAt, Region1Depth.SEOUL, "장소", List.of(), 50,
+                                1L, "테스트 제목", scheduledAt, Region1Depth.SEOUL, "장소", ShootingDurationOption.TEN_MINUTES,
+                                List.of(), 50,
                                 ReservationStatus.RECRUITING, 1L, "nick", Gender.MALE,
                                 "url");
                 Page<ReservationSummaryDto> page = new PageImpl<>(List.of(dto), PageRequest.of(0, 10), 1);
