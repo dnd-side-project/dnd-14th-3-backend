@@ -267,4 +267,53 @@ class ReservationQueryRepositoryImplTest {
                 assertThat(actualStyles.get(1)).isEqualTo("SYRUP_10");
                 assertThat(actualStyles.get(2)).isEqualTo("DAILY");
         }
+
+        @Test
+        @DisplayName("내가 지원한 예약 목록을 커서 페이징하여 조회할 수 있다.")
+        void getMyAppliedReservations() {
+                // given
+                User owner = User.create(new OAuthInfo("111", OAuthProvider.KAKAO), "owner", Gender.MALE, "url", null);
+                User applicant = User.create(new OAuthInfo("222", OAuthProvider.KAKAO), "applicant", Gender.FEMALE,
+                                "url", null);
+                em.persist(owner);
+                em.persist(applicant);
+
+                OwnerInfo ownerInfo1 = OwnerInfo.of(owner.getId(),
+                                new ArrayList<>(List.of(StyleName.SNS_UPLOAD.name())));
+                OwnerInfo ownerInfo2 = OwnerInfo.of(owner.getId(),
+                                new ArrayList<>(List.of(StyleName.SNS_UPLOAD.name())));
+                LocalDateTime startTime = LocalDateTime.now().plusDays(1).withMinute(0).withSecond(0).withNano(0);
+                ScheduledTime scheduledTime = ScheduledTime.of(startTime, startTime.minusDays(1));
+                PlaceInfo placeInfo = PlaceInfo.of(Region1Depth.SEOUL.getLabel(), "서울숲", 37.5445, 127.0374);
+                RequestMessage message = RequestMessage.from("사진 찍어주세요");
+
+                Reservation reservation1 = Reservation.create(ownerInfo1, ReservationTitle.from("예약1"), scheduledTime,
+                                placeInfo, ShootingDurationOption.THIRTY_PLUS_MINUTES, message);
+                Reservation reservation2 = Reservation.create(ownerInfo2, ReservationTitle.from("예약2"), scheduledTime,
+                                placeInfo, ShootingDurationOption.THIRTY_PLUS_MINUTES, message);
+                em.persist(reservation1);
+                em.persist(reservation2);
+
+                com.dnd.jjigeojulge.reservation.domain.Applicant app1 = com.dnd.jjigeojulge.reservation.domain.Applicant
+                                .create(reservation1, applicant.getId());
+                com.dnd.jjigeojulge.reservation.domain.Applicant app2 = com.dnd.jjigeojulge.reservation.domain.Applicant
+                                .create(reservation2, applicant.getId());
+                reservation1.apply(app1, LocalDateTime.now());
+                reservation2.apply(app2, LocalDateTime.now());
+
+                em.flush();
+                em.clear();
+
+                // when
+                Page<com.dnd.jjigeojulge.reservation.application.dto.query.AppliedReservationListDto> result = queryRepository
+                                .getMyAppliedReservations(applicant.getId(), null, 10);
+
+                // then
+                assertThat(result.getTotalElements()).isEqualTo(2);
+                assertThat(result.getContent()).hasSize(2);
+                // 역순 정렬 확인
+                assertThat(result.getContent().get(0).title()).isEqualTo("예약2");
+                assertThat(result.getContent().get(1).title()).isEqualTo("예약1");
+                assertThat(result.getContent().get(0).applicantCount()).isEqualTo(1L);
+        }
 }

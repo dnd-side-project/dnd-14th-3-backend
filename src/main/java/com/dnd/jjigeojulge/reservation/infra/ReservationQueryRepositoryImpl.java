@@ -11,6 +11,10 @@ import static com.dnd.jjigeojulge.user.domain.QUser.user;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import static com.dnd.jjigeojulge.reservation.domain.QApplicant.*;
+import static com.dnd.jjigeojulge.reservation.domain.QReservation.*;
+
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,6 +24,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Repository;
 
 import com.dnd.jjigeojulge.reservation.application.dto.query.ApplicantInfoDto;
+import com.dnd.jjigeojulge.reservation.application.dto.query.AppliedReservationListDto;
 import com.dnd.jjigeojulge.reservation.application.dto.query.CreatedReservationListDto;
 import com.dnd.jjigeojulge.reservation.application.dto.query.MyReservationDetailDto;
 import com.dnd.jjigeojulge.reservation.application.dto.query.ReservationDetailDto;
@@ -139,6 +144,53 @@ public class ReservationQueryRepositoryImpl implements ReservationQueryRepositor
 				.select(reservation.count())
 				.from(reservation)
 				.where(reservation.ownerInfo.userId.eq(ownerId))
+				.fetchOne();
+
+		return new PageImpl<>(content, PageRequest.of(0, limit), totalCount != null ? totalCount : 0L);
+	}
+
+	@Override
+	public Page<AppliedReservationListDto> getMyAppliedReservations(Long applicantId, Long cursor, int limit) {
+		LocalDateTime now = LocalDateTime.now();
+
+		List<Tuple> results = queryFactory
+				.select(
+						reservation,
+						applicant.status,
+						JPAExpressions.select(applicant.count())
+								.from(applicant)
+								.where(applicant.reservation.id.eq(reservation.id)))
+				.from(applicant)
+				.join(applicant.reservation, reservation)
+				.where(
+						applicant.userId.eq(applicantId),
+						cursor != null ? applicant.reservation.id.lt(cursor) : null)
+				.orderBy(applicant.reservation.id.desc())
+				.limit(limit)
+				.fetch();
+
+		List<AppliedReservationListDto> content = results.stream().map(tuple -> {
+			Reservation r = tuple.get(reservation);
+			com.dnd.jjigeojulge.reservation.domain.ApplicantStatus applicantStatus = tuple.get(applicant.status);
+			Long currentApplicantCount = tuple.get(2, Long.class);
+
+			return AppliedReservationListDto.of(
+					r.getId(),
+					r.getStatus(),
+					applicantStatus,
+					r.getTitle().getValue(),
+					r.getScheduledTime().getTime(),
+					r.getPlaceInfo().getRegion1Depth(),
+					r.getPlaceInfo().getSpecificPlace(),
+					r.getShootingDuration(),
+					currentApplicantCount != null ? currentApplicantCount : 0L,
+					now);
+		}).toList();
+
+		Long totalCount = queryFactory
+				.select(applicant.count())
+				.from(applicant)
+				.where(applicant.userId.eq(applicantId))
 				.fetchOne();
 
 		return new PageImpl<>(content, PageRequest.of(0, limit), totalCount != null ? totalCount : 0L);

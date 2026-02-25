@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.dnd.jjigeojulge.reservation.application.dto.query.AppliedReservationListDto;
 import com.dnd.jjigeojulge.reservation.application.dto.query.CreatedReservationListDto;
 import com.dnd.jjigeojulge.reservation.application.dto.query.MyReservationDetailDto;
 import com.dnd.jjigeojulge.reservation.application.dto.query.ReservationCommentDto;
@@ -33,6 +34,10 @@ public class ReservationQueryService {
 
     public Page<CreatedReservationListDto> getMyCreatedReservations(Long ownerId, Long cursor, int limit) {
         return reservationQueryRepository.getMyCreatedReservations(ownerId, cursor, limit);
+    }
+
+    public Page<AppliedReservationListDto> getMyAppliedReservations(Long applicantId, Long cursor, int limit) {
+        return reservationQueryRepository.getMyAppliedReservations(applicantId, cursor, limit);
     }
 
     public MyReservationDetailDto getMyReservationDetail(Long reservationId, Long ownerId) {
