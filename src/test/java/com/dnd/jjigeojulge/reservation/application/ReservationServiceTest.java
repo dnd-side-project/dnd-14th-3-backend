@@ -45,8 +45,7 @@ class ReservationServiceTest {
                 // given
                 Long userId = 1L;
                 CreateReservationCommand command = new CreateReservationCommand(
-                                userId,
-                                "서울특별시",
+                                userId, "멋진 제주도 스냅", "서울특별시",
                                 "강남역",
                                 37.4979,
                                 127.0276,
@@ -81,7 +80,7 @@ class ReservationServiceTest {
                 Long reservationId = 1L;
                 Long ownerId = 10L;
                 UpdateReservationCommand command = new UpdateReservationCommand(
-                                reservationId, ownerId, "서울특별시", "홍대입구역", 37.5568, 126.9242,
+                                reservationId, ownerId, "여행 사진 부탁드려요", "서울특별시", "홍대입구역", 37.5568, 126.9242,
                                 LocalDateTime.now().plusDays(2).withMinute(0).withSecond(0).withNano(0),
                                 ShootingDurationOption.THIRTY_PLUS_MINUTES, "메시지 수정");
                 Reservation reservation = mock(Reservation.class);
@@ -91,7 +90,8 @@ class ReservationServiceTest {
                 reservationService.updateReservation(command);
 
                 // then
-                verify(reservation).update(eq(ownerId), any(), any(), eq(ShootingDurationOption.THIRTY_PLUS_MINUTES),
+                verify(reservation).update(eq(ownerId), any(), any(), any(),
+                                eq(ShootingDurationOption.THIRTY_PLUS_MINUTES),
                                 any(), any(LocalDateTime.class));
         }
 

@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Import;
 import com.dnd.jjigeojulge.config.AppConfig;
 import com.dnd.jjigeojulge.global.common.enums.ShootingDurationOption;
 import com.dnd.jjigeojulge.reservation.domain.Reservation;
+import com.dnd.jjigeojulge.reservation.domain.vo.ReservationTitle;
 import com.dnd.jjigeojulge.reservation.domain.ReservationComment;
 import com.dnd.jjigeojulge.reservation.domain.repository.ReservationCommentQueryRepository;
 import com.dnd.jjigeojulge.reservation.domain.repository.ReservationCommentRepository;
@@ -90,6 +91,6 @@ class ReservationCommentRepositoryTest {
         LocalDateTime future = LocalDateTime.now().plusDays(1).withMinute(30).withSecond(0).withNano(0);
         ScheduledTime scheduledTime = ScheduledTime.of(future, LocalDateTime.now());
         PlaceInfo placeInfo = PlaceInfo.of("서울특별시", "강남역", 37.4979, 127.0276);
-        return Reservation.create(ownerInfo, scheduledTime, placeInfo, ShootingDurationOption.TEN_MINUTES, RequestMessage.from(""));
+        return Reservation.create(ownerInfo, ReservationTitle.from("테스트 제목"), scheduledTime, placeInfo, ShootingDurationOption.TEN_MINUTES, RequestMessage.from(""));
     }
 }

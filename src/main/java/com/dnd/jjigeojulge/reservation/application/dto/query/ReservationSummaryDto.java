@@ -7,6 +7,7 @@ import com.dnd.jjigeojulge.reservation.domain.ReservationStatus;
 
 public record ReservationSummaryDto(
         Long reservationId,
+        String title,
         LocalDateTime scheduledAt,
         String specificPlace,
         List<String> photoStyleSnapshot,

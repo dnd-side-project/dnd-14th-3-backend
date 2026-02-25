@@ -9,6 +9,7 @@ import com.dnd.jjigeojulge.global.common.enums.ShootingDurationOption;
 import com.dnd.jjigeojulge.reservation.domain.vo.OwnerInfo;
 import com.dnd.jjigeojulge.reservation.domain.vo.PlaceInfo;
 import com.dnd.jjigeojulge.reservation.domain.vo.RequestMessage;
+import com.dnd.jjigeojulge.reservation.domain.vo.ReservationTitle;
 import com.dnd.jjigeojulge.reservation.domain.vo.ScheduledTime;
 
 import jakarta.persistence.Column;
@@ -32,6 +33,9 @@ public class Reservation extends BaseUpdatableEntity {
         private OwnerInfo ownerInfo;
 
         @Embedded
+        private ReservationTitle title;
+
+        @Embedded
         private ScheduledTime scheduledTime;
 
         @Embedded
@@ -53,12 +57,14 @@ public class Reservation extends BaseUpdatableEntity {
 
         private Reservation(
                         OwnerInfo ownerInfo,
+                        ReservationTitle title,
                         ScheduledTime scheduledTime,
                         PlaceInfo placeInfo,
                         ShootingDurationOption shootingDuration,
                         RequestMessage requestMessage,
                         ReservationStatus status) {
                 this.ownerInfo = ownerInfo;
+                this.title = title;
                 this.scheduledTime = scheduledTime;
                 this.placeInfo = placeInfo;
                 this.shootingDuration = shootingDuration;
@@ -68,14 +74,16 @@ public class Reservation extends BaseUpdatableEntity {
 
         public static Reservation create(
                         OwnerInfo ownerInfo,
+                        ReservationTitle title,
                         ScheduledTime scheduledTime,
                         PlaceInfo placeInfo,
                         ShootingDurationOption shootingDuration,
                         RequestMessage requestMessage) {
-                validateCreationData(ownerInfo, scheduledTime, placeInfo, shootingDuration);
+                validateCreationData(ownerInfo, title, scheduledTime, placeInfo, shootingDuration);
 
                 return new Reservation(
                                 ownerInfo,
+                                title,
                                 scheduledTime,
                                 placeInfo,
                                 shootingDuration,
@@ -85,11 +93,15 @@ public class Reservation extends BaseUpdatableEntity {
 
         private static void validateCreationData(
                         OwnerInfo ownerInfo,
+                        ReservationTitle title,
                         ScheduledTime scheduledTime,
                         PlaceInfo placeInfo,
                         ShootingDurationOption shootingDuration) {
                 if (ownerInfo == null) {
                         throw new IllegalArgumentException("작성자(Owner) 정보는 필수입니다.");
+                }
+                if (title == null) {
+                        throw new IllegalArgumentException("예약 제목 정보는 필수입니다.");
                 }
                 validateReservationData(scheduledTime, placeInfo, shootingDuration);
         }
@@ -189,12 +201,14 @@ public class Reservation extends BaseUpdatableEntity {
 
         public void update(
                         Long requesterId,
+                        ReservationTitle title,
                         ScheduledTime scheduledTime,
                         PlaceInfo placeInfo,
                         ShootingDurationOption shootingDuration,
                         RequestMessage requestMessage,
                         LocalDateTime now) {
-                validateUpdate(requesterId, scheduledTime, placeInfo, shootingDuration, now);
+                validateUpdate(requesterId, title, scheduledTime, placeInfo, shootingDuration, now);
+                this.title = title;
                 this.scheduledTime = scheduledTime;
                 this.placeInfo = placeInfo;
                 this.shootingDuration = shootingDuration;
@@ -203,6 +217,7 @@ public class Reservation extends BaseUpdatableEntity {
 
         private void validateUpdate(
                         Long requesterId,
+                        ReservationTitle title,
                         ScheduledTime scheduledTime,
                         PlaceInfo placeInfo,
                         ShootingDurationOption shootingDuration,
@@ -215,6 +230,9 @@ public class Reservation extends BaseUpdatableEntity {
                 }
                 if (!this.status.isRecruiting()) {
                         throw new IllegalStateException("모집 중(RECRUITING)인 상태에서만 예약 정보를 수정할 수 있습니다.");
+                }
+                if (title == null) {
+                        throw new IllegalArgumentException("예약 제목 정보는 필수입니다.");
                 }
                 validateReservationData(scheduledTime, placeInfo, shootingDuration);
         }

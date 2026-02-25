@@ -5,13 +5,13 @@ import java.time.LocalDateTime;
 import com.dnd.jjigeojulge.global.common.enums.ShootingDurationOption;
 
 public record CreateReservationCommand(
-        Long userId,
-        String region1Depth,
-        String specificPlace,
-        Double latitude,
-        Double longitude,
-        LocalDateTime scheduledAt,
-        ShootingDurationOption shootingDuration,
-        String requestMessage
-) {
+                Long userId,
+                String title,
+                String region1Depth,
+                String specificPlace,
+                Double latitude,
+                Double longitude,
+                LocalDateTime scheduledAt,
+                ShootingDurationOption shootingDuration,
+                String requestMessage) {
 }

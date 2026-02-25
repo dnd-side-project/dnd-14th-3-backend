@@ -14,6 +14,7 @@ import com.dnd.jjigeojulge.reservation.domain.repository.ReservationRepository;
 import com.dnd.jjigeojulge.reservation.domain.vo.OwnerInfo;
 import com.dnd.jjigeojulge.reservation.domain.vo.PlaceInfo;
 import com.dnd.jjigeojulge.reservation.domain.vo.RequestMessage;
+import com.dnd.jjigeojulge.reservation.domain.vo.ReservationTitle;
 import com.dnd.jjigeojulge.reservation.domain.vo.ScheduledTime;
 import com.dnd.jjigeojulge.user.domain.PhotoStyle;
 import com.dnd.jjigeojulge.user.domain.User;
@@ -43,6 +44,7 @@ public class ReservationService {
                                                 .map(Enum::name)
                                                 .toList());
 
+                ReservationTitle title = ReservationTitle.from(command.title());
                 ScheduledTime scheduledTime = ScheduledTime.of(command.scheduledAt(), LocalDateTime.now());
                 PlaceInfo placeInfo = PlaceInfo.of(
                                 command.region1Depth(),
@@ -53,6 +55,7 @@ public class ReservationService {
 
                 Reservation reservation = Reservation.create(
                                 ownerInfo,
+                                title,
                                 scheduledTime,
                                 placeInfo,
                                 command.shootingDuration(),
@@ -65,6 +68,7 @@ public class ReservationService {
                 Reservation reservation = findReservationById(command.reservationId());
 
                 LocalDateTime now = LocalDateTime.now();
+                ReservationTitle title = ReservationTitle.from(command.title());
                 ScheduledTime scheduledTime = ScheduledTime.of(command.scheduledAt(), now);
                 PlaceInfo placeInfo = PlaceInfo.of(
                                 command.region1Depth(),
@@ -75,6 +79,7 @@ public class ReservationService {
 
                 reservation.update(
                                 command.userId(),
+                                title,
                                 scheduledTime,
                                 placeInfo,
                                 command.shootingDuration(),

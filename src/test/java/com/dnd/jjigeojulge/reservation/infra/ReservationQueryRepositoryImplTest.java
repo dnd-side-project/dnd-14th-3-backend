@@ -24,6 +24,7 @@ import com.dnd.jjigeojulge.reservation.domain.vo.OwnerInfo;
 import com.dnd.jjigeojulge.reservation.domain.vo.PlaceInfo;
 import com.dnd.jjigeojulge.reservation.domain.vo.Region1Depth;
 import com.dnd.jjigeojulge.reservation.domain.vo.RequestMessage;
+import com.dnd.jjigeojulge.reservation.domain.vo.ReservationTitle;
 import com.dnd.jjigeojulge.reservation.domain.vo.ScheduledTime;
 import com.dnd.jjigeojulge.user.domain.Gender;
 import com.dnd.jjigeojulge.user.domain.OAuthInfo;
@@ -63,14 +64,16 @@ class ReservationQueryRepositoryImplTest {
         PlaceInfo placeInfo = PlaceInfo.of(Region1Depth.SEOUL.getLabel(), "서울숲", 37.5445, 127.0374);
         RequestMessage message = RequestMessage.from("사진 찍어주세요");
 
-        Reservation reservation1 = Reservation.create(ownerInfo1, scheduledTime, placeInfo,
-                ShootingDurationOption.TEN_MINUTES, message);
+        Reservation reservation1 = Reservation.create(ownerInfo1, ReservationTitle.from("제목1"), scheduledTime,
+                placeInfo, ShootingDurationOption.THIRTY_PLUS_MINUTES,
+                RequestMessage.from("요청1"));
         em.persist(reservation1);
 
         OwnerInfo ownerInfo2 = OwnerInfo.of(user.getId(),
                 new ArrayList<>(List.of(StyleName.SNS_UPLOAD.name(), StyleName.PERSONAL_RECORD.name())));
-        Reservation reservation2 = Reservation.create(ownerInfo2, scheduledTime, placeInfo,
-                ShootingDurationOption.TWENTY_MINUTES, message);
+        Reservation reservation2 = Reservation.create(ownerInfo2, ReservationTitle.from("제목2"), scheduledTime,
+                placeInfo, ShootingDurationOption.THIRTY_PLUS_MINUTES,
+                RequestMessage.from("요청2"));
         em.persist(reservation2);
 
         em.flush();
@@ -99,13 +102,13 @@ class ReservationQueryRepositoryImplTest {
         ScheduledTime scheduledTime = ScheduledTime.of(startTime, startTime.minusDays(1));
         RequestMessage message = RequestMessage.from("사진 찍어주세요");
 
-        Reservation seoulRes = Reservation.create(ownerInfo1, scheduledTime,
+        Reservation seoulRes = Reservation.create(ownerInfo1, ReservationTitle.from("테스트 제목"), scheduledTime,
                 PlaceInfo.of(Region1Depth.SEOUL.getLabel(), "서울숲", 37.5, 127.0),
                 ShootingDurationOption.TEN_MINUTES, message);
         em.persist(seoulRes);
 
         OwnerInfo ownerInfo2 = OwnerInfo.of(user.getId(), new ArrayList<>(List.of(StyleName.SNS_UPLOAD.name())));
-        Reservation busanRes = Reservation.create(ownerInfo2, scheduledTime,
+        Reservation busanRes = Reservation.create(ownerInfo2, ReservationTitle.from("테스트 제목"), scheduledTime,
                 PlaceInfo.of(Region1Depth.BUSAN.getLabel(), "해운대", 35.1, 129.0),
                 ShootingDurationOption.TEN_MINUTES, message);
         em.persist(busanRes);

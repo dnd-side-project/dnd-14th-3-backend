@@ -12,6 +12,7 @@ public record ReservationDetailDto(
         String ownerNickname,
         String ownerProfileImageUrl,
         Integer ownerTrustScore,
+        String title,
         LocalDateTime scheduledAt,
         String specificPlace,
         List<String> photoStyleSnapshot,

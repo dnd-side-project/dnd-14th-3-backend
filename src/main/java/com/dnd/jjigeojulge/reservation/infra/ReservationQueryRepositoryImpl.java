@@ -54,6 +54,7 @@ public class ReservationQueryRepositoryImpl implements ReservationQueryRepositor
 			String nickname = tuple.get(user.nickname);
 			return new ReservationSummaryDto(
 					r.getId(),
+					r.getTitle().getValue(),
 					r.getScheduledTime().getTime(), // ScheduledTime 객체의 time 필드
 					r.getPlaceInfo().getSpecificPlace(),
 					r.getOwnerInfo().getPhotoStyleSnapshot(), // ElementCollection List<String>
@@ -114,6 +115,7 @@ public class ReservationQueryRepositoryImpl implements ReservationQueryRepositor
 
 		MyReservationDetailDto dto = new MyReservationDetailDto(
 				r.getId(),
+				r.getTitle().getValue(),
 				r.getScheduledTime().getTime(),
 				r.getPlaceInfo().getSpecificPlace(),
 				r.getOwnerInfo().getPhotoStyleSnapshot(),
@@ -149,6 +151,7 @@ public class ReservationQueryRepositoryImpl implements ReservationQueryRepositor
 				nickname,
 				profileImageUrl,
 				0,
+				r.getTitle().getValue(),
 				r.getScheduledTime().getTime(),
 				r.getPlaceInfo().getSpecificPlace(),
 				r.getOwnerInfo().getPhotoStyleSnapshot(),
