@@ -10,6 +10,7 @@ import com.dnd.jjigeojulge.global.common.dto.GeoPoint;
 import com.dnd.jjigeojulge.matchproposal.infra.MatchGeoQueueRepository;
 import com.dnd.jjigeojulge.matchrequest.domain.MatchRequest;
 import com.dnd.jjigeojulge.matchrequest.domain.MatchRequestStatus;
+import com.dnd.jjigeojulge.matchrequest.exception.MatchRequestAlreadyProcessedException;
 import com.dnd.jjigeojulge.matchrequest.infra.MatchRequestRepository;
 import com.dnd.jjigeojulge.matchrequest.presentation.data.MatchRequestDto;
 import com.dnd.jjigeojulge.matchrequest.presentation.request.MatchRequestCreateRequest;
@@ -40,17 +41,15 @@ public class MatchRequestService {
 		// 2. 유저 당 1개 WAITING
 		boolean exists = matchRequestRepository.existsByUserIdAndStatus(user.getId(), MatchRequestStatus.WAITING);
 
-		// 3. 이미 요청이 waiting으로 존재할 경우 정책, 임시로 생성한 예외 이후 리팩토링
-		// TODO 정확히 요청이 이미 존재할 경우 처리 방법 회의
-		// TODO 에러 발생 시 500 에러나옴, 커스텀 에러 생성하기
+		// 3. 이미 요청이 waiting으로 존재할 경우 정책
 		if (exists) {
-			throw new IllegalStateException("이미 요청이 존재합니다.");
+			throw new MatchRequestAlreadyProcessedException();
 		}
 
 		LocalDateTime now = LocalDateTime.now();
 		LocalDateTime expiresAt = now.plusMinutes(REQUEST_TTL_MIN);
 
-		// 3. 생성 및 저장 (정적메 엔티티 내부에 생성)
+		// 3. 생성 및 저장
 		GeoPoint location = request.location();
 		MatchRequest matchRequest = MatchRequest.builder()
 			.latitude(BigDecimal.valueOf(location.latitude()))
@@ -64,7 +63,7 @@ public class MatchRequestService {
 			.build();
 
 		MatchRequest saved = matchRequestRepository.save(matchRequest);
-		// TODO 트랜잭션 롤백 시 레디스도 롤백 되지 않는 부분 문제 해결
+		// TODO 트랜잭션 롤백 시 레디스도 롤백 되지 않는 부분 문제 해결 필요
 		matchGeoQueueRepository.addWaitingUser(userId, location);
 		return toDto(saved);
 	}
@@ -84,6 +83,11 @@ public class MatchRequestService {
 				matchGeoQueueRepository.removeWaitingUser(userId);
 				log.info("MatchRequest cancelled. userId={}, matchRequestId={}", userId, matchRequest.getId());
 			});
+	}
+
+	@Transactional
+	public MatchRequestDto retry(Long userId, Long matchRequestId) {
+		return null;
 	}
 
 	private static MatchRequestDto toDto(MatchRequest saved) {
