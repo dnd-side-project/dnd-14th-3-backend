@@ -17,4 +17,19 @@ public record PageResponse<T>(
 				page.hasNext(),
 				page.getTotalElements());
 	}
+
+	public static <T, C> PageResponse<T> fromCursor(org.springframework.data.domain.Page<T> page,
+			java.util.function.Function<T, C> cursorExtractor) {
+		C nextCursor = null;
+		if (page.hasNext() && !page.getContent().isEmpty()) {
+			nextCursor = cursorExtractor.apply(page.getContent().get(page.getContent().size() - 1));
+		}
+
+		return new PageResponse<>(
+				page.getContent(),
+				nextCursor,
+				page.getSize(),
+				page.hasNext(),
+				page.getTotalElements());
+	}
 }
