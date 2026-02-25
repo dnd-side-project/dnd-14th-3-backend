@@ -66,6 +66,7 @@ public class ReservationQueryRepositoryImpl implements ReservationQueryRepositor
 					r.getId(),
 					r.getTitle().getValue(),
 					r.getScheduledTime().getTime(), // ScheduledTime 객체의 time 필드
+					r.getPlaceInfo().getRegion1Depth(),
 					r.getPlaceInfo().getSpecificPlace(),
 					r.getOwnerInfo().getPhotoStyleSnapshot(), // ElementCollection List<String>
 					0,

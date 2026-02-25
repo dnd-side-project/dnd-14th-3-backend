@@ -4,11 +4,13 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import com.dnd.jjigeojulge.reservation.domain.ReservationStatus;
+import com.dnd.jjigeojulge.reservation.domain.vo.Region1Depth;
 
 public record ReservationListResponseDto(
         Long reservationId,
         String title,
         LocalDateTime scheduledAt,
+        Region1Depth region1Depth,
         String specificPlace,
         List<String> photoStyleSnapshot,
         Integer trustScore,
@@ -30,6 +32,7 @@ public record ReservationListResponseDto(
                 dto.reservationId(),
                 dto.title(),
                 dto.scheduledAt(),
+                dto.region1Depth(),
                 dto.specificPlace(),
                 dto.photoStyleSnapshot(),
                 dto.trustScore(),
@@ -38,7 +41,6 @@ public record ReservationListResponseDto(
                 dto.ownerId(),
                 dto.ownerNickname(),
                 dto.ownerGender(),
-                dto.ownerProfileImageUrl()
-        );
+                dto.ownerProfileImageUrl());
     }
 }
