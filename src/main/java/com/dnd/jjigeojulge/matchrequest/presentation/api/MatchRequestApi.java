@@ -115,4 +115,82 @@ public interface MatchRequestApi {
 		)
 	})
 	ResponseEntity<Void> cancel(@Parameter(hidden = true) CustomUserDetails userDetails);
+
+	@Operation(
+		summary = "실시간 매칭 재시도 요청",
+		description = """
+			만료(EXPIRED)된 매칭 요청을 재시도 상태로 전환합니다.
+			
+			- 요청자는 해당 matchRequest의 소유자여야 합니다.
+			- 현재 상태가 EXPIRED가 아니면 실패합니다.
+			"""
+	)
+	@ApiResponses(value = {
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(
+			responseCode = "200", description = "재시도 성공"
+		),
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(
+			responseCode = "401",
+			description = "인증 실패(토큰 누락/만료)",
+			content = @Content(
+				mediaType = "application/json",
+				examples = @ExampleObject(value = """
+					{
+					  "success": false,
+					  "message": "인증이 필요합니다.",
+					  "code": "UNAUTHORIZED",
+					  "data": null
+					}
+					""")
+			)
+		),
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(
+			responseCode = "403", description = "권한 문제",
+			content = @Content(
+				mediaType = "application/json",
+				examples = @ExampleObject(value = """
+					{
+					  "success": false,
+					  "message": "본인의 매칭 요청만 조작할 수 있습니다.",
+					  "code": "NOT_MATCH_REQUEST_OWNER",
+					  "data": null
+					}
+					""")
+			)
+		),
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(
+			responseCode = "404",
+			description = "매칭 요청을 찾을 수 없음",
+			content = @Content(
+				mediaType = "application/json",
+				examples = @ExampleObject(value = """
+					{
+					  "success": false,
+					  "message": "매칭 요청을 찾을 수 없습니다.",
+					  "code": "MATCH_REQUEST_NOT_FOUND",
+					  "data": null
+					}
+					""")
+			)
+		),
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(
+			responseCode = "409",
+			description = "상태 충돌(EXPIRED가 아닌데 retry 시도, 혹은 이미 진행 중)",
+			content = @Content(
+				mediaType = "application/json",
+				examples = @ExampleObject(value = """
+					{
+					  "success": false,
+					  "message": "아직 대기 시간이 남아있어 재시도할 수 없습니다.",
+					  "code": "MATCH_REQUEST_NOT_EXPIRED",
+					  "data": null
+					}
+					""")
+			)
+		)
+	})
+	ResponseEntity<ApiResponse<MatchRequestDto>> retry(
+		@Parameter(description = "재시도할 매칭 요청 ID", example = "10", required = true) Long matchRequestId,
+		@Parameter(hidden = true) CustomUserDetails userDetails
+	);
 }

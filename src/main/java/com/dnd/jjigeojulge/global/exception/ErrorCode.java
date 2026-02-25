@@ -25,6 +25,9 @@ public enum ErrorCode {
 	INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다."),
 	TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "토큰이 만료되었습니다."),
 
+	// ===== 403 Forbidden =====
+	NOT_MATCH_REQUEST_OWNER(HttpStatus.FORBIDDEN, "본인의 매칭 요청만 조작할 수 있습니다."),
+
 	// ===== 404 Not Found =====
 	RESOURCE_NOT_FOUND(HttpStatus.NOT_FOUND, "요청한 리소스를 찾을 수 없습니다."),
 	USER_NOT_FOUND(HttpStatus.NOT_FOUND, "User를 찾을 수 없습니다."),
@@ -40,6 +43,7 @@ public enum ErrorCode {
 	// ===== 409 Conflict =====
 	CONFLICT(HttpStatus.CONFLICT, "요청이 현재 서버 상태와 충돌합니다."),
 	MATCH_REQUEST_ALREADY_PROCESSED(HttpStatus.CONFLICT, "이미 진행 중인 매칭 요청이 존재합니다."),
+	MATCH_REQUEST_NOT_EXPIRED(HttpStatus.CONFLICT, "아직 대기 시간이 남아있어 재시도할 수 없습니다."),
 
 	// ===== 500 Internal Server Error =====
 	INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 내부 오류가 발생했습니다. 관리자에게 문의하세요."),
