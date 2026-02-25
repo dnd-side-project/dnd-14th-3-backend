@@ -105,11 +105,12 @@ public class MatchRequestService {
 			});
 
 		// 시간 기준으로 만료 여부 체크 (배치가 미처 status를 안 바꿨어도 통과)
-		if (!matchRequest.isExpired(LocalDateTime.now())) {
+		LocalDateTime now = LocalDateTime.now();
+		if (!matchRequest.isExpired(now)) {
 			throw new MatchRequestNotExpiredException();
 		}
 
-		matchRequest.retry(LocalDateTime.now().plusMinutes(REQUEST_TTL_MIN));
+		matchRequest.retry(now.plusMinutes(REQUEST_TTL_MIN));
 		matchGeoQueueRepository.addWaitingUser(userId, matchRequest.toGeoPoint());
 
 		return toDto(matchRequest);
