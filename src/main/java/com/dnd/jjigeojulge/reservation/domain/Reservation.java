@@ -52,6 +52,9 @@ public class Reservation extends BaseUpdatableEntity {
         @Column(name = "status", nullable = false)
         private ReservationStatus status;
 
+        @Column(name = "view_count", nullable = false)
+        private int viewCount = 0;
+
         @OneToMany(mappedBy = "reservation", cascade = jakarta.persistence.CascadeType.ALL, orphanRemoval = true)
         private List<Applicant> applicants = new ArrayList<>();
 

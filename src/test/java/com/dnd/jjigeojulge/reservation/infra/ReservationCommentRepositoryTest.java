@@ -25,12 +25,15 @@ import com.dnd.jjigeojulge.reservation.domain.vo.PlaceInfo;
 import com.dnd.jjigeojulge.reservation.domain.vo.RequestMessage;
 import com.dnd.jjigeojulge.reservation.domain.vo.ScheduledTime;
 
+import com.dnd.jjigeojulge.global.config.QuerydslConfig;
+
 @DataJpaTest
 @Import({
-    ReservationRepositoryImpl.class, 
-    ReservationCommentRepositoryImpl.class, 
-    ReservationCommentQueryRepositoryImpl.class,
-    AppConfig.class
+        ReservationRepositoryImpl.class,
+        ReservationCommentRepositoryImpl.class,
+        ReservationCommentQueryRepositoryImpl.class,
+        AppConfig.class,
+        QuerydslConfig.class
 })
 class ReservationCommentRepositoryTest {
 
@@ -53,8 +56,7 @@ class ReservationCommentRepositoryTest {
         ReservationComment comment = ReservationComment.create(
                 reservation.getId(),
                 1L,
-                CommentContent.from("테스트 댓글입니다.")
-        );
+                CommentContent.from("테스트 댓글입니다."));
 
         // when
         ReservationComment savedComment = reservationCommentRepository.save(comment);
@@ -74,11 +76,14 @@ class ReservationCommentRepositoryTest {
         Reservation reservation = createReservation();
         reservationRepository.save(reservation);
 
-        reservationCommentRepository.save(ReservationComment.create(reservation.getId(), 1L, CommentContent.from("첫 번째 댓글")));
-        reservationCommentRepository.save(ReservationComment.create(reservation.getId(), 2L, CommentContent.from("두 번째 댓글")));
+        reservationCommentRepository
+                .save(ReservationComment.create(reservation.getId(), 1L, CommentContent.from("첫 번째 댓글")));
+        reservationCommentRepository
+                .save(ReservationComment.create(reservation.getId(), 2L, CommentContent.from("두 번째 댓글")));
 
         // when
-        List<ReservationComment> comments = reservationCommentQueryRepository.findAllByReservationId(reservation.getId());
+        List<ReservationComment> comments = reservationCommentQueryRepository
+                .findAllByReservationId(reservation.getId());
 
         // then
         assertThat(comments).hasSize(2);
@@ -91,6 +96,7 @@ class ReservationCommentRepositoryTest {
         LocalDateTime future = LocalDateTime.now().plusDays(1).withMinute(30).withSecond(0).withNano(0);
         ScheduledTime scheduledTime = ScheduledTime.of(future, LocalDateTime.now());
         PlaceInfo placeInfo = PlaceInfo.of("서울특별시", "강남역", 37.4979, 127.0276);
-        return Reservation.create(ownerInfo, ReservationTitle.from("테스트 제목"), scheduledTime, placeInfo, ShootingDurationOption.TEN_MINUTES, RequestMessage.from(""));
+        return Reservation.create(ownerInfo, ReservationTitle.from("테스트 제목"), scheduledTime, placeInfo,
+                ShootingDurationOption.TEN_MINUTES, RequestMessage.from(""));
     }
 }

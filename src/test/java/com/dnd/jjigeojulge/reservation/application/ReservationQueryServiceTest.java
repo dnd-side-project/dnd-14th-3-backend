@@ -48,12 +48,13 @@ class ReservationQueryServiceTest {
                                 ReservationStatus.RECRUITING, 1L, "nick", Gender.MALE,
                                 "url");
                 Page<ReservationSummaryDto> page = new PageImpl<>(List.of(dto), PageRequest.of(0, 10), 1);
-                given(reservationQueryRepository.searchReservations(any(), any())).willReturn(page);
+                given(reservationQueryRepository.searchReservations(any(), any(),
+                                org.mockito.ArgumentMatchers.anyInt())).willReturn(page);
 
                 // when
                 Page<ReservationListResponseDto> result = reservationQueryService
                                 .searchReservations(ReservationSearchCondition.builder().build(),
-                                                PageRequest.of(0, 10));
+                                                null, 10);
 
                 // then
                 assertThat(result.getContent().get(0).isImminent()).isTrue();
@@ -72,12 +73,13 @@ class ReservationQueryServiceTest {
                                 ReservationStatus.RECRUITING, 1L, "nick", Gender.MALE,
                                 "url");
                 Page<ReservationSummaryDto> page = new PageImpl<>(List.of(dto), PageRequest.of(0, 10), 1);
-                given(reservationQueryRepository.searchReservations(any(), any())).willReturn(page);
+                given(reservationQueryRepository.searchReservations(any(), any(),
+                                org.mockito.ArgumentMatchers.anyInt())).willReturn(page);
 
                 // when
                 Page<ReservationListResponseDto> result = reservationQueryService
                                 .searchReservations(ReservationSearchCondition.builder().build(),
-                                                PageRequest.of(0, 10));
+                                                null, 10);
 
                 // then
                 assertThat(result.getContent().get(0).isImminent()).isFalse();

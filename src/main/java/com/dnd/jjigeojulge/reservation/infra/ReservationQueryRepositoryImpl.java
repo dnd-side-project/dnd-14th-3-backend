@@ -6,6 +6,7 @@ import static com.dnd.jjigeojulge.user.domain.QUser.*;
 
 import static com.dnd.jjigeojulge.reservation.domain.QApplicant.applicant;
 import static com.dnd.jjigeojulge.reservation.domain.QReservation.reservation;
+import static com.dnd.jjigeojulge.reservation.domain.QReservationComment.reservationComment;
 import static com.dnd.jjigeojulge.user.domain.QUser.user;
 
 import java.time.LocalDate;
@@ -14,7 +15,7 @@ import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Repository;
 
 import com.dnd.jjigeojulge.reservation.application.dto.query.ApplicantInfoDto;
@@ -26,9 +27,11 @@ import com.dnd.jjigeojulge.reservation.domain.Reservation;
 import com.dnd.jjigeojulge.reservation.domain.ReservationStatus;
 import com.dnd.jjigeojulge.reservation.domain.repository.ReservationQueryRepository;
 import com.dnd.jjigeojulge.reservation.domain.vo.Region1Depth;
+import com.dnd.jjigeojulge.user.domain.Gender;
 import com.dnd.jjigeojulge.user.domain.PhotoStyle;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import lombok.RequiredArgsConstructor;
@@ -40,7 +43,8 @@ public class ReservationQueryRepositoryImpl implements ReservationQueryRepositor
 	private final JPAQueryFactory queryFactory;
 
 	@Override
-	public Page<ReservationSummaryDto> searchReservations(ReservationSearchCondition condition, Pageable pageable) {
+	public Page<ReservationSummaryDto> searchReservations(ReservationSearchCondition condition, Long cursor,
+			int limit) {
 		List<Tuple> results = queryFactory
 				.select(reservation, user.nickname, user.gender, user.profileImageUrl)
 				.from(reservation)
@@ -51,10 +55,10 @@ public class ReservationQueryRepositoryImpl implements ReservationQueryRepositor
 						photoStyleContains(condition.photoStyle()),
 						genderEq(condition.gender()),
 						keywordContains(condition.keyword()),
-						reservation.status.in(ReservationStatus.RECRUITING, ReservationStatus.CONFIRMED))
-				.orderBy(reservation.scheduledTime.time.asc())
-				.offset(pageable.getOffset())
-				.limit(pageable.getPageSize())
+						reservation.status.in(ReservationStatus.RECRUITING, ReservationStatus.CONFIRMED),
+						cursor != null ? reservation.id.lt(cursor) : null)
+				.orderBy(reservation.id.desc())
+				.limit(limit)
 				.fetch();
 
 		List<ReservationSummaryDto> content = results.stream().map(tuple -> {
@@ -91,7 +95,7 @@ public class ReservationQueryRepositoryImpl implements ReservationQueryRepositor
 						reservation.status.in(ReservationStatus.RECRUITING, ReservationStatus.CONFIRMED))
 				.fetchOne();
 
-		return new PageImpl<>(content, pageable, totalCount != null ? totalCount : 0L);
+		return new PageImpl<>(content, PageRequest.of(0, limit), totalCount != null ? totalCount : 0L);
 	}
 
 	@Override
@@ -149,7 +153,17 @@ public class ReservationQueryRepositoryImpl implements ReservationQueryRepositor
 	@Override
 	public Optional<ReservationDetailDto> getReservationDetail(Long reservationId) {
 		Tuple tuple = queryFactory
-				.select(reservation, user.nickname, user.profileImageUrl)
+				.select(
+						reservation,
+						user.nickname,
+						user.profileImageUrl,
+						user.gender,
+						JPAExpressions.select(applicant.count().intValue())
+								.from(applicant)
+								.where(applicant.reservation.id.eq(reservation.id)),
+						JPAExpressions.select(reservationComment.count().intValue())
+								.from(reservationComment)
+								.where(reservationComment.reservationId.eq(reservation.id)))
 				.from(reservation)
 				.leftJoin(user).on(reservation.ownerInfo.userId.eq(user.id))
 				.where(reservation.id.eq(reservationId))
@@ -162,15 +176,24 @@ public class ReservationQueryRepositoryImpl implements ReservationQueryRepositor
 		Reservation r = tuple.get(reservation);
 		String nickname = tuple.get(user.nickname);
 		String profileImageUrl = tuple.get(user.profileImageUrl);
+		Gender gender = tuple.get(user.gender);
+
+		Integer applicantCount = tuple.get(4, Integer.class);
+		Integer commentCount = tuple.get(5, Integer.class);
 
 		ReservationDetailDto detail = new ReservationDetailDto(
 				r.getId(),
+				r.getViewCount(),
+				applicantCount != null ? applicantCount : 0,
+				commentCount != null ? commentCount : 0,
 				r.getOwnerInfo().getUserId(),
 				nickname,
 				profileImageUrl,
-				0,
+				0, // ownerTrustScore
+				gender,
 				r.getTitle().getValue(),
 				r.getScheduledTime().getTime(),
+				r.getPlaceInfo().getRegion1Depth(),
 				r.getPlaceInfo().getSpecificPlace(),
 				r.getOwnerInfo().getPhotoStyleSnapshot(),
 				r.getShootingDuration(),

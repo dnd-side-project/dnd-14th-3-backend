@@ -15,7 +15,7 @@ public interface ReservationQueryRepository {
 	/**
 	 * 사전 예약 탐색 리스트 (동적 필터 및 페이징)
 	 */
-	Page<ReservationSummaryDto> searchReservations(ReservationSearchCondition condition, Pageable pageable);
+	Page<ReservationSummaryDto> searchReservations(ReservationSearchCondition condition, Long cursor, int limit);
 
 	/**
 	 * 내 예약 대기 화면 (내 예약 상세 + 지원자 리스트)

@@ -1,15 +1,16 @@
 package com.dnd.jjigeojulge.reservation.application;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.dnd.jjigeojulge.reservation.application.dto.query.MyReservationDetailDto;
+import com.dnd.jjigeojulge.reservation.application.dto.query.ReservationCommentDto;
 import com.dnd.jjigeojulge.reservation.application.dto.query.ReservationDetailDto;
 import com.dnd.jjigeojulge.reservation.application.dto.query.ReservationListResponseDto;
 import com.dnd.jjigeojulge.reservation.application.dto.query.ReservationSearchCondition;
 import com.dnd.jjigeojulge.reservation.application.dto.query.ReservationSummaryDto;
+import com.dnd.jjigeojulge.reservation.domain.repository.ReservationCommentQueryRepository;
 import com.dnd.jjigeojulge.reservation.domain.repository.ReservationQueryRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -20,11 +21,12 @@ import lombok.RequiredArgsConstructor;
 public class ReservationQueryService {
 
     private final ReservationQueryRepository reservationQueryRepository;
+    private final ReservationCommentQueryRepository reservationCommentQueryRepository;
 
     public Page<ReservationListResponseDto> searchReservations(ReservationSearchCondition condition,
-            Pageable pageable) {
+            Long cursor, int limit) {
         java.time.LocalDateTime now = java.time.LocalDateTime.now();
-        return reservationQueryRepository.searchReservations(condition, pageable)
+        return reservationQueryRepository.searchReservations(condition, cursor, limit)
                 .map(dto -> ReservationListResponseDto.of(dto, now));
     }
 
@@ -36,5 +38,9 @@ public class ReservationQueryService {
     public ReservationDetailDto getReservationDetail(Long reservationId) {
         return reservationQueryRepository.getReservationDetail(reservationId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 예약 정보를 찾을 수 없습니다."));
+    }
+
+    public Page<ReservationCommentDto> getReservationComments(Long reservationId, Long cursor, int limit) {
+        return reservationCommentQueryRepository.getReservationComments(reservationId, cursor, limit);
     }
 }
