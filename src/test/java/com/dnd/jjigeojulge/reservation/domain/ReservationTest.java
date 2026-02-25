@@ -52,7 +52,8 @@ class ReservationTest {
 	@DisplayName("올바른 정보로 예약(Reservation)을 생성하면 RECRUITING 상태가 된다.")
 	void create_Reservation_Success() {
 		// when
-		Reservation reservation = Reservation.create(ownerInfo, ReservationTitle.from("테스트 제목"), scheduledTime, placeInfo, shootingDuration, requestMessage);
+		Reservation reservation = Reservation.create(ownerInfo, ReservationTitle.from("테스트 제목"), scheduledTime,
+				placeInfo, shootingDuration, requestMessage);
 
 		// then
 		assertThat(reservation.getStatus()).isEqualTo(ReservationStatus.RECRUITING);
@@ -64,13 +65,15 @@ class ReservationTest {
 	@DisplayName("모집 중(RECRUITING)일 때 작성자 본인이 예약 정보를 수정할 수 있다.")
 	void update_Reservation_Success() {
 		// given
-		Reservation reservation = Reservation.create(ownerInfo, ReservationTitle.from("테스트 제목"), scheduledTime, placeInfo, shootingDuration,
+		Reservation reservation = Reservation.create(ownerInfo, ReservationTitle.from("테스트 제목"), scheduledTime,
+				placeInfo, shootingDuration,
 				requestMessage);
 		PlaceInfo newPlace = PlaceInfo.of("서울특별시", "홍대입구역", 37.5568, 126.9242);
 		ShootingDurationOption newDuration = ShootingDurationOption.THIRTY_PLUS_MINUTES;
 
 		// when
-		reservation.update(ownerInfo.getUserId(), ReservationTitle.from("수정된 제목"), scheduledTime, newPlace, newDuration, requestMessage, now);
+		reservation.update(ownerInfo.getUserId(), ReservationTitle.from("수정된 제목"), scheduledTime, newPlace, newDuration,
+				requestMessage, now);
 
 		// then
 		assertThat(reservation.getPlaceInfo().getSpecificPlace()).isEqualTo("홍대입구역");
@@ -81,13 +84,15 @@ class ReservationTest {
 	@DisplayName("예약 시간이 이미 지난 경우(Expired) 수정을 시도하면 예외가 발생한다.")
 	void update_Reservation_Fail_Expired() {
 		// given
-		Reservation reservation = Reservation.create(ownerInfo, ReservationTitle.from("테스트 제목"), scheduledTime, placeInfo, shootingDuration,
+		Reservation reservation = Reservation.create(ownerInfo, ReservationTitle.from("테스트 제목"), scheduledTime,
+				placeInfo, shootingDuration,
 				requestMessage);
 		LocalDateTime expiredTime = now.plusHours(2); // 예약 시간(13:00)보다 늦은 14:00
 
 		// when & then
 		assertThatIllegalStateException()
-				.isThrownBy(() -> reservation.update(ownerInfo.getUserId(), ReservationTitle.from("수정된 제목"), scheduledTime, placeInfo, shootingDuration,
+				.isThrownBy(() -> reservation.update(ownerInfo.getUserId(), ReservationTitle.from("수정된 제목"),
+						scheduledTime, placeInfo, shootingDuration,
 						requestMessage, expiredTime))
 				.withMessage("모집 기간이 지난 예약 정보는 수정할 수 없습니다.");
 	}
@@ -95,7 +100,8 @@ class ReservationTest {
 	@Test
 	@DisplayName("모집 중(RECRUITING)인 예약에 지원할 수 있다.")
 	void apply_Success() {
-		Reservation reservation = Reservation.create(ownerInfo, ReservationTitle.from("테스트 제목"), scheduledTime, placeInfo, shootingDuration,
+		Reservation reservation = Reservation.create(ownerInfo, ReservationTitle.from("테스트 제목"), scheduledTime,
+				placeInfo, shootingDuration,
 				requestMessage);
 		Applicant applicant = Applicant.create(reservation, 2L);
 
@@ -107,7 +113,8 @@ class ReservationTest {
 	@Test
 	@DisplayName("예약 시간이 지난 경우 지원할 수 없다.")
 	void apply_Fail_Expired() {
-		Reservation reservation = Reservation.create(ownerInfo, ReservationTitle.from("테스트 제목"), scheduledTime, placeInfo, shootingDuration,
+		Reservation reservation = Reservation.create(ownerInfo, ReservationTitle.from("테스트 제목"), scheduledTime,
+				placeInfo, shootingDuration,
 				requestMessage);
 		Applicant applicant = Applicant.create(reservation, 2L);
 		LocalDateTime expiredTime = now.plusHours(2);
@@ -120,7 +127,8 @@ class ReservationTest {
 	@Test
 	@DisplayName("예약을 취소하면 관련된 지원자(APPLIED, SELECTED)의 상태도 CANCELED로 변경된다.")
 	void cancel_Reservation_Changes_Applicants_State() throws Exception {
-		Reservation reservation = Reservation.create(ownerInfo, ReservationTitle.from("테스트 제목"), scheduledTime, placeInfo, shootingDuration,
+		Reservation reservation = Reservation.create(ownerInfo, ReservationTitle.from("테스트 제목"), scheduledTime,
+				placeInfo, shootingDuration,
 				requestMessage);
 		Applicant applicant1 = Applicant.create(reservation, 2L); // APPLIED
 		Applicant applicant2 = Applicant.create(reservation, 3L); // SELECTED
@@ -154,7 +162,8 @@ class ReservationTest {
 	@DisplayName("지원자 수락 시 선택된 지원자는 SELECTED, 나머지는 REJECTED 상태가 되며 예약은 CONFIRMED 된다.")
 	void acceptApplicant_Success() throws Exception {
 		// given
-		Reservation reservation = Reservation.create(ownerInfo, ReservationTitle.from("테스트 제목"), scheduledTime, placeInfo, shootingDuration,
+		Reservation reservation = Reservation.create(ownerInfo, ReservationTitle.from("테스트 제목"), scheduledTime,
+				placeInfo, shootingDuration,
 				requestMessage);
 		Applicant applicant1 = Applicant.create(reservation, 2L);
 		Applicant applicant2 = Applicant.create(reservation, 3L);
@@ -180,7 +189,8 @@ class ReservationTest {
 	@Test
 	@DisplayName("작성자 본인이 모집 중(RECRUITING)일 때 예약을 취소할 수 있다.")
 	void cancel_Reservation_Success() {
-		Reservation reservation = Reservation.create(ownerInfo, ReservationTitle.from("테스트 제목"), scheduledTime, placeInfo, shootingDuration,
+		Reservation reservation = Reservation.create(ownerInfo, ReservationTitle.from("테스트 제목"), scheduledTime,
+				placeInfo, shootingDuration,
 				requestMessage);
 
 		reservation.cancel(ownerInfo.getUserId(), now);
@@ -191,7 +201,8 @@ class ReservationTest {
 	@Test
 	@DisplayName("예약 시간이 지난 후에는 취소할 수 없다.")
 	void cancel_Reservation_Fail_Expired() {
-		Reservation reservation = Reservation.create(ownerInfo, ReservationTitle.from("테스트 제목"), scheduledTime, placeInfo, shootingDuration,
+		Reservation reservation = Reservation.create(ownerInfo, ReservationTitle.from("테스트 제목"), scheduledTime,
+				placeInfo, shootingDuration,
 				requestMessage);
 		LocalDateTime expiredTime = now.plusHours(2);
 
@@ -203,7 +214,8 @@ class ReservationTest {
 	@Test
 	@DisplayName("확정됨(CONFIRMED) 상태인 예약을 예약 시간이 지난 후 완료(COMPLETED) 처리할 수 있다.")
 	void complete_Reservation_Success() {
-		Reservation reservation = Reservation.create(ownerInfo, ReservationTitle.from("테스트 제목"), scheduledTime, placeInfo, shootingDuration,
+		Reservation reservation = Reservation.create(ownerInfo, ReservationTitle.from("테스트 제목"), scheduledTime,
+				placeInfo, shootingDuration,
 				requestMessage);
 		forceChangeStatus(reservation, ReservationStatus.CONFIRMED);
 		LocalDateTime afterAppointment = now.plusHours(2);
@@ -216,7 +228,8 @@ class ReservationTest {
 	@Test
 	@DisplayName("예약 시간이 지나기 전에 완료 처리하려 하면 예외가 발생한다.")
 	void complete_Reservation_Fail_Before_Appointment() {
-		Reservation reservation = Reservation.create(ownerInfo, ReservationTitle.from("테스트 제목"), scheduledTime, placeInfo, shootingDuration,
+		Reservation reservation = Reservation.create(ownerInfo, ReservationTitle.from("테스트 제목"), scheduledTime,
+				placeInfo, shootingDuration,
 				requestMessage);
 		forceChangeStatus(reservation, ReservationStatus.CONFIRMED);
 
@@ -226,21 +239,51 @@ class ReservationTest {
 	}
 
 	@Test
-	@DisplayName("시간 초과 시 마감 처리(closeRecruitmentIfExpired)가 정상적으로 동작한다.")
-	void closeRecruitmentIfExpired_Success() {
-		Reservation reservation = Reservation.create(ownerInfo, ReservationTitle.from("테스트 제목"), scheduledTime, placeInfo, shootingDuration,
+	@DisplayName("방장(Owner)은 특정 지원자를 단건으로 거절할 수 있다.")
+	void rejectApplicant_Success() throws Exception {
+		Reservation reservation = Reservation.create(ownerInfo, ReservationTitle.from("테스트 제목"), scheduledTime,
+				placeInfo, shootingDuration,
 				requestMessage);
-		LocalDateTime expiredTime = now.plusHours(2);
+		Applicant applicant = Applicant.create(reservation, 2L);
 
-		reservation.closeRecruitmentIfExpired(expiredTime);
+		// Reflection으로 ID 세팅
+		java.lang.reflect.Field idField = com.dnd.jjigeojulge.global.common.entity.BaseEntity.class
+				.getDeclaredField("id");
+		idField.setAccessible(true);
+		idField.set(applicant, 10L);
 
-		assertThat(reservation.getStatus()).isEqualTo(ReservationStatus.RECRUITMENT_CLOSED);
+		reservation.apply(applicant, now);
+
+		reservation.rejectApplicant(ownerInfo.getUserId(), 10L, now);
+
+		assertThat(applicant.getStatus()).isEqualTo(ApplicantStatus.REJECTED);
+	}
+
+	@Test
+	@DisplayName("방장(Owner)이 아닌 사람이 특정 지원자를 거절하려 하면 예외가 발생한다.")
+	void rejectApplicant_Fail_Not_Owner() throws Exception {
+		Reservation reservation = Reservation.create(ownerInfo, ReservationTitle.from("테스트 제목"), scheduledTime,
+				placeInfo, shootingDuration,
+				requestMessage);
+		Applicant applicant = Applicant.create(reservation, 2L);
+
+		java.lang.reflect.Field idField = com.dnd.jjigeojulge.global.common.entity.BaseEntity.class
+				.getDeclaredField("id");
+		idField.setAccessible(true);
+		idField.set(applicant, 10L);
+
+		reservation.apply(applicant, now);
+
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> reservation.rejectApplicant(999L, 10L, now))
+				.withMessage("예약 작성자 본인만 지원자를 거절할 수 있습니다.");
 	}
 
 	@Test
 	@DisplayName("확정된 예약(CONFIRMED)을 취소하려 할 때 작성자가 아니면 예외가 발생한다.")
 	void cancel_Reservation_Fail_Not_Owner_When_Confirmed() throws Exception {
-		Reservation reservation = Reservation.create(ownerInfo, ReservationTitle.from("테스트 제목"), scheduledTime, placeInfo, shootingDuration,
+		Reservation reservation = Reservation.create(ownerInfo, ReservationTitle.from("테스트 제목"), scheduledTime,
+				placeInfo, shootingDuration,
 				requestMessage);
 		Applicant applicant = Applicant.create(reservation, 2L);
 
@@ -260,7 +303,8 @@ class ReservationTest {
 	@Test
 	@DisplayName("모집 중(RECRUITING)일 때 지원자는 본인의 지원을 취소할 수 있다.")
 	void cancelApplication_Success() {
-		Reservation reservation = Reservation.create(ownerInfo, ReservationTitle.from("테스트 제목"), scheduledTime, placeInfo, shootingDuration,
+		Reservation reservation = Reservation.create(ownerInfo, ReservationTitle.from("테스트 제목"), scheduledTime,
+				placeInfo, shootingDuration,
 				requestMessage);
 		Applicant applicant = Applicant.create(reservation, 2L);
 		reservation.apply(applicant, now);
@@ -273,7 +317,8 @@ class ReservationTest {
 	@Test
 	@DisplayName("모집 중(RECRUITING)이 아닌 상태에서는 지원을 취소할 수 없다.")
 	void cancelApplication_Fail_Not_Recruiting() {
-		Reservation reservation = Reservation.create(ownerInfo, ReservationTitle.from("테스트 제목"), scheduledTime, placeInfo, shootingDuration,
+		Reservation reservation = Reservation.create(ownerInfo, ReservationTitle.from("테스트 제목"), scheduledTime,
+				placeInfo, shootingDuration,
 				requestMessage);
 		Applicant applicant = Applicant.create(reservation, 2L);
 		reservation.apply(applicant, now);
@@ -287,7 +332,8 @@ class ReservationTest {
 	@Test
 	@DisplayName("지원 내역이 없는 사용자가 지원 취소를 시도하면 예외가 발생한다.")
 	void cancelApplication_Fail_Not_Applied() {
-		Reservation reservation = Reservation.create(ownerInfo, ReservationTitle.from("테스트 제목"), scheduledTime, placeInfo, shootingDuration,
+		Reservation reservation = Reservation.create(ownerInfo, ReservationTitle.from("테스트 제목"), scheduledTime,
+				placeInfo, shootingDuration,
 				requestMessage);
 
 		assertThatIllegalArgumentException()

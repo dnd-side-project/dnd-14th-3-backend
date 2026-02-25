@@ -277,9 +277,19 @@ public class Reservation extends BaseUpdatableEntity {
                 this.status = ReservationStatus.COMPLETED;
         }
 
-        public void closeRecruitmentIfExpired(LocalDateTime now) {
-                if (this.status.isRecruiting() && this.scheduledTime.isExpired(now)) {
-                        this.status = ReservationStatus.RECRUITMENT_CLOSED;
+        public void rejectApplicant(Long ownerId, Long applicantId, LocalDateTime now) {
+                validateRejectApplicant(ownerId, now);
+
+                Applicant rejectedApplicant = findApplicantById(applicantId);
+                rejectedApplicant.markAsRejected();
+        }
+
+        private void validateRejectApplicant(Long ownerId, LocalDateTime now) {
+                if (!this.ownerInfo.isOwner(ownerId)) {
+                        throw new IllegalArgumentException("예약 작성자 본인만 지원자를 거절할 수 있습니다.");
+                }
+                if (!this.status.isRecruiting()) {
+                        throw new IllegalStateException("모집 중(RECRUITING)인 상태에서만 지원자를 거절할 수 있습니다.");
                 }
         }
 }

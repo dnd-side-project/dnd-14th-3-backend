@@ -132,6 +132,24 @@ class ReservationServiceTest {
         }
 
         @Test
+        @DisplayName("예약 작성자가 특정 지원자를 단독으로 거절한다.")
+        void rejectApplicant_Success() {
+                // given
+                Long reservationId = 1L;
+                Long ownerId = 10L;
+                Long applicantId = 20L;
+                Reservation reservation = mock(Reservation.class);
+
+                given(reservationRepository.findById(reservationId)).willReturn(Optional.of(reservation));
+
+                // when
+                reservationService.rejectApplicant(reservationId, ownerId, applicantId);
+
+                // then
+                verify(reservation).rejectApplicant(eq(ownerId), eq(applicantId), any(LocalDateTime.class));
+        }
+
+        @Test
         @DisplayName("예약 작성자가 예약을 취소한다.")
         void cancelReservation_Success() {
                 // given

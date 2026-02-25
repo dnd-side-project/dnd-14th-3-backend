@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 public enum ReservationStatus {
 	RECRUITING("모집 중"),
 	CONFIRMED("확정됨"),
-	RECRUITMENT_CLOSED("모집 마감"),
 	CANCELED("취소됨"),
 	COMPLETED("완료됨");
 

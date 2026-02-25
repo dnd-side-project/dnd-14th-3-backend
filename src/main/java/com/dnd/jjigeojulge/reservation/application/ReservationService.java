@@ -111,6 +111,13 @@ public class ReservationService {
                 // TODO: 양쪽 사용자에게 매칭 확정 푸시 알림 발송 (명세서 2번)
         }
 
+        public void rejectApplicant(Long reservationId, Long ownerId, Long applicantId) {
+                Reservation reservation = findReservationById(reservationId);
+
+                reservation.rejectApplicant(ownerId, applicantId, LocalDateTime.now());
+                // TODO: 거절된 지원자에게 알림 발송 필요 여부 검토
+        }
+
         public void cancelReservation(Long reservationId, Long userId) {
                 Reservation reservation = findReservationById(reservationId);
 
