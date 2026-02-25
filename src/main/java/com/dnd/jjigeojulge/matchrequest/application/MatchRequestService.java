@@ -7,12 +7,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.dnd.jjigeojulge.global.common.dto.GeoPoint;
-import com.dnd.jjigeojulge.global.exception.ErrorCode;
 import com.dnd.jjigeojulge.matchproposal.infra.MatchGeoQueueRepository;
 import com.dnd.jjigeojulge.matchrequest.domain.MatchRequest;
 import com.dnd.jjigeojulge.matchrequest.domain.MatchRequestStatus;
 import com.dnd.jjigeojulge.matchrequest.exception.MatchRequestAlreadyProcessedException;
-import com.dnd.jjigeojulge.matchrequest.exception.MatchRequestException;
+import com.dnd.jjigeojulge.matchrequest.exception.MatchRequestForbiddenException;
+import com.dnd.jjigeojulge.matchrequest.exception.MatchRequestNotExpiredException;
 import com.dnd.jjigeojulge.matchrequest.exception.MatchRequestNotFoundException;
 import com.dnd.jjigeojulge.matchrequest.infra.MatchRequestRepository;
 import com.dnd.jjigeojulge.matchrequest.presentation.data.MatchRequestDto;
@@ -94,12 +94,12 @@ public class MatchRequestService {
 			.orElseThrow(MatchRequestNotFoundException::new);
 
 		if (!matchRequest.isOwner(userId)) {
-			throw new MatchRequestException(ErrorCode.NOT_MATCH_REQUEST_OWNER);
+			throw new MatchRequestForbiddenException();
 		}
 
 		// 시간 기준으로 만료 여부 체크 (배치가 미처 status를 안 바꿨어도 통과)
 		if (!matchRequest.isExpired(LocalDateTime.now())) {
-			throw new MatchRequestException(ErrorCode.MATCH_REQUEST_NOT_EXPIRED);
+			throw new MatchRequestNotExpiredException();
 		}
 
 		matchRequest.retry(LocalDateTime.now().plusMinutes(REQUEST_TTL_MIN));
