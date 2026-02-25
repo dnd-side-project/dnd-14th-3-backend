@@ -6,7 +6,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.dnd.jjigeojulge.reservation.application.dto.query.AppliedReservationListDto;
 import com.dnd.jjigeojulge.reservation.application.dto.query.CreatedReservationListDto;
-import com.dnd.jjigeojulge.reservation.application.dto.query.MyReservationDetailDto;
 import com.dnd.jjigeojulge.reservation.application.dto.query.ReservationCommentDto;
 import com.dnd.jjigeojulge.reservation.application.dto.query.ReservationDetailDto;
 import com.dnd.jjigeojulge.reservation.application.dto.query.ReservationListResponseDto;
@@ -38,11 +37,6 @@ public class ReservationQueryService {
 
     public Page<AppliedReservationListDto> getMyAppliedReservations(Long applicantId, Long cursor, int limit) {
         return reservationQueryRepository.getMyAppliedReservations(applicantId, cursor, limit);
-    }
-
-    public MyReservationDetailDto getMyReservationDetail(Long reservationId, Long ownerId) {
-        return reservationQueryRepository.getMyReservationDetail(reservationId, ownerId)
-                .orElseThrow(() -> new IllegalArgumentException("예약 정보를 찾을 수 없거나 접근 권한이 없습니다."));
     }
 
     public ReservationDetailDto getReservationDetail(Long reservationId) {

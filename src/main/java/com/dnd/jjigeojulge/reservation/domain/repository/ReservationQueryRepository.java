@@ -9,7 +9,6 @@ import java.time.LocalDateTime;
 
 import com.dnd.jjigeojulge.reservation.application.dto.query.AppliedReservationListDto;
 import com.dnd.jjigeojulge.reservation.application.dto.query.CreatedReservationListDto;
-import com.dnd.jjigeojulge.reservation.application.dto.query.MyReservationDetailDto;
 import com.dnd.jjigeojulge.reservation.application.dto.query.ReservationDetailDto;
 import com.dnd.jjigeojulge.reservation.application.dto.query.ReservationSearchCondition;
 import com.dnd.jjigeojulge.reservation.application.dto.query.ReservationSummaryDto;
@@ -30,11 +29,6 @@ public interface ReservationQueryRepository {
 	 * 내가 지원한 동행 예약 리스트 (Applicant 기준)
 	 */
 	Page<AppliedReservationListDto> getMyAppliedReservations(Long applicantId, Long cursor, int limit);
-
-	/**
-	 * 내 예약 대기 화면 (내 예약 상세 + 지원자 리스트)
-	 */
-	Optional<MyReservationDetailDto> getMyReservationDetail(Long reservationId, Long ownerId);
 
 	/**
 	 * 예약 상세 화면 (사전 예약 탐색에서 진입 시)

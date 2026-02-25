@@ -23,10 +23,8 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Repository;
 
-import com.dnd.jjigeojulge.reservation.application.dto.query.ApplicantInfoDto;
 import com.dnd.jjigeojulge.reservation.application.dto.query.AppliedReservationListDto;
 import com.dnd.jjigeojulge.reservation.application.dto.query.CreatedReservationListDto;
-import com.dnd.jjigeojulge.reservation.application.dto.query.MyReservationDetailDto;
 import com.dnd.jjigeojulge.reservation.application.dto.query.ReservationDetailDto;
 import com.dnd.jjigeojulge.reservation.application.dto.query.ReservationSearchCondition;
 import com.dnd.jjigeojulge.reservation.application.dto.query.ReservationSummaryDto;
@@ -194,58 +192,6 @@ public class ReservationQueryRepositoryImpl implements ReservationQueryRepositor
 				.fetchOne();
 
 		return new PageImpl<>(content, PageRequest.of(0, limit), totalCount != null ? totalCount : 0L);
-	}
-
-	@Override
-	public Optional<MyReservationDetailDto> getMyReservationDetail(Long reservationId, Long ownerId) {
-		// 1. 예약 상세 조회 (주인이 맞는지 확인)
-		Reservation r = queryFactory
-				.select(reservation)
-				.from(reservation)
-				.where(
-						reservation.id.eq(reservationId),
-						reservation.ownerInfo.userId.eq(ownerId))
-				.fetchOne();
-
-		if (r == null) {
-			return Optional.empty();
-		}
-
-		// 2. 지원자 목록 조회 (Applicant + User Join)
-		List<Tuple> applicantTuples = queryFactory
-				.select(applicant, user.nickname, user.profileImageUrl)
-				.from(applicant)
-				.leftJoin(user).on(applicant.userId.eq(user.id))
-				.where(applicant.reservation.id.eq(reservationId))
-				.fetch();
-
-		List<ApplicantInfoDto> applicantDtos = applicantTuples.stream().map(t -> {
-			var app = t.get(applicant);
-			String nick = t.get(user.nickname);
-			String profileImg = t.get(user.profileImageUrl);
-			return new ApplicantInfoDto(
-					app.getId(),
-					app.getUserId(),
-					nick,
-					profileImg,
-					0, // trustScore
-					false, // hasRecentNoShow, 임시
-					app.getStatus());
-		}).toList();
-
-		MyReservationDetailDto dto = new MyReservationDetailDto(
-				r.getId(),
-				r.getTitle().getValue(),
-				r.getScheduledTime().getTime(),
-				r.getPlaceInfo().getSpecificPlace(),
-				r.getOwnerInfo().getPhotoStyleSnapshot(),
-				r.getShootingDuration(),
-				r.getRequestMessage().getValue(),
-				r.getStatus(),
-				applicantDtos.size(),
-				applicantDtos);
-
-		return Optional.of(dto);
 	}
 
 	@Override
