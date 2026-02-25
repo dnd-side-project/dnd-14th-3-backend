@@ -34,6 +34,7 @@ public class MatchRequestExpiryScheduler {
 	public void expireOverdue() {
 		LocalDateTime now = LocalDateTime.now();
 
+		// 현재 시간을 기준으로 만료시간을 초과한 매칭 데이터를 조회합니다.
 		List<Long> expiredUserIds = matchRequestRepository.findExpiredWaitingUserIds(
 			MatchRequestStatus.WAITING,
 			now,

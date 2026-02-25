@@ -66,7 +66,7 @@ public class MatchRequestService {
 			.build();
 
 		MatchRequest saved = matchRequestRepository.save(matchRequest);
-		// TODO 트랜잭션 롤백 시 레디스도 롤백 되지 않는 부분 문제 해결 필요
+		// TODO 트랜잭션 롤백 시 레디스도 롤백 되지 않는 부분 문제 해결 필요 after commit or outbox pattern
 		matchGeoQueueRepository.addWaitingUser(userId, location);
 		return toDto(saved);
 	}
@@ -96,6 +96,13 @@ public class MatchRequestService {
 		if (!matchRequest.isOwner(userId)) {
 			throw new MatchRequestForbiddenException();
 		}
+
+		// 바꾸고자 하는 match-request 외에 waiting인 상태의 다른 요청이 있다면 예외
+		matchRequestRepository.findByUserIdAndStatus(userId, MatchRequestStatus.WAITING)
+			.filter(match -> !match.getId().equals(matchRequestId))
+			.ifPresent(match -> {
+				throw new RuntimeException();
+			});
 
 		// 시간 기준으로 만료 여부 체크 (배치가 미처 status를 안 바꿨어도 통과)
 		if (!matchRequest.isExpired(LocalDateTime.now())) {

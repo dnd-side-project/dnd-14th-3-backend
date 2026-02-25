@@ -35,5 +35,5 @@ public interface MatchRequestRepository extends JpaRepository<MatchRequest, Long
 		join fetch m.user
 		where m.id = :matchRequestId
 		""")
-	Optional<MatchRequest> findByIdWithUser(Long matchRequestId);
+	Optional<MatchRequest> findByIdWithUser(@Param("matchRequestId") Long matchRequestId);
 }

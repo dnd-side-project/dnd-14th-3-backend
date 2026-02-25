@@ -122,7 +122,6 @@ public interface MatchRequestApi {
 			만료(EXPIRED)된 매칭 요청을 재시도 상태로 전환합니다.
 			
 			- 요청자는 해당 matchRequest의 소유자여야 합니다.
-			- 현재 상태가 EXPIRED가 아니면 실패합니다.
 			"""
 	)
 	@ApiResponses(value = {
