@@ -9,6 +9,7 @@ import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OrderColumn;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -24,6 +25,7 @@ public class OwnerInfo {
 	@ElementCollection(fetch = FetchType.LAZY)
 	@CollectionTable(name = "reservation_photo_style_snapshot", joinColumns = @JoinColumn(name = "reservation_id"))
 	@Column(name = "style_name", nullable = false)
+	@OrderColumn(name = "style_order")
 	private List<String> photoStyleSnapshot = new ArrayList<>();
 
 	private OwnerInfo(Long userId, List<String> photoStyleSnapshot) {
