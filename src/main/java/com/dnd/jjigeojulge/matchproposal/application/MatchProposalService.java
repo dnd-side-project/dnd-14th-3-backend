@@ -73,14 +73,14 @@ public class MatchProposalService {
 		// TODO 고려 사항 : 동시에 두 유저가 상태를 변경할 경우, Lock 고려해야함.
 		matchProposal.accept(userId);
 
+		// 두 유저 모두 제안을 수락했을 경우
 		if (matchProposal.isProposalAccepted()) {
 			User userA = userRepository.findById(matchProposal.getUserAId())
 				.orElseThrow(UserNotFoundException::new);
 			User userB = userRepository.findById(matchProposal.getUserBId())
 				.orElseThrow(UserNotFoundException::new);
 
-			MatchRequest matchRequest = matchRequestRepository.findByUserIdAndStatus(userId,
-					MatchRequestStatus.WAITING)
+			MatchRequest matchRequest = matchRequestRepository.findByUserIdAndStatus(userId, MatchRequestStatus.WAITING)
 				.orElseThrow(MatchRequestNotFoundException::new);
 			MatchSession matchSession = MatchSession.create(userA, userB, matchRequest.getLatitude(),
 				matchRequest.getLongitude());
