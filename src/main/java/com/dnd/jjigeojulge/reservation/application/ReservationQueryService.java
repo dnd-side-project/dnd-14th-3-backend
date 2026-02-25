@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.dnd.jjigeojulge.reservation.application.dto.query.CreatedReservationListDto;
 import com.dnd.jjigeojulge.reservation.application.dto.query.MyReservationDetailDto;
 import com.dnd.jjigeojulge.reservation.application.dto.query.ReservationCommentDto;
 import com.dnd.jjigeojulge.reservation.application.dto.query.ReservationDetailDto;
@@ -28,6 +29,10 @@ public class ReservationQueryService {
         java.time.LocalDateTime now = java.time.LocalDateTime.now();
         return reservationQueryRepository.searchReservations(condition, cursor, limit)
                 .map(dto -> ReservationListResponseDto.of(dto, now));
+    }
+
+    public Page<CreatedReservationListDto> getMyCreatedReservations(Long ownerId, Long cursor, int limit) {
+        return reservationQueryRepository.getMyCreatedReservations(ownerId, cursor, limit);
     }
 
     public MyReservationDetailDto getMyReservationDetail(Long reservationId, Long ownerId) {

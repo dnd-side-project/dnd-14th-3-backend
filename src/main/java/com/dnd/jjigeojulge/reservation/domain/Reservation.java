@@ -129,6 +129,17 @@ public class Reservation extends BaseUpdatableEntity {
                 this.applicants.add(applicant);
         }
 
+        public ReservationStatus getVirtualStatus(LocalDateTime now) {
+                if (this.scheduledTime.isExpired(now)) {
+                        if (this.status == ReservationStatus.RECRUITING) {
+                                return ReservationStatus.RECRUITMENT_CLOSED;
+                        } else if (this.status == ReservationStatus.CONFIRMED) {
+                                return ReservationStatus.COMPLETED;
+                        }
+                }
+                return this.status;
+        }
+
         private void validateApply(Applicant applicant, LocalDateTime now) {
                 if (this.scheduledTime.isExpired(now)) {
                         throw new IllegalStateException("모집 기간이 지난 예약에는 지원할 수 없습니다.");
@@ -242,6 +253,7 @@ public class Reservation extends BaseUpdatableEntity {
 
         public void cancel(Long requesterId, LocalDateTime now) {
                 validateCancel(requesterId, now);
+                cancelApplicants();
                 this.status = ReservationStatus.CANCELED;
         }
 
@@ -254,17 +266,15 @@ public class Reservation extends BaseUpdatableEntity {
                         throw new IllegalArgumentException("예약은 작성자 본인만 취소할 수 있습니다.");
                 }
 
-                if (this.status == ReservationStatus.RECRUITING) {
-                        this.applicants.stream()
-                                        .filter(a -> a.getStatus() == ApplicantStatus.APPLIED)
-                                        .forEach(Applicant::cancelApplication);
-                } else if (this.status == ReservationStatus.CONFIRMED) {
-                        this.applicants.stream()
-                                        .filter(a -> a.getStatus() == ApplicantStatus.SELECTED)
-                                        .forEach(Applicant::cancelApplication);
-                } else {
-                        throw new IllegalStateException("현재 상태에서는 예약을 취소할 수 없습니다.");
+                if (this.status != ReservationStatus.RECRUITING) {
+                        throw new IllegalStateException("모집 중(RECRUITING) 상태에서만 예약을 취소할 수 있습니다.");
                 }
+        }
+
+        private void cancelApplicants() {
+                this.applicants.stream()
+                                .filter(a -> a.getStatus() == ApplicantStatus.APPLIED)
+                                .forEach(Applicant::cancelApplication);
         }
 
         public void complete(LocalDateTime now) {

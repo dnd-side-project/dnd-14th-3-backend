@@ -18,6 +18,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 
 import com.dnd.jjigeojulge.global.common.enums.ShootingDurationOption;
+import com.dnd.jjigeojulge.reservation.application.dto.query.CreatedReservationListDto;
 import com.dnd.jjigeojulge.reservation.application.dto.query.ReservationListResponseDto;
 import com.dnd.jjigeojulge.reservation.application.dto.query.ReservationSearchCondition;
 import com.dnd.jjigeojulge.reservation.application.dto.query.ReservationSummaryDto;
@@ -83,5 +84,30 @@ class ReservationQueryServiceTest {
 
                 // then
                 assertThat(result.getContent().get(0).isImminent()).isFalse();
+        }
+
+        @Test
+        @DisplayName("내가 올린 동행 예약 리스트를 조회한다.")
+        void getMyCreatedReservations_Success() {
+                // given
+                Long ownerId = 1L;
+                Long cursor = 10L;
+                int limit = 5;
+
+                CreatedReservationListDto dto = new CreatedReservationListDto(
+                                1L, ReservationStatus.RECRUITING, "테스트", LocalDateTime.now().plusDays(1),
+                                Region1Depth.SEOUL, "장소", ShootingDurationOption.TEN_MINUTES, 3L);
+                Page<CreatedReservationListDto> page = new PageImpl<>(List.of(dto), PageRequest.of(0, limit), 1);
+
+                given(reservationQueryRepository.getMyCreatedReservations(ownerId, cursor, limit)).willReturn(page);
+
+                // when
+                Page<CreatedReservationListDto> result = reservationQueryService.getMyCreatedReservations(ownerId,
+                                cursor,
+                                limit);
+
+                // then
+                assertThat(result.getContent()).hasSize(1);
+                assertThat(result.getContent().get(0).title()).isEqualTo("테스트");
         }
 }

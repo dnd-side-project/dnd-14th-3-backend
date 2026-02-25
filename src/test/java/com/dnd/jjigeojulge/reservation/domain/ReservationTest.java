@@ -125,14 +125,14 @@ class ReservationTest {
 	}
 
 	@Test
-	@DisplayName("예약을 취소하면 관련된 지원자(APPLIED, SELECTED)의 상태도 CANCELED로 변경된다.")
+	@DisplayName("예약을 취소하면 대기 중인 지원자(APPLIED)의 상태가 CANCELED로 변경된다.")
 	void cancel_Reservation_Changes_Applicants_State() throws Exception {
 		Reservation reservation = Reservation.create(ownerInfo, ReservationTitle.from("테스트 제목"), scheduledTime,
 				placeInfo, shootingDuration,
 				requestMessage);
 		Applicant applicant1 = Applicant.create(reservation, 2L); // APPLIED
-		Applicant applicant2 = Applicant.create(reservation, 3L); // SELECTED
-		Applicant applicant3 = Applicant.create(reservation, 4L); // REJECTED
+		Applicant applicant2 = Applicant.create(reservation, 3L); // APPLIED
+		Applicant applicant3 = Applicant.create(reservation, 4L); // APPLIED
 
 		java.lang.reflect.Field idField = com.dnd.jjigeojulge.global.common.entity.BaseEntity.class
 				.getDeclaredField("id");
@@ -145,17 +145,13 @@ class ReservationTest {
 		reservation.apply(applicant2, now);
 		reservation.apply(applicant3, now);
 
-		// applicant2 수락 (applicant2: SELECTED, applicant1&3: REJECTED가 됨)
-		reservation.acceptApplicant(ownerInfo.getUserId(), 20L, now);
-
-		// 이제 확정된 상태에서 예약 취소
+		// 확정 전(RECRUITING) 이 상태에서 모집 취소 (방 폭파)
 		reservation.cancel(ownerInfo.getUserId(), now);
 
-		// SELECTED 였던 applicant2는 CANCELED가 되어야 함
+		// APPLIED 였던 모든 지원자는 CANCELED가 되어야 함
+		assertThat(applicant1.getStatus()).isEqualTo(ApplicantStatus.CANCELED);
 		assertThat(applicant2.getStatus()).isEqualTo(ApplicantStatus.CANCELED);
-		// REJECTED 였던 1,3 은 그대로 REJECTED 여야 함
-		assertThat(applicant1.getStatus()).isEqualTo(ApplicantStatus.REJECTED);
-		assertThat(applicant3.getStatus()).isEqualTo(ApplicantStatus.REJECTED);
+		assertThat(applicant3.getStatus()).isEqualTo(ApplicantStatus.CANCELED);
 	}
 
 	@Test
@@ -339,5 +335,42 @@ class ReservationTest {
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> reservation.cancelApplication(2L, now))
 				.withMessage("취소할 지원 내역이 없습니다.");
+	}
+
+	@Test
+	@DisplayName("모집 중(RECRUITING)인 예약이 현재 시점보다 예약 시간이 지난 경우 가상 상태는 모집 마감(RECRUITMENT_CLOSED)이 된다.")
+	void getVirtualStatus_Return_RecruitmentClosed_When_Recruiting_And_Expired() {
+		Reservation reservation = Reservation.create(ownerInfo, ReservationTitle.from("테스트 제목"), scheduledTime,
+				placeInfo, shootingDuration, requestMessage);
+
+		LocalDateTime expiredTime = now.plusHours(2);
+		ReservationStatus virtualStatus = reservation.getVirtualStatus(expiredTime);
+
+		assertThat(virtualStatus).isEqualTo(ReservationStatus.RECRUITMENT_CLOSED);
+	}
+
+	@Test
+	@DisplayName("확정된(CONFIRMED) 예약이 현재 시점보다 예약 시간이 지난 경우 가상 상태는 완료(COMPLETED)가 된다.")
+	void getVirtualStatus_Return_Completed_When_Confirmed_And_Expired() {
+		Reservation reservation = Reservation.create(ownerInfo, ReservationTitle.from("테스트 제목"), scheduledTime,
+				placeInfo, shootingDuration, requestMessage);
+		forceChangeStatus(reservation, ReservationStatus.CONFIRMED);
+
+		LocalDateTime expiredTime = now.plusHours(2);
+		ReservationStatus virtualStatus = reservation.getVirtualStatus(expiredTime);
+
+		assertThat(virtualStatus).isEqualTo(ReservationStatus.COMPLETED);
+	}
+
+	@Test
+	@DisplayName("예약 시간이 지나지 않았을 경우 상태(가상 상태)는 기존 상태를 그대로 유지한다.")
+	void getVirtualStatus_Return_OriginalStatus_When_Not_Expired() {
+		Reservation reservation = Reservation.create(ownerInfo, ReservationTitle.from("테스트 제목"), scheduledTime,
+				placeInfo, shootingDuration, requestMessage);
+
+		LocalDateTime beforeExpiredTime = now.minusHours(1);
+		ReservationStatus virtualStatus = reservation.getVirtualStatus(beforeExpiredTime);
+
+		assertThat(virtualStatus).isEqualTo(ReservationStatus.RECRUITING);
 	}
 }

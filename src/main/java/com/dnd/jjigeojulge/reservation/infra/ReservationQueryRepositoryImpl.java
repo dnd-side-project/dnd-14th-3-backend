@@ -10,6 +10,7 @@ import static com.dnd.jjigeojulge.reservation.domain.QReservationComment.reserva
 import static com.dnd.jjigeojulge.user.domain.QUser.user;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,6 +20,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Repository;
 
 import com.dnd.jjigeojulge.reservation.application.dto.query.ApplicantInfoDto;
+import com.dnd.jjigeojulge.reservation.application.dto.query.CreatedReservationListDto;
 import com.dnd.jjigeojulge.reservation.application.dto.query.MyReservationDetailDto;
 import com.dnd.jjigeojulge.reservation.application.dto.query.ReservationDetailDto;
 import com.dnd.jjigeojulge.reservation.application.dto.query.ReservationSearchCondition;
@@ -93,6 +95,50 @@ public class ReservationQueryRepositoryImpl implements ReservationQueryRepositor
 						genderEq(condition.gender()),
 						keywordContains(condition.keyword()),
 						reservation.status.in(ReservationStatus.RECRUITING, ReservationStatus.CONFIRMED))
+				.fetchOne();
+
+		return new PageImpl<>(content, PageRequest.of(0, limit), totalCount != null ? totalCount : 0L);
+	}
+
+	@Override
+	public Page<CreatedReservationListDto> getMyCreatedReservations(Long ownerId, Long cursor, int limit) {
+		LocalDateTime now = LocalDateTime.now();
+
+		List<Tuple> results = queryFactory
+				.select(
+						reservation,
+						JPAExpressions.select(applicant.count())
+								.from(applicant)
+								.where(applicant.reservation.id.eq(reservation.id)))
+				.from(reservation)
+				.where(
+						reservation.ownerInfo.userId.eq(ownerId),
+						cursor != null ? reservation.id.lt(cursor) : null)
+				.orderBy(reservation.id.desc())
+				.limit(limit)
+				.fetch();
+
+		List<CreatedReservationListDto> content = results.stream().map(tuple -> {
+			Reservation r = tuple.get(reservation);
+			Long applicantCount = tuple.get(1, Long.class);
+
+			ReservationStatus virtualStatus = r.getVirtualStatus(now);
+
+			return new CreatedReservationListDto(
+					r.getId(),
+					virtualStatus,
+					r.getTitle().getValue(),
+					r.getScheduledTime().getTime(),
+					r.getPlaceInfo().getRegion1Depth(),
+					r.getPlaceInfo().getSpecificPlace(),
+					r.getShootingDuration(),
+					applicantCount != null ? applicantCount : 0L);
+		}).toList();
+
+		Long totalCount = queryFactory
+				.select(reservation.count())
+				.from(reservation)
+				.where(reservation.ownerInfo.userId.eq(ownerId))
 				.fetchOne();
 
 		return new PageImpl<>(content, PageRequest.of(0, limit), totalCount != null ? totalCount : 0L);

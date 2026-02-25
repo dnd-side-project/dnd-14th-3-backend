@@ -5,6 +5,9 @@ import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.time.LocalDateTime;
+
+import com.dnd.jjigeojulge.reservation.application.dto.query.CreatedReservationListDto;
 import com.dnd.jjigeojulge.reservation.application.dto.query.MyReservationDetailDto;
 import com.dnd.jjigeojulge.reservation.application.dto.query.ReservationDetailDto;
 import com.dnd.jjigeojulge.reservation.application.dto.query.ReservationSearchCondition;
@@ -16,6 +19,11 @@ public interface ReservationQueryRepository {
 	 * 사전 예약 탐색 리스트 (동적 필터 및 페이징)
 	 */
 	Page<ReservationSummaryDto> searchReservations(ReservationSearchCondition condition, Long cursor, int limit);
+
+	/**
+	 * 내가 올린 동행 예약 리스트
+	 */
+	Page<CreatedReservationListDto> getMyCreatedReservations(Long ownerId, Long cursor, int limit);
 
 	/**
 	 * 내 예약 대기 화면 (내 예약 상세 + 지원자 리스트)
