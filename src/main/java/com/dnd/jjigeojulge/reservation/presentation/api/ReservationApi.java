@@ -10,6 +10,7 @@ import com.dnd.jjigeojulge.reservation.application.dto.query.CreatedReservationL
 import com.dnd.jjigeojulge.reservation.application.dto.query.ReservationCommentDto;
 import com.dnd.jjigeojulge.reservation.application.dto.query.ReservationDetailDto;
 import com.dnd.jjigeojulge.reservation.presentation.request.ReservationCreateRequest;
+import com.dnd.jjigeojulge.global.annotation.CurrentUserId;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -80,7 +81,7 @@ public interface ReservationApi {
 					""")))
 	})
 	ResponseEntity<ApiResponse<Long>> create(
-			@Parameter(description = "인증 사용자", hidden = true) Long currentUserId,
+			@CurrentUserId Long currentUserId,
 			@RequestBody(required = true, description = "동행 예약 생성 요청 데이터", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ReservationCreateRequest.class))) ReservationCreateRequest request);
 
 	@Operation(summary = "Reservation 부분 수정 (PATCH)", description = "방장이 예약 파라미터를 부분적으로 수정합니다. (넘기지 않은 값은 기존 값이 유지됩니다)")
@@ -89,7 +90,7 @@ public interface ReservationApi {
 	})
 	ResponseEntity<ApiResponse<Void>> update(
 			@Parameter(description = "예약 ID") Long reservationId,
-			@Parameter(description = "인증 사용자", hidden = true) Long currentUserId,
+			@CurrentUserId Long currentUserId,
 			@RequestBody(required = true, description = "동행 예약 수정(PATCH) 요청 데이터") com.dnd.jjigeojulge.reservation.presentation.request.ReservationUpdateRequest request);
 
 	@Operation(summary = "Reservation 취소", description = "방장이 예약 방명록 자체를 취소(폭파)합니다.")
@@ -98,7 +99,7 @@ public interface ReservationApi {
 	})
 	ResponseEntity<ApiResponse<Void>> cancel(
 			@Parameter(description = "예약 ID") Long reservationId,
-			@Parameter(description = "인증 사용자", hidden = true) Long currentUserId);
+			@CurrentUserId Long currentUserId);
 
 	@Operation(summary = "동행 지원하기", description = "게스트가 모집 중인 방에 동행을 지원합니다.")
 	@ApiResponses(value = {
@@ -106,7 +107,7 @@ public interface ReservationApi {
 	})
 	ResponseEntity<ApiResponse<Void>> apply(
 			@Parameter(description = "예약 ID") Long reservationId,
-			@Parameter(description = "인증 사용자", hidden = true) Long currentUserId);
+			@CurrentUserId Long currentUserId);
 
 	@Operation(summary = "동행 지원 취소하기", description = "게스트가 자신이 지원했던 내역을 취소합니다.")
 	@ApiResponses(value = {
@@ -114,7 +115,7 @@ public interface ReservationApi {
 	})
 	ResponseEntity<ApiResponse<Void>> cancelApplication(
 			@Parameter(description = "예약 ID") Long reservationId,
-			@Parameter(description = "인증 사용자", hidden = true) Long currentUserId);
+			@CurrentUserId Long currentUserId);
 
 	@Operation(summary = "지원자 수락(매칭 성사)", description = "방장이 특정 게스트의 지원을 수락하여 매칭을 확정(CONFIRMED)합니다.")
 	@ApiResponses(value = {
@@ -123,7 +124,7 @@ public interface ReservationApi {
 	ResponseEntity<ApiResponse<Void>> acceptApplicant(
 			@Parameter(description = "예약 ID") Long reservationId,
 			@Parameter(description = "수락할 지원자의 고유 Applicant ID") Long applicantId,
-			@Parameter(description = "인증 사용자", hidden = true) Long currentUserId);
+			@CurrentUserId Long currentUserId);
 
 	@Operation(summary = "지원자 개별 거절", description = "방장이 특정 게스트의 지원을 단독으로 거절합니다.")
 	@ApiResponses(value = {
@@ -132,15 +133,7 @@ public interface ReservationApi {
 	ResponseEntity<ApiResponse<Void>> rejectApplicant(
 			@Parameter(description = "예약 ID") Long reservationId,
 			@Parameter(description = "거절할 지원자의 고유 Applicant ID") Long applicantId,
-			@Parameter(description = "인증 사용자", hidden = true) Long currentUserId);
-
-	@Operation(summary = "예약 완료(COMPLETED) 처리", description = "매칭이 확정된 방에 대하여 스케줄 만료 후 완료 처리를 수행합니다.")
-	@ApiResponses(value = {
-			@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "완료 처리 성공")
-	})
-	ResponseEntity<ApiResponse<Void>> complete(
-			@Parameter(description = "예약 ID") Long reservationId,
-			@Parameter(description = "인증 사용자", hidden = true) Long currentUserId);
+			@CurrentUserId Long currentUserId);
 
 	@Operation(summary = "내가 올린 동행 예약 리스트 (호스트)", description = """
 			내가 방장(Owner)으로서 작성한 동행 매집글의 목록입니다.
@@ -157,7 +150,7 @@ public interface ReservationApi {
 			@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "내가 올린 예약 목록 조회 성공")
 	})
 	ResponseEntity<ApiResponse<PageResponse<CreatedReservationListDto>>> getMyCreatedReservations(
-			@Parameter(description = "인증된 사용자의 ID", hidden = true) Long currentUserId,
+			@CurrentUserId Long currentUserId,
 			@Parameter(description = "다음 페이지 조회를 위한 마지막 예약 ID (새로고침 시 null)") Long cursor,
 			@Parameter(description = "페이지당 항목 수") int limit);
 
@@ -176,7 +169,7 @@ public interface ReservationApi {
 			@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "내가 지원한 예약 목록 조회 성공")
 	})
 	ResponseEntity<ApiResponse<PageResponse<AppliedReservationListDto>>> getMyAppliedReservations(
-			@Parameter(description = "인증된 사용자의 ID", hidden = true) Long currentUserId,
+			@CurrentUserId Long currentUserId,
 			@Parameter(description = "다음 페이지 조회를 위한 마지막 예약 ID (새로고침 시 null)") Long cursor,
 			@Parameter(description = "페이지당 항목 수") int limit);
 
@@ -200,7 +193,7 @@ public interface ReservationApi {
 			@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "지원자 목록 조회 성공")
 	})
 	ResponseEntity<ApiResponse<com.dnd.jjigeojulge.reservation.application.dto.query.ApplicantListResponseDto>> getApplicants(
-			@Parameter(description = "인증된 사용자의 ID", hidden = true) Long currentUserId,
+			@CurrentUserId Long currentUserId,
 			@Parameter(description = "예약 글 ID", required = true, example = "101") Long reservationId);
 }
 /*
