@@ -57,12 +57,7 @@ public class JwtAuthenticationChannelInterceptor implements ChannelInterceptor {
 	private Optional<String> resolveAccessToken(StompHeaderAccessor accessor) {
 		String prefix = "Bearer ";
 		return Optional.ofNullable(accessor.getFirstNativeHeader(HttpHeaders.AUTHORIZATION))
-			.map(value -> {
-				if (value.startsWith(prefix)) {
-					return value.substring(prefix.length());
-				} else {
-					return null;
-				}
-			});
+			.filter(value -> value.startsWith(prefix))
+			.map(value -> value.substring(prefix.length()));
 	}
 }
