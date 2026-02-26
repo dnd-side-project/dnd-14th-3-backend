@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.dnd.jjigeojulge.global.common.enums.ShootingDurationOption;
 import com.dnd.jjigeojulge.reservation.application.dto.CreateReservationCommand;
 import com.dnd.jjigeojulge.reservation.application.dto.UpdateReservationCommand;
 import com.dnd.jjigeojulge.reservation.domain.Applicant;
@@ -68,21 +69,40 @@ public class ReservationService {
                 Reservation reservation = findReservationById(command.reservationId());
 
                 LocalDateTime now = LocalDateTime.now();
-                ReservationTitle title = ReservationTitle.from(command.title());
-                ScheduledTime scheduledTime = ScheduledTime.of(command.scheduledAt(), now);
-                PlaceInfo placeInfo = PlaceInfo.of(
-                                command.region1Depth(),
-                                command.specificPlace(),
-                                command.latitude(),
-                                command.longitude());
-                RequestMessage requestMessage = RequestMessage.from(command.requestMessage());
+
+                // 기존 값 또는 새로운 값 채택 (PATCH 부분 업데이트 지원)
+                String newTitle = command.title() != null ? command.title()
+                                : reservation.getTitle().getValue();
+
+                String newRegion1Depth = command.region1Depth() != null ? command.region1Depth()
+                                : reservation.getPlaceInfo().getRegion1Depth().getLabel();
+                String newSpecificPlace = command.specificPlace() != null ? command.specificPlace()
+                                : reservation.getPlaceInfo().getSpecificPlace();
+                Double newLatitude = command.latitude() != null ? command.latitude()
+                                : reservation.getPlaceInfo().getLatitude().doubleValue();
+                Double newLongitude = command.longitude() != null ? command.longitude()
+                                : reservation.getPlaceInfo().getLongitude().doubleValue();
+
+                LocalDateTime newScheduledAt = command.scheduledAt() != null ? command.scheduledAt()
+                                : reservation.getScheduledTime().getTime();
+                ShootingDurationOption newShootingDuration = command.shootingDuration() != null
+                                ? command.shootingDuration()
+                                : reservation.getShootingDuration();
+
+                String newRequestMessage = command.requestMessage() != null ? command.requestMessage()
+                                : reservation.getRequestMessage().getValue();
+
+                ReservationTitle title = ReservationTitle.from(newTitle);
+                ScheduledTime scheduledTime = ScheduledTime.of(newScheduledAt, now);
+                PlaceInfo placeInfo = PlaceInfo.of(newRegion1Depth, newSpecificPlace, newLatitude, newLongitude);
+                RequestMessage requestMessage = RequestMessage.from(newRequestMessage);
 
                 reservation.update(
                                 command.userId(),
                                 title,
                                 scheduledTime,
                                 placeInfo,
-                                command.shootingDuration(),
+                                newShootingDuration,
                                 requestMessage,
                                 now);
         }
