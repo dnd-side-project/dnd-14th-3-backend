@@ -53,4 +53,4 @@ nginx/ssl/*.pem
 docker-compose-local.yml
 
 # Database volume
-data/
+/data/

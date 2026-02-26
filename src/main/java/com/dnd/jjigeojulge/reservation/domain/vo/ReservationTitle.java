@@ -21,8 +21,9 @@ public class ReservationTitle {
     }
 
     public static ReservationTitle from(String value) {
-        validate(value);
-        return new ReservationTitle(value);
+        String normalized = value == null ? null : value.trim();
+        validate(normalized);
+        return new ReservationTitle(normalized);
     }
 
     private static void validate(String value) {

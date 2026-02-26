@@ -145,7 +145,10 @@ public class ReservationService {
                 // TODO: 매칭이 확정된 상태였다면 상대방에게 취소 알림 발송
         }
 
-        public void completeReservation(Long reservationId) {
+        /**
+         * scheduler-only; called by ScheduledTask
+         */
+        void completeReservation(Long reservationId) {
                 Reservation reservation = findReservationById(reservationId);
 
                 reservation.complete(LocalDateTime.now());

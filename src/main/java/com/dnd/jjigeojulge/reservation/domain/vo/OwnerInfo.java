@@ -45,6 +45,15 @@ public class OwnerInfo {
 		if (photoStyleSnapshot == null || photoStyleSnapshot.isEmpty()) {
 			throw new IllegalArgumentException("촬영 유형 스냅샷은 최소 1개 이상 존재해야 합니다.");
 		}
+		for (String style : photoStyleSnapshot) {
+			if (style == null || style.isBlank()) {
+				throw new IllegalArgumentException("촬영 유형 스냅샷의 이름은 빈 문자열일 수 없습니다.");
+			}
+		}
+	}
+
+	public List<String> getPhotoStyleSnapshot() {
+		return java.util.Collections.unmodifiableList(photoStyleSnapshot);
 	}
 
 	public boolean isOwner(Long userId) {

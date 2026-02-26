@@ -13,7 +13,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class CommentContent {
 
-    @Column(name = "comment_content", length = 500, nullable = false)
+    public static final int MAX_LENGTH = 500;
+
+    @Column(name = "comment_content", length = MAX_LENGTH, nullable = false)
     private String value;
 
     private CommentContent(String value) {
@@ -29,8 +31,8 @@ public class CommentContent {
         if (value == null || value.isBlank()) {
             throw new IllegalArgumentException("댓글 내용은 비어있을 수 없습니다.");
         }
-        if (value.length() > 500) {
-            throw new IllegalArgumentException("댓글 내용은 500자 이하여야 합니다.");
+        if (value.length() > MAX_LENGTH) {
+            throw new IllegalArgumentException("댓글 내용은 " + MAX_LENGTH + "자 이하여야 합니다.");
         }
     }
 }

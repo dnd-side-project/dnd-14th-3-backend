@@ -17,17 +17,24 @@ public record UpdateReservationCommand(
         String requestMessage) {
 
     public static UpdateReservationCommand of(Long reservationId, Long userId,
-            com.dnd.jjigeojulge.reservation.presentation.request.ReservationUpdateRequest request) {
+            String title,
+            String region1Depth,
+            String specificPlace,
+            Double latitude,
+            Double longitude,
+            LocalDateTime scheduledAt,
+            ShootingDurationOption shootingDuration,
+            String requestMessage) {
         return new UpdateReservationCommand(
                 reservationId,
                 userId,
-                request.title(),
-                request.region1Depth(),
-                request.specificPlace(),
-                request.latitude(),
-                request.longitude(),
-                request.scheduledAt(),
-                request.shootingDuration(),
-                request.requestMessage());
+                title,
+                region1Depth,
+                specificPlace,
+                latitude,
+                longitude,
+                scheduledAt,
+                shootingDuration,
+                requestMessage);
     }
 }

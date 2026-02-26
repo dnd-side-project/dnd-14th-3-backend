@@ -29,6 +29,13 @@ public record ReservationUpdateRequest(
                 return com.dnd.jjigeojulge.reservation.application.dto.UpdateReservationCommand.of(
                                 reservationId,
                                 requesterId,
-                                this);
+                                this.title(),
+                                this.region1Depth(),
+                                this.specificPlace(),
+                                this.latitude(),
+                                this.longitude(),
+                                this.scheduledAt(),
+                                this.shootingDuration(),
+                                this.requestMessage());
         }
 }

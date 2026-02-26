@@ -10,6 +10,10 @@ import com.dnd.jjigeojulge.reservation.application.dto.query.CreatedReservationL
 import com.dnd.jjigeojulge.reservation.application.dto.query.ReservationCommentDto;
 import com.dnd.jjigeojulge.reservation.application.dto.query.ReservationDetailDto;
 import com.dnd.jjigeojulge.reservation.presentation.request.ReservationCreateRequest;
+import com.dnd.jjigeojulge.reservation.application.dto.query.ReservationListResponseDto;
+import com.dnd.jjigeojulge.reservation.application.dto.query.ReservationSearchCondition;
+import com.dnd.jjigeojulge.reservation.application.dto.query.ApplicantListResponseDto;
+import com.dnd.jjigeojulge.reservation.presentation.request.ReservationUpdateRequest;
 import com.dnd.jjigeojulge.global.annotation.CurrentUserId;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -32,8 +36,8 @@ public interface ReservationApi {
 			**예약 카드 구성 필드 반환 목록**
 			- 날짜/시간, 장소 요약(1Depth), 촬영 유형 스냅샷, 요청자 신뢰도, 상태 배지 (RECRUITING 등)
 			""")
-	ResponseEntity<ApiResponse<PageResponse<com.dnd.jjigeojulge.reservation.application.dto.query.ReservationListResponseDto>>> getList(
-			@org.springframework.web.bind.annotation.ModelAttribute com.dnd.jjigeojulge.reservation.application.dto.query.ReservationSearchCondition condition,
+	ResponseEntity<ApiResponse<PageResponse<ReservationListResponseDto>>> getList(
+			@org.springframework.web.bind.annotation.ModelAttribute ReservationSearchCondition condition,
 			@Parameter(description = "마지막 조회 예약 ID (cursor 기반 페이징)", example = "10") Long cursor,
 			@Parameter(description = "한 페이지에 조회할 개수", example = "10") int limit);
 
@@ -92,7 +96,7 @@ public interface ReservationApi {
 	ResponseEntity<ApiResponse<Void>> update(
 			@Parameter(description = "예약 ID") Long reservationId,
 			@CurrentUserId Long currentUserId,
-			@RequestBody(required = true, description = "동행 예약 수정(PATCH) 요청 데이터") com.dnd.jjigeojulge.reservation.presentation.request.ReservationUpdateRequest request);
+			@RequestBody(required = true, description = "동행 예약 수정(PATCH) 요청 데이터") ReservationUpdateRequest request);
 
 	@Operation(summary = "Reservation 취소", description = "방장이 예약 방명록 자체를 취소(폭파)합니다.")
 	@ApiResponses(value = {
@@ -193,7 +197,7 @@ public interface ReservationApi {
 	@ApiResponses({
 			@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "지원자 목록 조회 성공")
 	})
-	ResponseEntity<ApiResponse<com.dnd.jjigeojulge.reservation.application.dto.query.ApplicantListResponseDto>> getApplicants(
+	ResponseEntity<ApiResponse<ApplicantListResponseDto>> getApplicants(
 			@CurrentUserId Long currentUserId,
 			@Parameter(description = "예약 글 ID", required = true, example = "101") Long reservationId);
 }

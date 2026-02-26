@@ -32,11 +32,8 @@ public class CurrentUserIdArgumentResolver implements HandlerMethodArgumentResol
 
         if (authentication == null || !authentication.isAuthenticated()
                 || authentication.getPrincipal().equals("anonymousUser")) {
-            // 임시 개발 환경용 Fallback (프론트/백 병렬 개발을 위해)
-            // 로컬에서 시큐리티 없이 진입하는 경우를 대비해 1L(방장) 또는 2L(게스트) 반환 기믹을 적용할 수 있음
-            // 단, 실서버에서는 예외를 던지도록 해야합니다.
-            // 현재는 편의를 위해 1L을 반환하도록 처리
-            return 1L;
+            throw new org.springframework.security.authentication.AuthenticationCredentialsNotFoundException(
+                    "인증 정보가 존재하지 않습니다.");
         }
 
         Object principal = authentication.getPrincipal();
@@ -44,6 +41,7 @@ public class CurrentUserIdArgumentResolver implements HandlerMethodArgumentResol
             return userDetails.id();
         }
 
-        return 1L; // Fallback
+        throw new org.springframework.security.authentication.AuthenticationCredentialsNotFoundException(
+                "유효하지 않은 인증 정보 식별자입니다.");
     }
 }

@@ -2,12 +2,6 @@ package com.dnd.jjigeojulge.reservation.infra;
 
 import java.util.List;
 
-import com.querydsl.core.Tuple;
-import com.querydsl.jpa.impl.JPAQueryFactory;
-
-import static com.dnd.jjigeojulge.reservation.domain.QReservationComment.reservationComment;
-import static com.dnd.jjigeojulge.user.domain.QUser.user;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -61,7 +55,6 @@ public class ReservationCommentQueryRepositoryImpl implements ReservationComment
                     nickname,
                     profileImageUrl,
                     comment.getContent().getValue(),
-                    comment.isDeleted(),
                     comment.getCreatedAt(),
                     comment.getUpdatedAt());
         }).toList();

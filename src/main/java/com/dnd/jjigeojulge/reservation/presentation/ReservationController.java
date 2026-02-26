@@ -18,6 +18,12 @@ import com.dnd.jjigeojulge.reservation.application.dto.query.ReservationCommentD
 import com.dnd.jjigeojulge.reservation.application.dto.query.ReservationDetailDto;
 import com.dnd.jjigeojulge.reservation.presentation.api.ReservationApi;
 import com.dnd.jjigeojulge.reservation.presentation.request.ReservationCreateRequest;
+import com.dnd.jjigeojulge.reservation.application.ReservationService;
+import com.dnd.jjigeojulge.reservation.application.ReservationQueryService;
+import com.dnd.jjigeojulge.reservation.application.dto.query.ReservationListResponseDto;
+import com.dnd.jjigeojulge.reservation.application.dto.query.ReservationSearchCondition;
+import com.dnd.jjigeojulge.reservation.application.dto.query.ApplicantListResponseDto;
+import com.dnd.jjigeojulge.reservation.presentation.request.ReservationUpdateRequest;
 import com.dnd.jjigeojulge.global.annotation.CurrentUserId;
 
 import jakarta.validation.Valid;
@@ -28,13 +34,13 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ReservationController implements ReservationApi {
 
-	private final com.dnd.jjigeojulge.reservation.application.ReservationService reservationService;
-	private final com.dnd.jjigeojulge.reservation.application.ReservationQueryService reservationQueryService;
+	private final ReservationService reservationService;
+	private final ReservationQueryService reservationQueryService;
 
 	@Override
 	@GetMapping
-	public ResponseEntity<ApiResponse<PageResponse<com.dnd.jjigeojulge.reservation.application.dto.query.ReservationListResponseDto>>> getList(
-			@org.springframework.web.bind.annotation.ModelAttribute com.dnd.jjigeojulge.reservation.application.dto.query.ReservationSearchCondition condition,
+	public ResponseEntity<ApiResponse<PageResponse<ReservationListResponseDto>>> getList(
+			@org.springframework.web.bind.annotation.ModelAttribute ReservationSearchCondition condition,
 			@RequestParam(value = "cursor", required = false) Long cursor,
 			@RequestParam(defaultValue = "10") int limit) {
 		return ResponseEntity.ok(ApiResponse.success(
@@ -61,7 +67,7 @@ public class ReservationController implements ReservationApi {
 	public ResponseEntity<ApiResponse<Void>> update(
 			@PathVariable Long reservationId,
 			@CurrentUserId Long currentUserId,
-			@RequestBody @Valid com.dnd.jjigeojulge.reservation.presentation.request.ReservationUpdateRequest request) {
+			@RequestBody @Valid ReservationUpdateRequest request) {
 		reservationService.updateReservation(request.toCommand(reservationId, currentUserId));
 		return ResponseEntity.ok(ApiResponse.success(null));
 	}
@@ -145,7 +151,7 @@ public class ReservationController implements ReservationApi {
 
 	@Override
 	@GetMapping("/{reservationId}/applicants")
-	public ResponseEntity<ApiResponse<com.dnd.jjigeojulge.reservation.application.dto.query.ApplicantListResponseDto>> getApplicants(
+	public ResponseEntity<ApiResponse<ApplicantListResponseDto>> getApplicants(
 			@CurrentUserId Long currentUserId,
 			@PathVariable Long reservationId) {
 		return ResponseEntity.ok(ApiResponse.success(

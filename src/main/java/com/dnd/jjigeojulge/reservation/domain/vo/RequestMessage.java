@@ -13,7 +13,7 @@ public class RequestMessage {
 
 	private static final int MAX_LENGTH = 500;
 
-	@Column(name = "request_message", length = 500)
+	@Column(name = "request_message", length = MAX_LENGTH)
 	private String value;
 
 	private RequestMessage(String value) {
@@ -26,6 +26,9 @@ public class RequestMessage {
 	}
 
 	private static void validate(String value) {
+		if (value != null && value.isBlank()) {
+			throw new IllegalArgumentException("요청 메시지는 빈 문자열일 수 없습니다.");
+		}
 		if (value != null && value.length() > MAX_LENGTH) {
 			throw new IllegalArgumentException("요청 메시지는 " + MAX_LENGTH + "자 이하여야 합니다.");
 		}
