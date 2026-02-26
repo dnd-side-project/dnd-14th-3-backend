@@ -370,8 +370,15 @@ class ReservationQueryRepositoryImplTest {
                 assertThat(result.applicants()).hasSize(2);
                 assertThat(result.applicants().get(0).nickname()).isEqualTo("app1");
                 assertThat(result.applicants().get(0).gender()).isEqualTo(Gender.FEMALE);
+                assertThat(result.applicants().get(0).ageGroup())
+                                .isEqualTo(com.dnd.jjigeojulge.user.domain.AgeGroup.TWENTIES);
+                assertThat(result.applicants().get(0).introduction()).isEqualTo("intro");
+
                 assertThat(result.applicants().get(1).nickname()).isEqualTo("app2");
                 assertThat(result.applicants().get(1).gender()).isEqualTo(Gender.MALE);
+                assertThat(result.applicants().get(1).ageGroup())
+                                .isEqualTo(com.dnd.jjigeojulge.user.domain.AgeGroup.TWENTIES);
+                assertThat(result.applicants().get(1).introduction()).isEqualTo("intro");
         }
 
         @Test

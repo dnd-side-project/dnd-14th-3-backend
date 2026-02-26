@@ -254,7 +254,8 @@ public class ReservationQueryRepositoryImpl implements ReservationQueryRepositor
 	public com.dnd.jjigeojulge.reservation.application.dto.query.ApplicantListResponseDto getApplicants(
 			Long reservationId) {
 		List<Tuple> results = queryFactory
-				.select(applicant, user.nickname, user.profileImageUrl, user.gender)
+				.select(applicant, user.nickname, user.profileImageUrl, user.gender, user.ageGroup,
+						user.introduction.value)
 				.from(applicant)
 				.leftJoin(user).on(applicant.userId.eq(user.id))
 				.where(applicant.reservation.id.eq(reservationId))
@@ -267,6 +268,8 @@ public class ReservationQueryRepositoryImpl implements ReservationQueryRepositor
 					String nickname = tuple.get(user.nickname);
 					String profileImg = tuple.get(user.profileImageUrl);
 					Gender gender = tuple.get(user.gender);
+					com.dnd.jjigeojulge.user.domain.AgeGroup ageGroup = tuple.get(user.ageGroup);
+					String introduction = tuple.get(user.introduction.value);
 
 					return com.dnd.jjigeojulge.reservation.application.dto.query.ApplicantDto.builder()
 							.applicantId(a.getId())
@@ -274,6 +277,8 @@ public class ReservationQueryRepositoryImpl implements ReservationQueryRepositor
 							.nickname(nickname)
 							.profileImageUrl(profileImg)
 							.gender(gender)
+							.ageGroup(ageGroup)
+							.introduction(introduction)
 							.appliedAt(a.getCreatedAt())
 							.build();
 				}).toList();
