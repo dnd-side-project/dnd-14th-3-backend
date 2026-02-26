@@ -8,7 +8,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.dnd.jjigeojulge.event.MatchConfirmedEvent;
+import com.dnd.jjigeojulge.event.MatchProposalAcceptedEvent;
 import com.dnd.jjigeojulge.event.MatchProposalCreatedEvent;
+import com.dnd.jjigeojulge.event.MatchProposalRejectedEvent;
 import com.dnd.jjigeojulge.matchproposal.data.MatchProposalDto;
 import com.dnd.jjigeojulge.matchproposal.domain.MatchProposal;
 import com.dnd.jjigeojulge.matchproposal.domain.MatchProposalStatus;
@@ -72,6 +74,8 @@ public class MatchProposalService {
 		// TODO 고려 사항 : 이미 다른 유저가 거절을 하였을 경우에 막아야함.
 		// TODO 고려 사항 : 동시에 두 유저가 상태를 변경할 경우, Lock 고려해야함.
 		matchProposal.accept(userId);
+		MatchProposalDto matchProposalDto = toDto(matchProposal);
+		eventPublisher.publishEvent(new MatchProposalAcceptedEvent(userId, matchProposalDto));
 
 		// 두 유저 모두 제안을 수락했을 경우
 		if (matchProposal.isProposalAccepted()) {
@@ -89,17 +93,18 @@ public class MatchProposalService {
 				new MatchConfirmedEvent(new MatchSessionDto(saved.getId(), userA.getId(), userB.getId())));
 		}
 
-		return toDto(matchProposal);
+		return matchProposalDto;
 	}
 
 	@Transactional
 	public MatchProposalDto reject(Long userId, Long proposalId) {
 		MatchProposal matchProposal = matchProposalRepository.findById(proposalId)
 			.orElseThrow(MatchProposalNotFoundException::new);
-
 		matchProposal.reject(userId);
-		// 상대방 유저에게 거절 되었음을 sse 알림
-		return toDto(matchProposal);
+		MatchProposalDto matchProposalDto = toDto(matchProposal);
+
+		eventPublisher.publishEvent(new MatchProposalRejectedEvent(userId, matchProposalDto));
+		return matchProposalDto;
 	}
 
 	private MatchProposalDto toDto(MatchProposal saved) {
