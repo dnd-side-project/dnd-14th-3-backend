@@ -54,7 +54,9 @@ class ReservationQueryRepositoryImplTest {
         @DisplayName("조건 없이 예약 목록을 조회하면 전체 예약 목록이 페이징되어 반환된다.")
         void searchReservations_NoConditions() {
                 // given
-                User user = User.create(new OAuthInfo("123", OAuthProvider.KAKAO), "testUser", Gender.MALE, "url",
+                User user = User.create(new OAuthInfo("123", OAuthProvider.KAKAO), "testUser", Gender.MALE,
+                                com.dnd.jjigeojulge.user.domain.AgeGroup.TWENTIES,
+                                com.dnd.jjigeojulge.user.domain.Introduction.from("intro"), "url",
                                 null);
                 em.persist(user);
 
@@ -97,7 +99,9 @@ class ReservationQueryRepositoryImplTest {
         @DisplayName("지역 필터로 예약 목록을 조회할 수 있다.")
         void searchReservations_WithRegionFilter() {
                 // given
-                User user = User.create(new OAuthInfo("123", OAuthProvider.KAKAO), "testUser", Gender.MALE, "url",
+                User user = User.create(new OAuthInfo("123", OAuthProvider.KAKAO), "testUser", Gender.MALE,
+                                com.dnd.jjigeojulge.user.domain.AgeGroup.TWENTIES,
+                                com.dnd.jjigeojulge.user.domain.Introduction.from("intro"), "url",
                                 null);
                 em.persist(user);
 
@@ -141,7 +145,9 @@ class ReservationQueryRepositoryImplTest {
         @DisplayName("키워드 필터(제목, 장소명)로 예약 목록을 조회할 수 있다.")
         void searchReservations_WithKeywordFilter() {
                 // given
-                User user = User.create(new OAuthInfo("123", OAuthProvider.KAKAO), "testUser", Gender.MALE, "url",
+                User user = User.create(new OAuthInfo("123", OAuthProvider.KAKAO), "testUser", Gender.MALE,
+                                com.dnd.jjigeojulge.user.domain.AgeGroup.TWENTIES,
+                                com.dnd.jjigeojulge.user.domain.Introduction.from("intro"), "url",
                                 null);
                 em.persist(user);
 
@@ -183,10 +189,14 @@ class ReservationQueryRepositoryImplTest {
         @DisplayName("성별 필터로 예약 목록을 조회할 수 있다.")
         void searchReservations_WithGenderFilter() {
                 // given
-                User maleUser = User.create(new OAuthInfo("123", OAuthProvider.KAKAO), "maleUser", Gender.MALE, "url",
+                User maleUser = User.create(new OAuthInfo("123", OAuthProvider.KAKAO), "maleUser", Gender.MALE,
+                                com.dnd.jjigeojulge.user.domain.AgeGroup.TWENTIES,
+                                com.dnd.jjigeojulge.user.domain.Introduction.from("intro"), "url",
                                 null);
                 em.persist(maleUser);
                 User femaleUser = User.create(new OAuthInfo("456", OAuthProvider.KAKAO), "femaleUser", Gender.FEMALE,
+                                com.dnd.jjigeojulge.user.domain.AgeGroup.TWENTIES,
+                                com.dnd.jjigeojulge.user.domain.Introduction.from("intro"),
                                 "url",
                                 null);
                 em.persist(femaleUser);
@@ -231,8 +241,12 @@ class ReservationQueryRepositoryImplTest {
         @DisplayName("내가 지원한 예약 목록을 커서 페이징하여 조회할 수 있다.")
         void getMyAppliedReservations() {
                 // given
-                User owner = User.create(new OAuthInfo("111", OAuthProvider.KAKAO), "owner", Gender.MALE, "url", null);
+                User owner = User.create(new OAuthInfo("111", OAuthProvider.KAKAO), "owner", Gender.MALE,
+                                com.dnd.jjigeojulge.user.domain.AgeGroup.TWENTIES,
+                                com.dnd.jjigeojulge.user.domain.Introduction.from("intro"), "url", null);
                 User applicant = User.create(new OAuthInfo("222", OAuthProvider.KAKAO), "applicant", Gender.FEMALE,
+                                com.dnd.jjigeojulge.user.domain.AgeGroup.TWENTIES,
+                                com.dnd.jjigeojulge.user.domain.Introduction.from("intro"),
                                 "url", null);
                 em.persist(owner);
                 em.persist(applicant);
@@ -280,10 +294,13 @@ class ReservationQueryRepositoryImplTest {
         @DisplayName("예약 ID와 방장 ID로 권한이 있는지 확인할 수 있다.")
         void existsByIdAndOwnerId() {
                 // given
-                User owner = User.create(new OAuthInfo("111", OAuthProvider.KAKAO), "owner", Gender.MALE, "url", null);
+                User owner = User.create(new OAuthInfo("111", OAuthProvider.KAKAO), "owner", Gender.MALE,
+                                com.dnd.jjigeojulge.user.domain.AgeGroup.TWENTIES,
+                                com.dnd.jjigeojulge.user.domain.Introduction.from("intro"), "url", null);
                 em.persist(owner);
 
-                OwnerInfo ownerInfo = OwnerInfo.of(owner.getId(), new ArrayList<>(List.of(StyleName.SNS_UPLOAD.name())));
+                OwnerInfo ownerInfo = OwnerInfo.of(owner.getId(),
+                                new ArrayList<>(List.of(StyleName.SNS_UPLOAD.name())));
                 LocalDateTime startTime = LocalDateTime.now().plusDays(1).withMinute(0).withSecond(0).withNano(0);
                 ScheduledTime scheduledTime = ScheduledTime.of(startTime, startTime.minusDays(1));
                 PlaceInfo placeInfo = PlaceInfo.of(Region1Depth.SEOUL.getLabel(), "서울숲", 37.5, 127.0);
@@ -308,10 +325,16 @@ class ReservationQueryRepositoryImplTest {
         @DisplayName("특정 예약에 지원한 지원자 목록을 조회할 수 있다.")
         void getApplicants() {
                 // given
-                User owner = User.create(new OAuthInfo("111", OAuthProvider.KAKAO), "owner", Gender.MALE, "url", null);
-                User applicant1 = User.create(new OAuthInfo("222", OAuthProvider.KAKAO), "app1", Gender.FEMALE, "url1",
+                User owner = User.create(new OAuthInfo("111", OAuthProvider.KAKAO), "owner", Gender.MALE,
+                                com.dnd.jjigeojulge.user.domain.AgeGroup.TWENTIES,
+                                com.dnd.jjigeojulge.user.domain.Introduction.from("intro"), "url", null);
+                User applicant1 = User.create(new OAuthInfo("222", OAuthProvider.KAKAO), "app1", Gender.FEMALE,
+                                com.dnd.jjigeojulge.user.domain.AgeGroup.TWENTIES,
+                                com.dnd.jjigeojulge.user.domain.Introduction.from("intro"), "url1",
                                 null);
-                User applicant2 = User.create(new OAuthInfo("333", OAuthProvider.KAKAO), "app2", Gender.MALE, "url2",
+                User applicant2 = User.create(new OAuthInfo("333", OAuthProvider.KAKAO), "app2", Gender.MALE,
+                                com.dnd.jjigeojulge.user.domain.AgeGroup.TWENTIES,
+                                com.dnd.jjigeojulge.user.domain.Introduction.from("intro"), "url2",
                                 null);
                 em.persist(owner);
                 em.persist(applicant1);
