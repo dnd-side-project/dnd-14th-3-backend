@@ -10,6 +10,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import com.dnd.jjigeojulge.global.common.enums.ShootingDurationOption;
+import com.dnd.jjigeojulge.reservation.domain.exception.ReservationValidationException;
+import com.dnd.jjigeojulge.global.utils.TestEntityUtils;
 import com.dnd.jjigeojulge.reservation.domain.vo.OwnerInfo;
 import com.dnd.jjigeojulge.reservation.domain.vo.PlaceInfo;
 import com.dnd.jjigeojulge.reservation.domain.vo.RequestMessage;
@@ -90,11 +92,11 @@ class ReservationTest {
 		LocalDateTime expiredTime = now.plusHours(2); // 예약 시간(13:00)보다 늦은 14:00
 
 		// when & then
-		assertThatIllegalStateException()
-				.isThrownBy(() -> reservation.update(ownerInfo.getUserId(), ReservationTitle.from("수정된 제목"),
-						scheduledTime, placeInfo, shootingDuration,
-						requestMessage, expiredTime))
-				.withMessage("모집 기간이 지난 예약 정보는 수정할 수 없습니다.");
+		assertThatThrownBy(() -> reservation.update(ownerInfo.getUserId(), ReservationTitle.from("수정된 제목"),
+				scheduledTime, placeInfo, shootingDuration,
+				requestMessage, expiredTime))
+				.isInstanceOf(ReservationValidationException.class)
+				.hasMessage("모집 기간이 지난 예약 정보는 수정할 수 없습니다.");
 	}
 
 	@Test
@@ -119,9 +121,9 @@ class ReservationTest {
 		Applicant applicant = Applicant.create(reservation, 2L);
 		LocalDateTime expiredTime = now.plusHours(2);
 
-		assertThatIllegalStateException()
-				.isThrownBy(() -> reservation.apply(applicant, expiredTime))
-				.withMessage("모집 기간이 지난 예약에는 지원할 수 없습니다.");
+		assertThatThrownBy(() -> reservation.apply(applicant, expiredTime))
+				.isInstanceOf(ReservationValidationException.class)
+				.hasMessage("모집 기간이 지난 예약에는 지원할 수 없습니다.");
 	}
 
 	@Test
@@ -156,7 +158,7 @@ class ReservationTest {
 
 	@Test
 	@DisplayName("지원자 수락 시 선택된 지원자는 SELECTED, 나머지는 REJECTED 상태가 되며 예약은 CONFIRMED 된다.")
-	void acceptApplicant_Success() throws Exception {
+	void acceptApplicant_Success() {
 		// given
 		Reservation reservation = Reservation.create(ownerInfo, ReservationTitle.from("테스트 제목"), scheduledTime,
 				placeInfo, shootingDuration,
@@ -164,11 +166,8 @@ class ReservationTest {
 		Applicant applicant1 = Applicant.create(reservation, 2L);
 		Applicant applicant2 = Applicant.create(reservation, 3L);
 
-		java.lang.reflect.Field idField = com.dnd.jjigeojulge.global.common.entity.BaseEntity.class
-				.getDeclaredField("id");
-		idField.setAccessible(true);
-		idField.set(applicant1, 10L);
-		idField.set(applicant2, 20L);
+		TestEntityUtils.setId(applicant1, 10L);
+		TestEntityUtils.setId(applicant2, 20L);
 
 		reservation.apply(applicant1, now);
 		reservation.apply(applicant2, now);
@@ -202,9 +201,9 @@ class ReservationTest {
 				requestMessage);
 		LocalDateTime expiredTime = now.plusHours(2);
 
-		assertThatIllegalStateException()
-				.isThrownBy(() -> reservation.cancel(ownerInfo.getUserId(), expiredTime))
-				.withMessage("모집 기간이 지난 예약은 취소할 수 없습니다.");
+		assertThatThrownBy(() -> reservation.cancel(ownerInfo.getUserId(), expiredTime))
+				.isInstanceOf(ReservationValidationException.class)
+				.hasMessage("모집 기간이 지난 예약은 취소할 수 없습니다.");
 	}
 
 	@Test
@@ -228,25 +227,23 @@ class ReservationTest {
 				placeInfo, shootingDuration,
 				requestMessage);
 		forceChangeStatus(reservation, ReservationStatus.CONFIRMED);
+		LocalDateTime beforeAppointment = now;
 
-		assertThatIllegalStateException()
-				.isThrownBy(() -> reservation.complete(now))
-				.withMessage("약속 시간이 지나기 전에는 완료 처리할 수 없습니다.");
+		assertThatThrownBy(() -> reservation.complete(beforeAppointment))
+				.isInstanceOf(ReservationValidationException.class)
+				.hasMessage("약속 시간이 지나기 전에는 완료 처리할 수 없습니다.");
 	}
 
 	@Test
 	@DisplayName("방장(Owner)은 특정 지원자를 단건으로 거절할 수 있다.")
-	void rejectApplicant_Success() throws Exception {
+	void rejectApplicant_Success() {
 		Reservation reservation = Reservation.create(ownerInfo, ReservationTitle.from("테스트 제목"), scheduledTime,
 				placeInfo, shootingDuration,
 				requestMessage);
 		Applicant applicant = Applicant.create(reservation, 2L);
 
 		// Reflection으로 ID 세팅
-		java.lang.reflect.Field idField = com.dnd.jjigeojulge.global.common.entity.BaseEntity.class
-				.getDeclaredField("id");
-		idField.setAccessible(true);
-		idField.set(applicant, 10L);
+		TestEntityUtils.setId(applicant, 10L);
 
 		reservation.apply(applicant, now);
 
@@ -257,43 +254,40 @@ class ReservationTest {
 
 	@Test
 	@DisplayName("방장(Owner)이 아닌 사람이 특정 지원자를 거절하려 하면 예외가 발생한다.")
-	void rejectApplicant_Fail_Not_Owner() throws Exception {
+	void rejectApplicant_Fail_Not_Owner() {
 		Reservation reservation = Reservation.create(ownerInfo, ReservationTitle.from("테스트 제목"), scheduledTime,
 				placeInfo, shootingDuration,
 				requestMessage);
 		Applicant applicant = Applicant.create(reservation, 2L);
 
-		java.lang.reflect.Field idField = com.dnd.jjigeojulge.global.common.entity.BaseEntity.class
-				.getDeclaredField("id");
-		idField.setAccessible(true);
-		idField.set(applicant, 10L);
+		TestEntityUtils.setId(applicant, 10L);
 
 		reservation.apply(applicant, now);
+		long otherUserId = 999L;
+		long applicantId = 10L;
 
-		assertThatIllegalArgumentException()
-				.isThrownBy(() -> reservation.rejectApplicant(999L, 10L, now))
-				.withMessage("예약 작성자 본인만 지원자를 거절할 수 있습니다.");
+		assertThatThrownBy(() -> reservation.rejectApplicant(otherUserId, applicantId, now))
+				.isInstanceOf(ReservationValidationException.class)
+				.hasMessage("예약 작성자 본인만 지원자를 거절할 수 있습니다.");
 	}
 
 	@Test
 	@DisplayName("확정된 예약(CONFIRMED)을 취소하려 할 때 작성자가 아니면 예외가 발생한다.")
-	void cancel_Reservation_Fail_Not_Owner_When_Confirmed() throws Exception {
+	void cancel_Reservation_Fail_Not_Owner_When_Confirmed() {
 		Reservation reservation = Reservation.create(ownerInfo, ReservationTitle.from("테스트 제목"), scheduledTime,
 				placeInfo, shootingDuration,
 				requestMessage);
 		Applicant applicant = Applicant.create(reservation, 2L);
-
-		java.lang.reflect.Field idField = com.dnd.jjigeojulge.global.common.entity.BaseEntity.class
-				.getDeclaredField("id");
-		idField.setAccessible(true);
-		idField.set(applicant, 10L);
+		TestEntityUtils.setId(applicant, 10L);
 
 		reservation.apply(applicant, now);
 		reservation.acceptApplicant(ownerInfo.getUserId(), 10L, now);
+		long otherUserId = 2L;
 
-		assertThatIllegalArgumentException()
-				.isThrownBy(() -> reservation.cancel(2L, now))
-				.withMessage("예약은 작성자 본인만 취소할 수 있습니다.");
+		LocalDateTime beforeAppointment = now; // since scheduledTime is now + 1 hour, now is before appointment
+		assertThatThrownBy(() -> reservation.cancel(otherUserId, beforeAppointment))
+				.isInstanceOf(ReservationValidationException.class)
+				.hasMessage("예약은 작성자 본인만 취소할 수 있습니다.");
 	}
 
 	@Test
@@ -319,10 +313,11 @@ class ReservationTest {
 		Applicant applicant = Applicant.create(reservation, 2L);
 		reservation.apply(applicant, now);
 		forceChangeStatus(reservation, ReservationStatus.CONFIRMED);
+		long applicantUserId = 2L;
 
-		assertThatIllegalStateException()
-				.isThrownBy(() -> reservation.cancelApplication(2L, now))
-				.withMessage("모집 중(RECRUITING)인 상태에서만 지원을 취소할 수 있습니다.");
+		assertThatThrownBy(() -> reservation.cancelApplication(applicantUserId, now))
+				.isInstanceOf(ReservationValidationException.class)
+				.hasMessage("모집 중(RECRUITING)인 상태에서만 지원을 취소할 수 있습니다.");
 	}
 
 	@Test
@@ -332,9 +327,9 @@ class ReservationTest {
 				placeInfo, shootingDuration,
 				requestMessage);
 
-		assertThatIllegalArgumentException()
-				.isThrownBy(() -> reservation.cancelApplication(2L, now))
-				.withMessage("취소할 지원 내역이 없습니다.");
+		assertThatThrownBy(() -> reservation.cancelApplication(2L, now))
+				.isInstanceOf(ReservationValidationException.class)
+				.hasMessage("취소할 지원 내역이 없습니다.");
 	}
 
 	@Test

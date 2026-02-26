@@ -11,6 +11,7 @@ import com.dnd.jjigeojulge.reservation.domain.vo.PlaceInfo;
 import com.dnd.jjigeojulge.reservation.domain.vo.RequestMessage;
 import com.dnd.jjigeojulge.reservation.domain.vo.ReservationTitle;
 import com.dnd.jjigeojulge.reservation.domain.vo.ScheduledTime;
+import com.dnd.jjigeojulge.reservation.domain.exception.ReservationValidationException;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
@@ -101,10 +102,10 @@ public class Reservation extends BaseUpdatableEntity {
                         PlaceInfo placeInfo,
                         ShootingDurationOption shootingDuration) {
                 if (ownerInfo == null) {
-                        throw new IllegalArgumentException("작성자(Owner) 정보는 필수입니다.");
+                        throw new ReservationValidationException("작성자(Owner) 정보는 필수입니다.");
                 }
                 if (title == null) {
-                        throw new IllegalArgumentException("예약 제목 정보는 필수입니다.");
+                        throw new ReservationValidationException("예약 제목 정보는 필수입니다.");
                 }
                 validateReservationData(scheduledTime, placeInfo, shootingDuration);
         }
@@ -114,13 +115,13 @@ public class Reservation extends BaseUpdatableEntity {
                         PlaceInfo placeInfo,
                         ShootingDurationOption shootingDuration) {
                 if (scheduledTime == null) {
-                        throw new IllegalArgumentException("예약 시간 정보는 필수입니다.");
+                        throw new ReservationValidationException("예약 시간 정보는 필수입니다.");
                 }
                 if (placeInfo == null) {
-                        throw new IllegalArgumentException("장소 정보는 필수입니다.");
+                        throw new ReservationValidationException("장소 정보는 필수입니다.");
                 }
                 if (shootingDuration == null) {
-                        throw new IllegalArgumentException("촬영 소요 시간 옵션은 필수입니다.");
+                        throw new ReservationValidationException("촬영 소요 시간 옵션은 필수입니다.");
                 }
         }
 
@@ -142,16 +143,16 @@ public class Reservation extends BaseUpdatableEntity {
 
         private void validateApply(Applicant applicant, LocalDateTime now) {
                 if (this.scheduledTime.isExpired(now)) {
-                        throw new IllegalStateException("모집 기간이 지난 예약에는 지원할 수 없습니다.");
+                        throw new ReservationValidationException("모집 기간이 지난 예약에는 지원할 수 없습니다.");
                 }
                 if (!this.status.isRecruiting()) {
-                        throw new IllegalStateException("모집 중(RECRUITING)인 예약에만 지원할 수 있습니다.");
+                        throw new ReservationValidationException("모집 중(RECRUITING)인 예약에만 지원할 수 있습니다.");
                 }
                 if (this.ownerInfo.isOwner(applicant.getUserId())) {
-                        throw new IllegalArgumentException("자신의 예약에는 지원할 수 없습니다.");
+                        throw new ReservationValidationException("자신의 예약에는 지원할 수 없습니다.");
                 }
                 if (hasAlreadyApplied(applicant.getUserId())) {
-                        throw new IllegalStateException("이미 지원한 예약입니다.");
+                        throw new ReservationValidationException("이미 지원한 예약입니다.");
                 }
         }
 
@@ -163,17 +164,17 @@ public class Reservation extends BaseUpdatableEntity {
 
         public void cancelApplication(Long applicantUserId, LocalDateTime now) {
                 if (!this.status.isRecruiting()) {
-                        throw new IllegalStateException("모집 중(RECRUITING)인 상태에서만 지원을 취소할 수 있습니다.");
+                        throw new ReservationValidationException("모집 중(RECRUITING)인 상태에서만 지원을 취소할 수 있습니다.");
                 }
                 if (this.scheduledTime.isExpired(now)) {
-                        throw new IllegalStateException("모집 기간이 지난 예약의 지원은 취소할 수 없습니다.");
+                        throw new ReservationValidationException("모집 기간이 지난 예약의 지원은 취소할 수 없습니다.");
                 }
                 Applicant applicant = this.applicants.stream()
                                 .filter(a -> a.getUserId().equals(applicantUserId)
                                                 && (a.getStatus() == ApplicantStatus.APPLIED
                                                                 || a.getStatus() == ApplicantStatus.SELECTED))
                                 .findFirst()
-                                .orElseThrow(() -> new IllegalArgumentException("취소할 지원 내역이 없습니다."));
+                                .orElseThrow(() -> new ReservationValidationException("취소할 지원 내역이 없습니다."));
 
                 applicant.cancelApplication();
         }
@@ -190,13 +191,13 @@ public class Reservation extends BaseUpdatableEntity {
 
         private void validateAcceptApplicant(Long ownerId, LocalDateTime now) {
                 if (this.scheduledTime.isExpired(now)) {
-                        throw new IllegalStateException("모집 기간이 지난 예약은 지원자를 수락할 수 없습니다.");
+                        throw new ReservationValidationException("모집 기간이 지난 예약은 지원자를 수락할 수 없습니다.");
                 }
                 if (!this.ownerInfo.isOwner(ownerId)) {
-                        throw new IllegalArgumentException("예약 작성자 본인만 지원자를 수락할 수 있습니다.");
+                        throw new ReservationValidationException("예약 작성자 본인만 지원자를 수락할 수 있습니다.");
                 }
                 if (!this.status.isRecruiting()) {
-                        throw new IllegalStateException("모집 중(RECRUITING)인 상태에서만 지원자를 수락할 수 있습니다.");
+                        throw new ReservationValidationException("모집 중(RECRUITING)인 상태에서만 지원자를 수락할 수 있습니다.");
                 }
         }
 
@@ -204,7 +205,7 @@ public class Reservation extends BaseUpdatableEntity {
                 return this.applicants.stream()
                                 .filter(a -> a.getId() != null && a.getId().equals(applicantId))
                                 .findFirst()
-                                .orElseThrow(() -> new IllegalArgumentException("해당 지원자를 찾을 수 없습니다."));
+                                .orElseThrow(() -> new ReservationValidationException("해당 지원자를 찾을 수 없습니다."));
         }
 
         private void rejectAllExcept(Applicant selectedApplicant) {
@@ -237,16 +238,16 @@ public class Reservation extends BaseUpdatableEntity {
                         ShootingDurationOption shootingDuration,
                         LocalDateTime now) {
                 if (this.scheduledTime.isExpired(now)) {
-                        throw new IllegalStateException("모집 기간이 지난 예약 정보는 수정할 수 없습니다.");
+                        throw new ReservationValidationException("모집 기간이 지난 예약 정보는 수정할 수 없습니다.");
                 }
                 if (!this.ownerInfo.isOwner(requesterId)) {
-                        throw new IllegalArgumentException("예약 작성자 본인만 예약 정보를 수정할 수 있습니다.");
+                        throw new ReservationValidationException("예약 작성자 본인만 예약 정보를 수정할 수 있습니다.");
                 }
                 if (!this.status.isRecruiting()) {
-                        throw new IllegalStateException("모집 중(RECRUITING)인 상태에서만 예약 정보를 수정할 수 있습니다.");
+                        throw new ReservationValidationException("모집 중(RECRUITING)인 상태에서만 예약 정보를 수정할 수 있습니다.");
                 }
                 if (title == null) {
-                        throw new IllegalArgumentException("예약 제목 정보는 필수입니다.");
+                        throw new ReservationValidationException("예약 제목 정보는 필수입니다.");
                 }
                 validateReservationData(scheduledTime, placeInfo, shootingDuration);
         }
@@ -259,15 +260,15 @@ public class Reservation extends BaseUpdatableEntity {
 
         private void validateCancel(Long requesterId, LocalDateTime now) {
                 if (this.scheduledTime.isExpired(now)) {
-                        throw new IllegalStateException("모집 기간이 지난 예약은 취소할 수 없습니다.");
+                        throw new ReservationValidationException("모집 기간이 지난 예약은 취소할 수 없습니다.");
                 }
 
                 if (!this.ownerInfo.isOwner(requesterId)) {
-                        throw new IllegalArgumentException("예약은 작성자 본인만 취소할 수 있습니다.");
+                        throw new ReservationValidationException("예약은 작성자 본인만 취소할 수 있습니다.");
                 }
 
                 if (this.status != ReservationStatus.RECRUITING) {
-                        throw new IllegalStateException("모집 중(RECRUITING) 상태에서만 예약을 취소할 수 있습니다.");
+                        throw new ReservationValidationException("모집 중(RECRUITING) 상태에서만 예약을 취소할 수 있습니다.");
                 }
         }
 
@@ -279,10 +280,10 @@ public class Reservation extends BaseUpdatableEntity {
 
         public void complete(LocalDateTime now) {
                 if (this.status != ReservationStatus.CONFIRMED) {
-                        throw new IllegalStateException("확정됨(CONFIRMED) 상태인 예약만 완료 처리할 수 있습니다.");
+                        throw new ReservationValidationException("확정됨(CONFIRMED) 상태인 예약만 완료 처리할 수 있습니다.");
                 }
                 if (!this.scheduledTime.isExpired(now)) {
-                        throw new IllegalStateException("약속 시간이 지나기 전에는 완료 처리할 수 없습니다.");
+                        throw new ReservationValidationException("약속 시간이 지나기 전에는 완료 처리할 수 없습니다.");
                 }
                 this.status = ReservationStatus.COMPLETED;
         }
@@ -296,10 +297,10 @@ public class Reservation extends BaseUpdatableEntity {
 
         private void validateRejectApplicant(Long ownerId, LocalDateTime now) {
                 if (!this.ownerInfo.isOwner(ownerId)) {
-                        throw new IllegalArgumentException("예약 작성자 본인만 지원자를 거절할 수 있습니다.");
+                        throw new ReservationValidationException("예약 작성자 본인만 지원자를 거절할 수 있습니다.");
                 }
                 if (!this.status.isRecruiting()) {
-                        throw new IllegalStateException("모집 중(RECRUITING)인 상태에서만 지원자를 거절할 수 있습니다.");
+                        throw new ReservationValidationException("모집 중(RECRUITING)인 상태에서만 지원자를 거절할 수 있습니다.");
                 }
         }
 }

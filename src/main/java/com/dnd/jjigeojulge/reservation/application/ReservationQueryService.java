@@ -10,6 +10,7 @@ import com.dnd.jjigeojulge.reservation.application.dto.query.ReservationCommentD
 import com.dnd.jjigeojulge.reservation.application.dto.query.ReservationDetailDto;
 import com.dnd.jjigeojulge.reservation.application.dto.query.ReservationListResponseDto;
 import com.dnd.jjigeojulge.reservation.application.dto.query.ReservationSearchCondition;
+import com.dnd.jjigeojulge.reservation.domain.exception.ReservationNotFoundException;
 import com.dnd.jjigeojulge.reservation.domain.repository.ReservationCommentQueryRepository;
 import com.dnd.jjigeojulge.reservation.domain.repository.ReservationQueryRepository;
 
@@ -40,7 +41,7 @@ public class ReservationQueryService {
 
     public ReservationDetailDto getReservationDetail(Long reservationId) {
         return reservationQueryRepository.getReservationDetail(reservationId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 예약 정보를 찾을 수 없습니다."));
+                .orElseThrow(ReservationNotFoundException::new);
     }
 
     public Page<ReservationCommentDto> getReservationComments(Long reservationId, Long cursor, int limit) {

@@ -1,19 +1,11 @@
 package com.dnd.jjigeojulge.reservation.infra;
 
-import static com.dnd.jjigeojulge.reservation.domain.QApplicant.*;
-import static com.dnd.jjigeojulge.reservation.domain.QReservation.*;
-import static com.dnd.jjigeojulge.user.domain.QUser.*;
-
 import static com.dnd.jjigeojulge.reservation.domain.QApplicant.applicant;
 import static com.dnd.jjigeojulge.reservation.domain.QReservation.reservation;
 import static com.dnd.jjigeojulge.reservation.domain.QReservationComment.reservationComment;
 import static com.dnd.jjigeojulge.user.domain.QUser.user;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import static com.dnd.jjigeojulge.reservation.domain.QApplicant.*;
-import static com.dnd.jjigeojulge.reservation.domain.QReservation.*;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -34,7 +26,6 @@ import com.dnd.jjigeojulge.reservation.domain.repository.ReservationQueryReposit
 import com.dnd.jjigeojulge.reservation.domain.vo.Region1Depth;
 import com.dnd.jjigeojulge.user.domain.Gender;
 import com.querydsl.core.Tuple;
-import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;

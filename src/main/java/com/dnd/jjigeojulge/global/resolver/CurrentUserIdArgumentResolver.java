@@ -1,8 +1,10 @@
 package com.dnd.jjigeojulge.global.resolver;
 
 import org.springframework.core.MethodParameter;
+import org.springframework.lang.Nullable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
@@ -24,9 +26,9 @@ public class CurrentUserIdArgumentResolver implements HandlerMethodArgumentResol
     @Override
     public Object resolveArgument(
             MethodParameter parameter,
-            ModelAndViewContainer mavContainer,
+            @Nullable ModelAndViewContainer mavContainer,
             NativeWebRequest webRequest,
-            WebDataBinderFactory binderFactory) throws Exception {
+            @Nullable WebDataBinderFactory binderFactory) throws Exception {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 

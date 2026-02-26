@@ -2,6 +2,7 @@ package com.dnd.jjigeojulge.global.config;
 
 import java.util.UUID;
 
+import org.springframework.lang.Nullable;
 import org.slf4j.MDC;
 import org.springframework.web.servlet.HandlerInterceptor;
 
@@ -38,7 +39,7 @@ public class MDCLoggingInterceptor implements HandlerInterceptor {
 
 	@Override
 	public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler,
-			Exception ex) {
+			@Nullable Exception ex) {
 		// 요청 처리 후 MDC 데이터 정리
 		log.debug("Request completed");
 		MDC.clear();
