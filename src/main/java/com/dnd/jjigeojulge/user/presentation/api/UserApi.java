@@ -60,12 +60,18 @@ public interface UserApi {
 					  "message": "SUCCESS",
 					  "code": "",
 					  "data": {
+					    "userId": 1,
 					    "nickname": "홍길동",
 					    "gender": "MALE",
 					    "ageGroup": "TWENTIES",
 					    "introduction": "사진 찍는 걸 좋아합니다.",
 					    "profileImageUrl": "https://example.com/profile.jpg",
-					    "photoStyles": ["SNS_UPLOAD", "FULL_BODY"]
+					    "photoStyles": ["SNS_UPLOAD", "FULL_BODY"],
+					    "consent": {
+					      "notificationAllowed": true,
+					      "locationAllowed": false,
+					      "updatedAt": "2025-01-01T12:00:00"
+					    }
 					  }
 					}
 					"""))),
@@ -89,12 +95,18 @@ public interface UserApi {
 					  "message": "SUCCESS",
 					  "code": "",
 					  "data": {
+					    "userId": 1,
 					    "nickname": "홍길동",
 					    "gender": "MALE",
 					    "ageGroup": "TWENTIES",
 					    "introduction": "사진 찍는 걸 좋아합니다.",
 					    "profileImageUrl": "https://example.com/updated_profile.jpg",
-					    "photoStyles": ["SNS_UPLOAD", "FULL_BODY"]
+					    "photoStyles": ["SNS_UPLOAD", "FULL_BODY"],
+					    "consent": {
+					      "notificationAllowed": true,
+					      "locationAllowed": false,
+					      "updatedAt": "2025-01-01T12:00:00"
+					    }
 					  }
 					}
 					"""))),

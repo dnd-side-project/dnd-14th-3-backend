@@ -20,7 +20,7 @@ public record ProfileDto(
 		@Schema(description = "한줄 소개 (선택 항목)", nullable = true, example = "사진 찍는 걸 좋아합니다.") String introduction,
 		@Schema(description = "프로필 이미지 URL", nullable = true, example = "https://example.com/profile.jpg") String profileImageUrl,
 		@Schema(description = "선호 촬영 스타일", example = "[\"SNS_UPLOAD\", \"FULL_BODY\"]") List<StyleName> photoStyles,
-		@Schema(description = "알림 및 위치 정보 제공 동의 여부") ConsentDto consent) {
+		@Schema(description = "알림 및 위치 정보 제공 동의 여부 (초기 가입시 null일 수 있음)", nullable = true) ConsentDto consent) {
 
 	public static ProfileDto from(User user) {
 		List<StyleName> list = user.getPhotoStyles().stream()
