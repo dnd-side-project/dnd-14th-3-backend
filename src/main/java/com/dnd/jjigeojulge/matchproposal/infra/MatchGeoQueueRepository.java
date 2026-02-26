@@ -90,7 +90,7 @@ public class MatchGeoQueueRepository {
 			.toList();
 	}
 
-	public int countNearBy(GeoPoint center, double radiusKm, int limitForCount) {
-		return findNearBy(center, radiusKm, limitForCount).size();
+	public int countNearByExcludeMe(GeoPoint center, double radiusKm, int limitForCount) {
+		return findNearBy(center, radiusKm, limitForCount).size() - 1;
 	}
 }

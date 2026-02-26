@@ -37,7 +37,7 @@ public class WaitingCountScheduler {
 				continue;
 			}
 
-			int nearByCount = Math.max(0, queueRepository.countNearBy(geoPoint, RADIUS_KM, COUNT_LIMIT));
+			int nearByCount = Math.max(0, queueRepository.countNearByExcludeMe(geoPoint, RADIUS_KM, COUNT_LIMIT));
 
 			Integer prev = last.put(userId, nearByCount);
 

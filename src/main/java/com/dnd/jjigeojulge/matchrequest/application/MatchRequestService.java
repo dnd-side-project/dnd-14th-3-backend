@@ -125,8 +125,7 @@ public class MatchRequestService {
 	}
 
 	private int getNearbyCountExcludeMe(GeoPoint location) {
-		int rawCount = matchGeoQueueRepository.countNearBy(location, RADIUS_KM, COUNT_LIMIT);
-		return Math.max(0, rawCount - 1);
+		return Math.max(0, matchGeoQueueRepository.countNearByExcludeMe(location, RADIUS_KM, COUNT_LIMIT));
 	}
 
 	private static MatchRequestDto toDto(MatchRequest saved, int count) {
