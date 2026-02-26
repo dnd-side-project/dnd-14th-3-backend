@@ -33,6 +33,7 @@ public interface ReservationApi {
 			- 날짜/시간, 장소 요약(1Depth), 촬영 유형 스냅샷, 요청자 신뢰도, 상태 배지 (RECRUITING 등)
 			""")
 	ResponseEntity<ApiResponse<PageResponse<com.dnd.jjigeojulge.reservation.application.dto.query.ReservationListResponseDto>>> getList(
+			@org.springframework.web.bind.annotation.ModelAttribute com.dnd.jjigeojulge.reservation.application.dto.query.ReservationSearchCondition condition,
 			@Parameter(description = "마지막 조회 예약 ID (cursor 기반 페이징)", example = "10") Long cursor,
 			@Parameter(description = "한 페이지에 조회할 개수", example = "10") int limit);
 

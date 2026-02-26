@@ -34,10 +34,9 @@ public class ReservationController implements ReservationApi {
 	@Override
 	@GetMapping
 	public ResponseEntity<ApiResponse<PageResponse<com.dnd.jjigeojulge.reservation.application.dto.query.ReservationListResponseDto>>> getList(
+			@org.springframework.web.bind.annotation.ModelAttribute com.dnd.jjigeojulge.reservation.application.dto.query.ReservationSearchCondition condition,
 			@RequestParam(value = "cursor", required = false) Long cursor,
 			@RequestParam(defaultValue = "10") int limit) {
-		com.dnd.jjigeojulge.reservation.application.dto.query.ReservationSearchCondition condition = com.dnd.jjigeojulge.reservation.application.dto.query.ReservationSearchCondition
-				.builder().build(); // TODO: 검색 필터 추가 시 바인딩
 		return ResponseEntity.ok(ApiResponse.success(
 				PageResponse.from(reservationQueryService.searchReservations(condition, cursor, limit))));
 	}
@@ -53,17 +52,7 @@ public class ReservationController implements ReservationApi {
 	public ResponseEntity<ApiResponse<Long>> create(
 			@CurrentUserId Long currentUserId,
 			@RequestBody @Valid ReservationCreateRequest request) {
-		com.dnd.jjigeojulge.reservation.application.dto.CreateReservationCommand command = new com.dnd.jjigeojulge.reservation.application.dto.CreateReservationCommand(
-				currentUserId,
-				request.title(),
-				request.region1Depth(),
-				request.specificPlace(),
-				request.location().latitude(),
-				request.location().longitude(),
-				request.scheduledAt(),
-				request.shootingDuration(),
-				request.requestMessage());
-		Long reservationId = reservationService.createReservation(command);
+		Long reservationId = reservationService.createReservation(request.toCommand(currentUserId));
 		return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(reservationId));
 	}
 
@@ -73,10 +62,7 @@ public class ReservationController implements ReservationApi {
 			@PathVariable Long reservationId,
 			@CurrentUserId Long currentUserId,
 			@RequestBody @Valid com.dnd.jjigeojulge.reservation.presentation.request.ReservationUpdateRequest request) {
-		reservationService.updateReservation(
-				com.dnd.jjigeojulge.reservation.application.dto.UpdateReservationCommand.of(reservationId,
-						currentUserId,
-						request));
+		reservationService.updateReservation(request.toCommand(reservationId, currentUserId));
 		return ResponseEntity.ok(ApiResponse.success(null));
 	}
 

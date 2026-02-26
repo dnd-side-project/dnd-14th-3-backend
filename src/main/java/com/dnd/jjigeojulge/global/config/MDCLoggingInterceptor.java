@@ -1,4 +1,4 @@
-package com.dnd.jjigeojulge.config;
+package com.dnd.jjigeojulge.global.config;
 
 import java.util.UUID;
 
@@ -38,7 +38,7 @@ public class MDCLoggingInterceptor implements HandlerInterceptor {
 
 	@Override
 	public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler,
-		Exception ex) {
+			Exception ex) {
 		// 요청 처리 후 MDC 데이터 정리
 		log.debug("Request completed");
 		MDC.clear();
