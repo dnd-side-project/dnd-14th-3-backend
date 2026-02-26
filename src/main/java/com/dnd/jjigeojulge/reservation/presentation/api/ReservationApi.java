@@ -9,7 +9,6 @@ import com.dnd.jjigeojulge.reservation.application.dto.query.AppliedReservationL
 import com.dnd.jjigeojulge.reservation.application.dto.query.CreatedReservationListDto;
 import com.dnd.jjigeojulge.reservation.application.dto.query.ReservationCommentDto;
 import com.dnd.jjigeojulge.reservation.application.dto.query.ReservationDetailDto;
-import com.dnd.jjigeojulge.reservation.application.dto.query.ReservationSummaryDto;
 import com.dnd.jjigeojulge.reservation.presentation.request.ReservationCreateRequest;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -32,7 +31,7 @@ public interface ReservationApi {
 			**예약 카드 구성 필드 반환 목록**
 			- 날짜/시간, 장소 요약(1Depth), 촬영 유형 스냅샷, 요청자 신뢰도, 상태 배지 (RECRUITING 등)
 			""")
-	ResponseEntity<ApiResponse<PageResponse<ReservationSummaryDto>>> getList(
+	ResponseEntity<ApiResponse<PageResponse<com.dnd.jjigeojulge.reservation.application.dto.query.ReservationListResponseDto>>> getList(
 			@Parameter(description = "마지막 조회 예약 ID (cursor 기반 페이징)", example = "10") Long cursor,
 			@Parameter(description = "한 페이지에 조회할 개수", example = "10") int limit);
 

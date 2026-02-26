@@ -16,7 +16,6 @@ import com.dnd.jjigeojulge.reservation.application.dto.query.AppliedReservationL
 import com.dnd.jjigeojulge.reservation.application.dto.query.CreatedReservationListDto;
 import com.dnd.jjigeojulge.reservation.application.dto.query.ReservationCommentDto;
 import com.dnd.jjigeojulge.reservation.application.dto.query.ReservationDetailDto;
-import com.dnd.jjigeojulge.reservation.application.dto.query.ReservationSummaryDto;
 import com.dnd.jjigeojulge.reservation.presentation.api.ReservationApi;
 import com.dnd.jjigeojulge.reservation.presentation.request.ReservationCreateRequest;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -30,19 +29,23 @@ import lombok.RequiredArgsConstructor;
 public class ReservationController implements ReservationApi {
 
 	private final com.dnd.jjigeojulge.reservation.application.ReservationService reservationService;
+	private final com.dnd.jjigeojulge.reservation.application.ReservationQueryService reservationQueryService;
 
 	@Override
 	@GetMapping
-	public ResponseEntity<ApiResponse<PageResponse<ReservationSummaryDto>>> getList(
+	public ResponseEntity<ApiResponse<PageResponse<com.dnd.jjigeojulge.reservation.application.dto.query.ReservationListResponseDto>>> getList(
 			@RequestParam(value = "cursor", required = false) Long cursor,
 			@RequestParam(defaultValue = "10") int limit) {
-		return ResponseEntity.ok(ApiResponse.success(null));
+		com.dnd.jjigeojulge.reservation.application.dto.query.ReservationSearchCondition condition = com.dnd.jjigeojulge.reservation.application.dto.query.ReservationSearchCondition
+				.builder().build(); // TODO: 검색 필터 추가 시 바인딩
+		return ResponseEntity.ok(ApiResponse.success(
+				PageResponse.from(reservationQueryService.searchReservations(condition, cursor, limit))));
 	}
 
 	@Override
 	@GetMapping("/{reservationId}")
 	public ResponseEntity<ApiResponse<ReservationDetailDto>> getDetail(@PathVariable Long reservationId) {
-		return ResponseEntity.ok(ApiResponse.success(null));
+		return ResponseEntity.ok(ApiResponse.success(reservationQueryService.getReservationDetail(reservationId)));
 	}
 
 	@Override
@@ -144,19 +147,23 @@ public class ReservationController implements ReservationApi {
 	@Override
 	@GetMapping("/created")
 	public ResponseEntity<ApiResponse<PageResponse<CreatedReservationListDto>>> getMyCreatedReservations(
-			Long currentUserId,
+			@AuthenticationPrincipal Long currentUserId,
 			@RequestParam(required = false) Long cursor,
 			@RequestParam(defaultValue = "10") int limit) {
-		return ResponseEntity.ok(ApiResponse.success(null));
+		Long mockUserId = currentUserId != null ? currentUserId : 1L;
+		return ResponseEntity.ok(ApiResponse.success(
+				PageResponse.from(reservationQueryService.getMyCreatedReservations(mockUserId, cursor, limit))));
 	}
 
 	@Override
 	@GetMapping("/applied")
 	public ResponseEntity<ApiResponse<PageResponse<AppliedReservationListDto>>> getMyAppliedReservations(
-			Long currentUserId,
+			@AuthenticationPrincipal Long currentUserId,
 			@RequestParam(required = false) Long cursor,
 			@RequestParam(defaultValue = "10") int limit) {
-		return ResponseEntity.ok(ApiResponse.success(null));
+		Long mockUserId = currentUserId != null ? currentUserId : 2L;
+		return ResponseEntity.ok(ApiResponse.success(
+				PageResponse.from(reservationQueryService.getMyAppliedReservations(mockUserId, cursor, limit))));
 	}
 
 	@Override
@@ -165,19 +172,18 @@ public class ReservationController implements ReservationApi {
 			@PathVariable Long reservationId,
 			@RequestParam(value = "cursor", required = false) Long cursor,
 			@RequestParam(defaultValue = "10") int limit) {
-		return ResponseEntity.ok(ApiResponse.success(null));
+		return ResponseEntity.ok(ApiResponse.success(
+				PageResponse.from(reservationQueryService.getReservationComments(reservationId, cursor, limit))));
 	}
 
 	@Override
 	@GetMapping("/{reservationId}/applicants")
 	public ResponseEntity<ApiResponse<com.dnd.jjigeojulge.reservation.application.dto.query.ApplicantListResponseDto>> getApplicants(
-			Long currentUserId, // TODO: 시큐리티 설정 후 @AuthenticationPrincipal 등으로 교체
+			@AuthenticationPrincipal Long currentUserId, // TODO: 시큐리티 설정 후 @AuthenticationPrincipal 등으로 교체
 			@PathVariable Long reservationId) {
 		// 현재 인증 생략 상태이므로 임시로 1L(방장) 고정 (테스트용)
 		Long mockUserId = currentUserId != null ? currentUserId : 1L;
 		return ResponseEntity.ok(ApiResponse.success(
-				new com.dnd.jjigeojulge.reservation.application.ReservationQueryService(null, null)
-						.getApplicants(reservationId, mockUserId) // TODO: 제대로 주입된 빈 사용
-		));
+				reservationQueryService.getApplicants(reservationId, mockUserId)));
 	}
 }
