@@ -10,6 +10,10 @@ import com.dnd.jjigeojulge.global.common.dto.GeoPoint;
 import com.dnd.jjigeojulge.matchproposal.infra.MatchGeoQueueRepository;
 import com.dnd.jjigeojulge.matchrequest.domain.MatchRequest;
 import com.dnd.jjigeojulge.matchrequest.domain.MatchRequestStatus;
+import com.dnd.jjigeojulge.matchrequest.exception.MatchRequestAlreadyProcessedException;
+import com.dnd.jjigeojulge.matchrequest.exception.MatchRequestForbiddenException;
+import com.dnd.jjigeojulge.matchrequest.exception.MatchRequestNotExpiredException;
+import com.dnd.jjigeojulge.matchrequest.exception.MatchRequestNotFoundException;
 import com.dnd.jjigeojulge.matchrequest.infra.MatchRequestRepository;
 import com.dnd.jjigeojulge.matchrequest.presentation.data.MatchRequestDto;
 import com.dnd.jjigeojulge.matchrequest.presentation.request.MatchRequestCreateRequest;
@@ -26,6 +30,8 @@ import lombok.extern.slf4j.Slf4j;
 public class MatchRequestService {
 
 	private static final int REQUEST_TTL_MIN = 5; // MVP: 5분 대기
+	private static final double RADIUS_KM = 0.5;
+	private static final int COUNT_LIMIT = 200; // MVP: 근처 유저 최대 200명까지 카운트
 
 	private final MatchRequestRepository matchRequestRepository;
 	private final UserRepository userRepository;
@@ -40,17 +46,15 @@ public class MatchRequestService {
 		// 2. 유저 당 1개 WAITING
 		boolean exists = matchRequestRepository.existsByUserIdAndStatus(user.getId(), MatchRequestStatus.WAITING);
 
-		// 3. 이미 요청이 waiting으로 존재할 경우 정책, 임시로 생성한 예외 이후 리팩토링
-		// TODO 정확히 요청이 이미 존재할 경우 처리 방법 회의
-		// TODO 에러 발생 시 500 에러나옴, 커스텀 에러 생성하기
+		// 3. 이미 요청이 waiting으로 존재할 경우 정책
 		if (exists) {
-			throw new IllegalStateException("이미 요청이 존재합니다.");
+			throw new MatchRequestAlreadyProcessedException();
 		}
 
 		LocalDateTime now = LocalDateTime.now();
 		LocalDateTime expiresAt = now.plusMinutes(REQUEST_TTL_MIN);
 
-		// 3. 생성 및 저장 (정적메 엔티티 내부에 생성)
+		// 3. 생성 및 저장
 		GeoPoint location = request.location();
 		MatchRequest matchRequest = MatchRequest.builder()
 			.latitude(BigDecimal.valueOf(location.latitude()))
@@ -64,12 +68,15 @@ public class MatchRequestService {
 			.build();
 
 		MatchRequest saved = matchRequestRepository.save(matchRequest);
-		// TODO 트랜잭션 롤백 시 레디스도 롤백 되지 않는 부분 문제 해결
+		// TODO 트랜잭션 롤백 시 레디스도 롤백 되지 않는 부분 문제 해결 필요 after commit or outbox pattern
 		matchGeoQueueRepository.addWaitingUser(userId, location);
-		return toDto(saved);
+
+		int nearbyCountExcludeMe = getNearbyCountExcludeMe(location);
+		return toDto(saved, nearbyCountExcludeMe);
 	}
 
 	// preAuthorize 필요 + 어떻게 조회할 것인지? 유저 아이디 or match_request_id를 이용할 것인지?
+
 	@Transactional(readOnly = true)
 	public MatchRequestDto find(Long matchRequestId) {
 
@@ -86,7 +93,42 @@ public class MatchRequestService {
 			});
 	}
 
-	private static MatchRequestDto toDto(MatchRequest saved) {
-		return MatchRequestDto.from(saved);
+	@Transactional
+	public MatchRequestDto retry(Long userId, Long matchRequestId) {
+		MatchRequest matchRequest = matchRequestRepository.findByIdWithUser(matchRequestId)
+			.orElseThrow(MatchRequestNotFoundException::new);
+
+		if (!matchRequest.isOwner(userId)) {
+			throw new MatchRequestForbiddenException();
+		}
+
+		// 바꾸고자 하는 match-request 외에 waiting인 상태의 다른 요청이 있다면 예외
+		matchRequestRepository.findByUserIdAndStatus(userId, MatchRequestStatus.WAITING)
+			.filter(match -> !match.getId().equals(matchRequestId))
+			.ifPresent(match -> {
+				throw new MatchRequestAlreadyProcessedException();
+			});
+
+		// 시간 기준으로 만료 여부 체크 (배치가 미처 status를 안 바꿨어도 통과)
+		LocalDateTime now = LocalDateTime.now();
+		if (!matchRequest.isExpired(now)) {
+			throw new MatchRequestNotExpiredException();
+		}
+
+		matchRequest.retry(now.plusMinutes(REQUEST_TTL_MIN));
+		GeoPoint location = matchRequest.toGeoPoint();
+		matchGeoQueueRepository.addWaitingUser(userId, location);
+
+		int nearbyCountExcludeMe = getNearbyCountExcludeMe(location);
+
+		return toDto(matchRequest, nearbyCountExcludeMe);
+	}
+
+	private int getNearbyCountExcludeMe(GeoPoint location) {
+		return Math.max(0, matchGeoQueueRepository.countNearByExcludeMe(location, RADIUS_KM, COUNT_LIMIT));
+	}
+
+	private static MatchRequestDto toDto(MatchRequest saved, int count) {
+		return MatchRequestDto.from(saved, count);
 	}
 }

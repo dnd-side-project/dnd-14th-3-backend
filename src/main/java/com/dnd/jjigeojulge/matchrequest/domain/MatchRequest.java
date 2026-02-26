@@ -2,7 +2,9 @@ package com.dnd.jjigeojulge.matchrequest.domain;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
+import com.dnd.jjigeojulge.global.common.dto.GeoPoint;
 import com.dnd.jjigeojulge.global.common.entity.BaseUpdatableEntity;
 import com.dnd.jjigeojulge.global.common.enums.ShootingDurationOption;
 import com.dnd.jjigeojulge.user.domain.User;
@@ -75,6 +77,28 @@ public class MatchRequest extends BaseUpdatableEntity {
 	}
 
 	public boolean isExpired(LocalDateTime now) {
-		return this.expiresAt.isBefore(now) || this.expiresAt.isEqual(now);
+		// 이미 최종 상태(매칭 완료, 취소 등)라면 만료 대상이 아님
+		if (this.status == MatchRequestStatus.CANCELLED || this.status == MatchRequestStatus.MATCHED) {
+			return false;
+		}
+		// 명시적으로 EXPIRED 상태이거나, 시간이 지났다면 '만료'로 간주
+		return this.status == MatchRequestStatus.EXPIRED || !this.expiresAt.isAfter(now);
+	}
+
+	public void retry(LocalDateTime nextExpiresAt) {
+		// 재시도 시 다시 WAITING 상태로 복구하고 시간 연장
+		this.status = MatchRequestStatus.WAITING;
+		this.expiresAt = nextExpiresAt;
+	}
+
+	public boolean isOwner(Long userId) {
+		return Objects.equals(this.user.getId(), userId);
+	}
+
+	public GeoPoint toGeoPoint() {
+		return new GeoPoint(
+			this.latitude.doubleValue(),
+			this.longitude.doubleValue()
+		);
 	}
 }

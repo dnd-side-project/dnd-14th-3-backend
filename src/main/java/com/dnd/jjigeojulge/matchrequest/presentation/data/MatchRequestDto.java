@@ -36,10 +36,13 @@ public record MatchRequestDto(
 	LocalDateTime createdAt,
 
 	@Schema(description = "수정 시각(KST)", example = "2026-02-17T09:15:00")
-	LocalDateTime updatedAt
+	LocalDateTime updatedAt,
+
+	@Schema(description = "현재 대기중인 사람 수", example = "3")
+	int nearbyWaitingCount
 ) {
 
-	public static MatchRequestDto from(MatchRequest entity) {
+	public static MatchRequestDto from(MatchRequest entity, int nearbyWaitingCount) {
 		GeoPoint location = new GeoPoint(
 			entity.getLatitude().doubleValue(),
 			entity.getLongitude().doubleValue()
@@ -52,7 +55,8 @@ public record MatchRequestDto(
 			entity.getExpectedDuration(),
 			entity.getRequestMessage(),
 			entity.getCreatedAt(),
-			entity.getUpdatedAt()
+			entity.getUpdatedAt(),
+			nearbyWaitingCount
 		);
 	}
 }
