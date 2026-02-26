@@ -24,6 +24,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 
 @Tag(name = "동행 예약 관리", description = "동행 예약 관련 API")
 public interface ReservationApi {
@@ -39,7 +41,7 @@ public interface ReservationApi {
 	ResponseEntity<ApiResponse<PageResponse<ReservationListResponseDto>>> getList(
 			@org.springframework.web.bind.annotation.ModelAttribute ReservationSearchCondition condition,
 			@Parameter(description = "마지막 조회 예약 ID (cursor 기반 페이징)", example = "10") Long cursor,
-			@Parameter(description = "한 페이지에 조회할 개수", example = "10") int limit);
+			@Parameter(description = "한 페이지에 조회할 개수", example = "10") @Min(1) @Max(100) int limit);
 
 	@Operation(summary = "예약 상세 탐색 (동행 상세 페이지)", description = """
 			특정 동행 예약글의 상세 정보를 조회합니다.
@@ -191,7 +193,7 @@ public interface ReservationApi {
 	ResponseEntity<ApiResponse<PageResponse<ReservationCommentDto>>> getComments(
 			@Parameter(description = "예약 글 ID", required = true, example = "101") Long reservationId,
 			@Parameter(description = "마지막 조회 댓글 ID (cursor)", example = "500") Long cursor,
-			@Parameter(description = "한 페이지 조회 개수", example = "10") int limit);
+			@Parameter(description = "한 페이지 조회 개수", example = "10") @Min(1) @Max(100) int limit);
 
 	@Operation(summary = "방장 - 예약 지원자 목록 조회", description = "내가 만든 동행 예약에 지원한 게스트(지원자) 목록을 조회합니다.")
 	@ApiResponses({
