@@ -20,7 +20,7 @@ import com.dnd.jjigeojulge.reservation.domain.vo.ScheduledTime;
 import com.dnd.jjigeojulge.user.domain.PhotoStyle;
 import com.dnd.jjigeojulge.user.domain.User;
 import com.dnd.jjigeojulge.user.domain.UserPhotoStyle;
-import com.dnd.jjigeojulge.user.domain.exception.UserNotFoundException;
+import com.dnd.jjigeojulge.user.exception.UserNotFoundException;
 import com.dnd.jjigeojulge.user.infra.UserRepository;
 
 import lombok.RequiredArgsConstructor;

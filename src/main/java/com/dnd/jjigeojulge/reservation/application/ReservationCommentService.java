@@ -11,7 +11,7 @@ import com.dnd.jjigeojulge.reservation.domain.exception.ReservationNotFoundExcep
 import com.dnd.jjigeojulge.reservation.domain.repository.ReservationCommentRepository;
 import com.dnd.jjigeojulge.reservation.domain.repository.ReservationRepository;
 import com.dnd.jjigeojulge.reservation.domain.vo.CommentContent;
-import com.dnd.jjigeojulge.user.domain.exception.UserNotFoundException;
+import com.dnd.jjigeojulge.user.exception.UserNotFoundException;
 import com.dnd.jjigeojulge.user.infra.UserRepository;
 
 import lombok.RequiredArgsConstructor;
