@@ -27,8 +27,6 @@ import com.dnd.jjigeojulge.reservation.presentation.request.ReservationUpdateReq
 import com.dnd.jjigeojulge.global.annotation.CurrentUserId;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 
@@ -46,7 +44,7 @@ public class ReservationController implements ReservationApi {
 	public ResponseEntity<ApiResponse<PageResponse<ReservationListResponseDto>>> getList(
 			@org.springframework.web.bind.annotation.ModelAttribute ReservationSearchCondition condition,
 			@RequestParam(value = "cursor", required = false) Long cursor,
-			@RequestParam(defaultValue = "10") @Min(1) @Max(100) int limit) {
+			@RequestParam(defaultValue = "10") int limit) {
 		return ResponseEntity.ok(ApiResponse.success(
 				PageResponse.from(reservationQueryService.searchReservations(condition, cursor, limit))));
 	}
@@ -128,7 +126,7 @@ public class ReservationController implements ReservationApi {
 	public ResponseEntity<ApiResponse<PageResponse<CreatedReservationListDto>>> getMyCreatedReservations(
 			@CurrentUserId Long currentUserId,
 			@RequestParam(required = false) Long cursor,
-			@RequestParam(defaultValue = "10") @Min(1) @Max(100) int limit) {
+			@RequestParam(defaultValue = "10") int limit) {
 		return ResponseEntity.ok(ApiResponse.success(
 				PageResponse.from(reservationQueryService.getMyCreatedReservations(currentUserId, cursor, limit))));
 	}
@@ -138,7 +136,7 @@ public class ReservationController implements ReservationApi {
 	public ResponseEntity<ApiResponse<PageResponse<AppliedReservationListDto>>> getMyAppliedReservations(
 			@CurrentUserId Long currentUserId,
 			@RequestParam(required = false) Long cursor,
-			@RequestParam(defaultValue = "10") @Min(1) @Max(100) int limit) {
+			@RequestParam(defaultValue = "10") int limit) {
 		return ResponseEntity.ok(ApiResponse.success(
 				PageResponse.from(reservationQueryService.getMyAppliedReservations(currentUserId, cursor, limit))));
 	}
@@ -148,7 +146,7 @@ public class ReservationController implements ReservationApi {
 	public ResponseEntity<ApiResponse<PageResponse<ReservationCommentDto>>> getComments(
 			@PathVariable Long reservationId,
 			@RequestParam(value = "cursor", required = false) Long cursor,
-			@RequestParam(defaultValue = "10") @Min(1) @Max(100) int limit) {
+			@RequestParam(defaultValue = "10") int limit) {
 		return ResponseEntity.ok(ApiResponse.success(
 				PageResponse.from(reservationQueryService.getReservationComments(reservationId, cursor, limit))));
 	}
