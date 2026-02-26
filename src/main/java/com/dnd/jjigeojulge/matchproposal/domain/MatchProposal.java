@@ -1,8 +1,10 @@
 package com.dnd.jjigeojulge.matchproposal.domain;
 
 import com.dnd.jjigeojulge.global.common.entity.BaseUpdatableEntity;
+import com.dnd.jjigeojulge.matchproposal.exception.MatchProposalAlreadyDecidedException;
 import com.dnd.jjigeojulge.matchproposal.exception.MatchProposalAlreadyProcessedException;
-import com.dnd.jjigeojulge.matchproposal.exception.MatchProposalInvalidException;
+import com.dnd.jjigeojulge.matchproposal.exception.MatchProposalAlreadyRejectedException;
+import com.dnd.jjigeojulge.matchproposal.exception.MatchProposalNotParticipantException;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -59,31 +61,51 @@ public class MatchProposal extends BaseUpdatableEntity {
 	}
 
 	public void accept(Long userId) {
-		if (this.status != MatchProposalStatus.PENDING) {
-			throw new MatchProposalAlreadyProcessedException();
-		}
+		validateCanDecide(userId);
+
 		if (userId.equals(userAId)) {
 			this.aDecision = MatchDecisionStatus.ACCEPTED;
-		} else if (userId.equals(userBId)) {
-			this.bDecision = MatchDecisionStatus.ACCEPTED;
 		} else {
-			throw new MatchProposalInvalidException();
+			this.bDecision = MatchDecisionStatus.ACCEPTED;
 		}
 		updateFinalStatusIfDecided();
 	}
 
 	public void reject(Long userId) {
-		if (this.status != MatchProposalStatus.PENDING) {
-			throw new MatchProposalAlreadyProcessedException();
-		}
+		validateCanDecide(userId);
+
 		if (userId.equals(userAId)) {
 			this.aDecision = MatchDecisionStatus.REJECTED;
-		} else if (userId.equals(userBId)) {
-			this.bDecision = MatchDecisionStatus.REJECTED;
 		} else {
-			throw new MatchProposalInvalidException();
+			this.bDecision = MatchDecisionStatus.REJECTED;
 		}
 		this.status = MatchProposalStatus.REJECTED;
+	}
+
+	/**
+	 * 공통 검증 로직: 결정 가능한 상태인지 확인
+	 */
+	private void validateCanDecide(Long userId) {
+		// 1. 전체 매칭 상태 확인
+		if (this.status == MatchProposalStatus.REJECTED) {
+			throw new MatchProposalAlreadyRejectedException();
+		}
+		if (this.status == MatchProposalStatus.ACCEPTED) {
+			throw new MatchProposalAlreadyProcessedException();
+		}
+
+		// 2. 권한 및 본인 중복 결정 확인
+		if (userId.equals(userAId)) {
+			if (this.aDecision != MatchDecisionStatus.PENDING) {
+				throw new MatchProposalAlreadyDecidedException();
+			}
+		} else if (userId.equals(userBId)) {
+			if (this.bDecision != MatchDecisionStatus.PENDING) {
+				throw new MatchProposalAlreadyDecidedException();
+			}
+		} else {
+			throw new MatchProposalNotParticipantException();
+		}
 	}
 
 	public boolean isProposalAccepted() {
