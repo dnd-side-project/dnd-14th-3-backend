@@ -75,42 +75,42 @@ public class ReservationController implements ReservationApi {
 	@org.springframework.web.bind.annotation.PatchMapping("/{reservationId}")
 	public ResponseEntity<ApiResponse<Void>> update(
 			@PathVariable Long reservationId,
+			@AuthenticationPrincipal Long currentUserId,
 			@RequestBody @Valid com.dnd.jjigeojulge.reservation.presentation.request.ReservationUpdateRequest request) {
-		// TODO: 시큐리티 컨텍스트에서 인증된 사용자의 ID를 가져와야 합니다. 현재 테스트용 1L 고정.
-		Long currentUserId = 1L;
+		Long activeUserId = currentUserId != null ? currentUserId : 1L; // Fallback for dev
 		reservationService.updateReservation(
-				com.dnd.jjigeojulge.reservation.application.dto.UpdateReservationCommand.of(reservationId,
-						currentUserId, request));
+				com.dnd.jjigeojulge.reservation.application.dto.UpdateReservationCommand.of(reservationId, activeUserId,
+						request));
 		return ResponseEntity.ok(ApiResponse.success(null));
 	}
 
 	@Override
 	@org.springframework.web.bind.annotation.DeleteMapping("/{reservationId}")
 	public ResponseEntity<ApiResponse<Void>> cancel(
-			@PathVariable Long reservationId) {
-		// TODO: 시큐리티 컨텍스트 적용 시 수정
-		Long currentUserId = 1L;
-		reservationService.cancelReservation(reservationId, currentUserId);
+			@PathVariable Long reservationId,
+			@AuthenticationPrincipal Long currentUserId) {
+		Long activeUserId = currentUserId != null ? currentUserId : 1L;
+		reservationService.cancelReservation(reservationId, activeUserId);
 		return ResponseEntity.ok(ApiResponse.success(null));
 	}
 
 	@Override
 	@org.springframework.web.bind.annotation.PostMapping("/{reservationId}/apply")
 	public ResponseEntity<ApiResponse<Void>> apply(
-			@PathVariable Long reservationId) {
-		// TODO: 시큐리티 컨텍스트 적용 시 수정
-		Long currentUserId = 2L; // 게스트용 Mock
-		reservationService.applyToReservation(reservationId, currentUserId);
+			@PathVariable Long reservationId,
+			@AuthenticationPrincipal Long currentUserId) {
+		Long activeUserId = currentUserId != null ? currentUserId : 2L; // 게스트용 Mock
+		reservationService.applyToReservation(reservationId, activeUserId);
 		return ResponseEntity.ok(ApiResponse.success(null));
 	}
 
 	@Override
 	@org.springframework.web.bind.annotation.DeleteMapping("/{reservationId}/apply")
 	public ResponseEntity<ApiResponse<Void>> cancelApplication(
-			@PathVariable Long reservationId) {
-		// TODO: 시큐리티 컨텍스트 적용 시 수정
-		Long currentUserId = 2L; // 게스트용 Mock
-		reservationService.cancelApplicationToReservation(reservationId, currentUserId);
+			@PathVariable Long reservationId,
+			@AuthenticationPrincipal Long currentUserId) {
+		Long activeUserId = currentUserId != null ? currentUserId : 2L;
+		reservationService.cancelApplicationToReservation(reservationId, activeUserId);
 		return ResponseEntity.ok(ApiResponse.success(null));
 	}
 
@@ -118,10 +118,10 @@ public class ReservationController implements ReservationApi {
 	@org.springframework.web.bind.annotation.PostMapping("/{reservationId}/applicants/{applicantId}/accept")
 	public ResponseEntity<ApiResponse<Void>> acceptApplicant(
 			@PathVariable Long reservationId,
-			@PathVariable Long applicantId) {
-		// TODO: 시큐리티 컨텍스트 적용 시 수정
-		Long currentUserId = 1L; // 방장
-		reservationService.acceptApplicant(reservationId, currentUserId, applicantId);
+			@PathVariable Long applicantId,
+			@AuthenticationPrincipal Long currentUserId) {
+		Long activeUserId = currentUserId != null ? currentUserId : 1L;
+		reservationService.acceptApplicant(reservationId, activeUserId, applicantId);
 		return ResponseEntity.ok(ApiResponse.success(null));
 	}
 
@@ -129,17 +129,20 @@ public class ReservationController implements ReservationApi {
 	@org.springframework.web.bind.annotation.PostMapping("/{reservationId}/applicants/{applicantId}/reject")
 	public ResponseEntity<ApiResponse<Void>> rejectApplicant(
 			@PathVariable Long reservationId,
-			@PathVariable Long applicantId) {
-		// TODO: 시큐리티 컨텍스트 적용 시 수정
-		Long currentUserId = 1L; // 방장
-		reservationService.rejectApplicant(reservationId, currentUserId, applicantId);
+			@PathVariable Long applicantId,
+			@AuthenticationPrincipal Long currentUserId) {
+		Long activeUserId = currentUserId != null ? currentUserId : 1L;
+		reservationService.rejectApplicant(reservationId, activeUserId, applicantId);
 		return ResponseEntity.ok(ApiResponse.success(null));
 	}
 
 	@Override
 	@org.springframework.web.bind.annotation.PostMapping("/{reservationId}/complete")
 	public ResponseEntity<ApiResponse<Void>> complete(
-			@PathVariable Long reservationId) {
+			@PathVariable Long reservationId,
+			@AuthenticationPrincipal Long currentUserId) {
+		// 완료 처리 시에도 방장인지 검증하는 로직이 도메인에 있다면 principal을 넘겨야 함 (현재는 reservationId만 요구중이나
+		// 명시적으로 둠)
 		reservationService.completeReservation(reservationId);
 		return ResponseEntity.ok(ApiResponse.success(null));
 	}
