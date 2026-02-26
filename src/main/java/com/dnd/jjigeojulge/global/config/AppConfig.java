@@ -1,4 +1,4 @@
-package com.dnd.jjigeojulge.config;
+package com.dnd.jjigeojulge.global.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
