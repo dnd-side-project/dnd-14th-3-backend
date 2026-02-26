@@ -53,9 +53,11 @@ class ReservationServiceTest {
                                 ShootingDurationOption.TWENTY_MINUTES,
                                 "잘 부탁드려요");
 
-                User user = User.create(null, "nickname", Gender.MALE, "image", Set.of(
-                                new PhotoStyle(StyleName.SNS_UPLOAD),
-                                new PhotoStyle(StyleName.FULL_BODY)));
+                User user = User.create(null, "nickname", Gender.MALE,
+                                com.dnd.jjigeojulge.user.domain.AgeGroup.TWENTIES,
+                                com.dnd.jjigeojulge.user.domain.Introduction.from("intro"), "image", Set.of(
+                                                new PhotoStyle(StyleName.SNS_UPLOAD),
+                                                new PhotoStyle(StyleName.FULL_BODY)));
                 setId(user, userId);
 
                 given(userRepository.findByIdWithPhotoStyles(userId)).willReturn(Optional.of(user));
