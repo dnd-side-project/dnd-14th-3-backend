@@ -52,6 +52,6 @@ public class SseEmitterRepository {
 	}
 
 	public Set<Long> getConnectedUserIds() {
-		return data.keySet();
+		return Set.copyOf(data.keySet());
 	}
 }
