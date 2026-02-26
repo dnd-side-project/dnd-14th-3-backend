@@ -153,8 +153,14 @@ public class ReservationController implements ReservationApi {
 
 	@Override
 	@GetMapping("/{reservationId}/applicants")
-	public ResponseEntity<ApiResponse<java.util.List<com.dnd.jjigeojulge.reservation.application.dto.query.ApplicantDto>>> getApplicants(
+	public ResponseEntity<ApiResponse<com.dnd.jjigeojulge.reservation.application.dto.query.ApplicantListResponseDto>> getApplicants(
+			Long currentUserId, // TODO: 시큐리티 설정 후 @AuthenticationPrincipal 등으로 교체
 			@PathVariable Long reservationId) {
-		return ResponseEntity.ok(ApiResponse.success(null));
+		// 현재 인증 생략 상태이므로 임시로 1L(방장) 고정 (테스트용)
+		Long mockUserId = currentUserId != null ? currentUserId : 1L;
+		return ResponseEntity.ok(ApiResponse.success(
+				new com.dnd.jjigeojulge.reservation.application.ReservationQueryService(null, null)
+						.getApplicants(reservationId, mockUserId) // TODO: 제대로 주입된 빈 사용
+		));
 	}
 }

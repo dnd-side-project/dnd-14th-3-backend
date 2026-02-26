@@ -193,7 +193,8 @@ public interface ReservationApi {
 	@ApiResponses({
 			@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "지원자 목록 조회 성공")
 	})
-	ResponseEntity<ApiResponse<java.util.List<com.dnd.jjigeojulge.reservation.application.dto.query.ApplicantDto>>> getApplicants(
+	ResponseEntity<ApiResponse<com.dnd.jjigeojulge.reservation.application.dto.query.ApplicantListResponseDto>> getApplicants(
+			@Parameter(description = "인증된 사용자의 ID", hidden = true) Long currentUserId,
 			@Parameter(description = "예약 글 ID", required = true, example = "101") Long reservationId);
 }
 /*

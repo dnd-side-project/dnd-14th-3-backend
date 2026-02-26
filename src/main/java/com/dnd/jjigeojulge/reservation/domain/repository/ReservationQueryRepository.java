@@ -34,4 +34,14 @@ public interface ReservationQueryRepository {
 	 * 예약 상세 화면 (사전 예약 탐색에서 진입 시)
 	 */
 	Optional<ReservationDetailDto> getReservationDetail(Long reservationId);
+
+	/**
+	 * 작성자(방장) 본인 확인용 가벼운 쿼리
+	 */
+	boolean existsByIdAndOwnerId(Long reservationId, Long ownerId);
+
+	/**
+	 * 지원자 전체 목록 조회 (User 조인 포함)
+	 */
+	com.dnd.jjigeojulge.reservation.application.dto.query.ApplicantListResponseDto getApplicants(Long reservationId);
 }

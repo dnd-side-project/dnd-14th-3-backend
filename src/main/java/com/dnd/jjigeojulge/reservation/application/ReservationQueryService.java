@@ -47,4 +47,15 @@ public class ReservationQueryService {
     public Page<ReservationCommentDto> getReservationComments(Long reservationId, Long cursor, int limit) {
         return reservationCommentQueryRepository.getReservationComments(reservationId, cursor, limit);
     }
+
+    public com.dnd.jjigeojulge.reservation.application.dto.query.ApplicantListResponseDto getApplicants(
+            Long reservationId, Long currentUserId) {
+        // 방장 권한(Ownership) 검증 (Fast-Fail)
+        boolean isOwner = reservationQueryRepository.existsByIdAndOwnerId(reservationId, currentUserId);
+        if (!isOwner) {
+            throw new com.dnd.jjigeojulge.reservation.domain.exception.ReservationAccessDeniedException();
+        }
+
+        return reservationQueryRepository.getApplicants(reservationId);
+    }
 }

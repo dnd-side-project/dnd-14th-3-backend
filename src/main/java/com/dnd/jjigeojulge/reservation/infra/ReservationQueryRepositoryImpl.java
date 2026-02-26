@@ -35,6 +35,7 @@ import com.dnd.jjigeojulge.reservation.domain.vo.Region1Depth;
 import com.dnd.jjigeojulge.user.domain.Gender;
 import com.dnd.jjigeojulge.user.domain.PhotoStyle;
 import com.querydsl.core.Tuple;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -242,6 +243,49 @@ public class ReservationQueryRepositoryImpl implements ReservationQueryRepositor
 				r.getStatus());
 
 		return Optional.of(detail);
+	}
+
+	@Override
+	public boolean existsByIdAndOwnerId(Long reservationId, Long ownerId) {
+		Integer fetchOne = queryFactory
+				.selectOne()
+				.from(reservation)
+				.where(reservation.id.eq(reservationId),
+						reservation.ownerInfo.userId.eq(ownerId))
+				.fetchFirst();
+		return fetchOne != null;
+	}
+
+	@Override
+	public com.dnd.jjigeojulge.reservation.application.dto.query.ApplicantListResponseDto getApplicants(
+			Long reservationId) {
+		List<Tuple> results = queryFactory
+				.select(applicant, user.nickname, user.profileImageUrl, user.gender)
+				.from(applicant)
+				.leftJoin(user).on(applicant.userId.eq(user.id))
+				.where(applicant.reservation.id.eq(reservationId))
+				.orderBy(applicant.createdAt.asc())
+				.fetch();
+
+		List<com.dnd.jjigeojulge.reservation.application.dto.query.ApplicantDto> applicantDtos = results.stream()
+				.map(tuple -> {
+					com.dnd.jjigeojulge.reservation.domain.Applicant a = tuple.get(applicant);
+					String nickname = tuple.get(user.nickname);
+					String profileImg = tuple.get(user.profileImageUrl);
+					Gender gender = tuple.get(user.gender);
+
+					return com.dnd.jjigeojulge.reservation.application.dto.query.ApplicantDto.builder()
+							.applicantId(a.getId())
+							.userId(a.getUserId())
+							.nickname(nickname)
+							.profileImageUrl(profileImg)
+							.gender(gender)
+							.appliedAt(a.getCreatedAt())
+							.build();
+				}).toList();
+
+		return new com.dnd.jjigeojulge.reservation.application.dto.query.ApplicantListResponseDto(applicantDtos.size(),
+				applicantDtos);
 	}
 
 	private BooleanExpression region1DepthEq(Region1Depth region1Depth) {
