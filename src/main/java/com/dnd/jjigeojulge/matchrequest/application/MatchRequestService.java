@@ -30,6 +30,8 @@ import lombok.extern.slf4j.Slf4j;
 public class MatchRequestService {
 
 	private static final int REQUEST_TTL_MIN = 5; // MVP: 5분 대기
+	private static final double RADIUS_KM = 0.5;
+	private static final int COUNT_LIMIT = 200; // MVP: 근처 유저 최대 200명까지 카운트
 
 	private final MatchRequestRepository matchRequestRepository;
 	private final UserRepository userRepository;
@@ -68,10 +70,13 @@ public class MatchRequestService {
 		MatchRequest saved = matchRequestRepository.save(matchRequest);
 		// TODO 트랜잭션 롤백 시 레디스도 롤백 되지 않는 부분 문제 해결 필요 after commit or outbox pattern
 		matchGeoQueueRepository.addWaitingUser(userId, location);
-		return toDto(saved);
+
+		int nearbyCountExcludeMe = getNearbyCountExcludeMe(location);
+		return toDto(saved, nearbyCountExcludeMe);
 	}
 
 	// preAuthorize 필요 + 어떻게 조회할 것인지? 유저 아이디 or match_request_id를 이용할 것인지?
+
 	@Transactional(readOnly = true)
 	public MatchRequestDto find(Long matchRequestId) {
 
@@ -111,12 +116,20 @@ public class MatchRequestService {
 		}
 
 		matchRequest.retry(now.plusMinutes(REQUEST_TTL_MIN));
-		matchGeoQueueRepository.addWaitingUser(userId, matchRequest.toGeoPoint());
+		GeoPoint location = matchRequest.toGeoPoint();
+		matchGeoQueueRepository.addWaitingUser(userId, location);
 
-		return toDto(matchRequest);
+		int nearbyCountExcludeMe = getNearbyCountExcludeMe(location);
+
+		return toDto(matchRequest, nearbyCountExcludeMe);
 	}
 
-	private static MatchRequestDto toDto(MatchRequest saved) {
-		return MatchRequestDto.from(saved);
+	private int getNearbyCountExcludeMe(GeoPoint location) {
+		int rawCount = matchGeoQueueRepository.countNearBy(location, RADIUS_KM, COUNT_LIMIT);
+		return Math.max(0, rawCount - 1);
+	}
+
+	private static MatchRequestDto toDto(MatchRequest saved, int count) {
+		return MatchRequestDto.from(saved, count);
 	}
 }

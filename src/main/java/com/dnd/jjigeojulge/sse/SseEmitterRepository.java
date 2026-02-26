@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -48,5 +49,9 @@ public class SseEmitterRepository {
 			.map(Map.Entry::getValue)
 			.flatMap(Collection::stream)
 			.toList();
+	}
+
+	public Set<Long> getConnectedUserIds() {
+		return data.keySet();
 	}
 }

@@ -69,4 +69,8 @@ public class SseService {
 			emitter.completeWithError(e);
 		}
 	}
+
+	public Set<Long> getConnectedUserIds() {
+		return sseEmitterRepository.getConnectedUserIds();
+	}
 }

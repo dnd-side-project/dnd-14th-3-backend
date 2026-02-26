@@ -56,7 +56,7 @@ public class MatchGeoQueueRepository {
 			.toList();
 	}
 
-	/** (스케줄러용) 특정 유저의 현재 좌표 조회 (GEOPOS) */
+	/** 특정 유저의 현재 좌표 조회 (GEOPOS) */
 	public Optional<GeoPoint> getLocation(Long userId) {
 		List<Point> positions = redisTemplate.opsForGeo().position(KEY_GEO, userId.toString());
 		if (positions == null || positions.isEmpty() || positions.get(0) == null) {
@@ -88,5 +88,9 @@ public class MatchGeoQueueRepository {
 			.map(geoLocationGeoResult -> geoLocationGeoResult.getContent().getName())
 			.map(Long::valueOf)
 			.toList();
+	}
+
+	public int countNearBy(GeoPoint center, double radiusKm, int limitForCount) {
+		return findNearBy(center, radiusKm, limitForCount).size();
 	}
 }
