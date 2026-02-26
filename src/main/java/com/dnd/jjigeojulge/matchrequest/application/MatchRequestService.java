@@ -106,7 +106,7 @@ public class MatchRequestService {
 		matchRequestRepository.findByUserIdAndStatus(userId, MatchRequestStatus.WAITING)
 			.filter(match -> !match.getId().equals(matchRequestId))
 			.ifPresent(match -> {
-				throw new RuntimeException();
+				throw new MatchRequestAlreadyProcessedException();
 			});
 
 		// 시간 기준으로 만료 여부 체크 (배치가 미처 status를 안 바꿨어도 통과)
