@@ -18,8 +18,8 @@ import com.dnd.jjigeojulge.reservation.application.dto.query.ReservationCommentD
 import com.dnd.jjigeojulge.reservation.application.dto.query.ReservationDetailDto;
 import com.dnd.jjigeojulge.reservation.application.dto.query.ReservationSummaryDto;
 import com.dnd.jjigeojulge.reservation.presentation.api.ReservationApi;
-import com.dnd.jjigeojulge.reservation.presentation.data.ReservationDto;
 import com.dnd.jjigeojulge.reservation.presentation.request.ReservationCreateRequest;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -47,13 +47,30 @@ public class ReservationController implements ReservationApi {
 
 	@Override
 	@PostMapping
-	public ResponseEntity<ApiResponse<ReservationDto>> create(@RequestBody @Valid ReservationCreateRequest request) {
-		return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(null));
+	public ResponseEntity<ApiResponse<Long>> create(
+			@AuthenticationPrincipal Long currentUserId,
+			@RequestBody @Valid ReservationCreateRequest request) {
+		// (임시) 현재는 Long 필드로만 받도록 되어 있으나 나중에 Principal Details 등으로 변경될 수 있음
+		if (currentUserId == null) {
+			currentUserId = 1L; // fallback for current test setup if missing
+		}
+		com.dnd.jjigeojulge.reservation.application.dto.CreateReservationCommand command = new com.dnd.jjigeojulge.reservation.application.dto.CreateReservationCommand(
+				currentUserId,
+				request.title(),
+				request.region1Depth(),
+				request.specificPlace(),
+				request.location().latitude(),
+				request.location().longitude(),
+				request.scheduledAt(),
+				request.shootingDuration(),
+				request.requestMessage());
+		Long reservationId = reservationService.createReservation(command);
+		return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(reservationId));
 	}
 
 	@Override
 	@org.springframework.web.bind.annotation.PatchMapping("/{reservationId}")
-	public ResponseEntity<ApiResponse<ReservationDto>> update(
+	public ResponseEntity<ApiResponse<Void>> update(
 			@PathVariable Long reservationId,
 			@RequestBody @Valid com.dnd.jjigeojulge.reservation.presentation.request.ReservationUpdateRequest request) {
 		// TODO: 시큐리티 컨텍스트에서 인증된 사용자의 ID를 가져와야 합니다. 현재 테스트용 1L 고정.

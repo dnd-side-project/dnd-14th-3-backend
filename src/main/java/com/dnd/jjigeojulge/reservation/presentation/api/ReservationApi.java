@@ -10,7 +10,6 @@ import com.dnd.jjigeojulge.reservation.application.dto.query.CreatedReservationL
 import com.dnd.jjigeojulge.reservation.application.dto.query.ReservationCommentDto;
 import com.dnd.jjigeojulge.reservation.application.dto.query.ReservationDetailDto;
 import com.dnd.jjigeojulge.reservation.application.dto.query.ReservationSummaryDto;
-import com.dnd.jjigeojulge.reservation.presentation.data.ReservationDto;
 import com.dnd.jjigeojulge.reservation.presentation.request.ReservationCreateRequest;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -63,7 +62,7 @@ public interface ReservationApi {
 
 	@Operation(summary = "Reservation 생성", description = "동행 예약을 생성하는 API")
 	@ApiResponses(value = {
-			@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "예약 생성 성공"),
+			@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "예약 생성 성공 (생성된 예약 ID 반환)", content = @Content(schema = @Schema(implementation = Long.class))),
 			@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "잘못된 요청 데이터", content = @Content(examples = @ExampleObject(value = """
 					{
 					  "success": false,
@@ -81,14 +80,15 @@ public interface ReservationApi {
 					}
 					""")))
 	})
-	ResponseEntity<ApiResponse<ReservationDto>> create(
+	ResponseEntity<ApiResponse<Long>> create(
+			@Parameter(description = "인증 사용자", hidden = true) Long currentUserId,
 			@RequestBody(required = true, description = "동행 예약 생성 요청 데이터", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ReservationCreateRequest.class))) ReservationCreateRequest request);
 
 	@Operation(summary = "Reservation 부분 수정 (PATCH)", description = "방장이 예약 파라미터를 부분적으로 수정합니다. (넘기지 않은 값은 기존 값이 유지됩니다)")
 	@ApiResponses(value = {
 			@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "수정 성공")
 	})
-	ResponseEntity<ApiResponse<ReservationDto>> update(
+	ResponseEntity<ApiResponse<Void>> update(
 			@Parameter(description = "예약 ID") Long reservationId,
 			@RequestBody(required = true, description = "동행 예약 수정(PATCH) 요청 데이터") com.dnd.jjigeojulge.reservation.presentation.request.ReservationUpdateRequest request);
 
