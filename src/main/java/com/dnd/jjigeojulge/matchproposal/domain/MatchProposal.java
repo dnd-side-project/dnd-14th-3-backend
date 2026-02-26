@@ -61,7 +61,7 @@ public class MatchProposal extends BaseUpdatableEntity {
 	}
 
 	public void accept(Long userId) {
-		validateCanDecide(userId);
+		validateCanAccept(userId);
 
 		if (userId.equals(userAId)) {
 			this.aDecision = MatchDecisionStatus.ACCEPTED;
@@ -72,7 +72,7 @@ public class MatchProposal extends BaseUpdatableEntity {
 	}
 
 	public void reject(Long userId) {
-		validateCanDecide(userId);
+		validateCanReject(userId);
 
 		if (userId.equals(userAId)) {
 			this.aDecision = MatchDecisionStatus.REJECTED;
@@ -83,27 +83,60 @@ public class MatchProposal extends BaseUpdatableEntity {
 	}
 
 	/**
-	 * 공통 검증 로직: 결정 가능한 상태인지 확인
+	 * 수락 가능 검증:
+	 * - 제안이 PENDING이어야 함
+	 * - 참여자여야 함
+	 * - 본인은 아직 결정을 하지 않았어야 함 (PENDING만 가능)
 	 */
-	private void validateCanDecide(Long userId) {
-		// 1. 전체 매칭 상태 확인
+	private void validateCanAccept(Long userId) {
+		validateCommonStatus(userId);
+
+		MatchDecisionStatus myDecision = getMyDecision(userId);
+		if (myDecision != MatchDecisionStatus.PENDING) {
+			// 이미 ACCEPTED/REJECTED 했으면 수락 재시도 불가
+			throw new MatchProposalAlreadyDecidedException();
+		}
+	}
+
+	/**
+	 * 거절 가능 검증:
+	 * - 제안이 PENDING이어야 함
+	 * - 참여자여야 함
+	 * - 본인이 이미 REJECTED면 중복 거절 불가
+	 * - 본인이 ACCEPTED였던 경우는 "대기 중 마음 변경"이므로 거절 허용
+	 */
+	private void validateCanReject(Long userId) {
+		validateCommonStatus(userId);
+
+		MatchDecisionStatus myDecision = getMyDecision(userId);
+		if (myDecision == MatchDecisionStatus.REJECTED) {
+			throw new MatchProposalAlreadyDecidedException();
+		}
+	}
+
+	private MatchDecisionStatus getMyDecision(Long userId) {
+		if (userId.equals(userAId)) {
+			return this.aDecision;
+		}
+		if (userId.equals(userBId)) {
+			return this.bDecision;
+		}
+
+		throw new MatchProposalNotParticipantException();
+	}
+
+	private void validateCommonStatus(Long userId) {
+		// 1) 전체 상태 확인
 		if (this.status == MatchProposalStatus.REJECTED) {
 			throw new MatchProposalAlreadyRejectedException();
 		}
 		if (this.status == MatchProposalStatus.ACCEPTED) {
+			// 최종 확정(양쪽 수락) 이후는 변경 불가
 			throw new MatchProposalAlreadyProcessedException();
 		}
 
-		// 2. 권한 및 본인 중복 결정 확인
-		if (userId.equals(userAId)) {
-			if (this.aDecision != MatchDecisionStatus.PENDING) {
-				throw new MatchProposalAlreadyDecidedException();
-			}
-		} else if (userId.equals(userBId)) {
-			if (this.bDecision != MatchDecisionStatus.PENDING) {
-				throw new MatchProposalAlreadyDecidedException();
-			}
-		} else {
+		// 2) 참여자 확인
+		if (!userId.equals(userAId) && !userId.equals(userBId)) {
 			throw new MatchProposalNotParticipantException();
 		}
 	}
