@@ -229,46 +229,6 @@ class ReservationQueryRepositoryImplTest {
         }
 
         @Test
-        @DisplayName("사진 스타일 목록 조회 시 추가한 순서가 보장된다.")
-        void searchReservations_WithStyleOrdering() {
-                // given
-                User user = User.create(new OAuthInfo("123", OAuthProvider.KAKAO), "testUser", Gender.MALE, "url",
-                                null);
-                em.persist(user);
-
-                // 순서가 중요한 리스트 생성: SNS_UPLOAD, SYRUP_10, DAILY
-                List<String> expectedStyles = List.of(StyleName.SNS_UPLOAD.name(), "SYRUP_10", "DAILY");
-                OwnerInfo owner = OwnerInfo.of(user.getId(), expectedStyles);
-
-                LocalDateTime startTime = LocalDateTime.now().plusDays(1).withMinute(0).withSecond(0).withNano(0);
-                ScheduledTime scheduledTime = ScheduledTime.of(startTime, startTime.minusDays(1));
-                RequestMessage message = RequestMessage.from("사진 찍어주세요");
-
-                Reservation reservation = Reservation.create(owner, ReservationTitle.from("멋진 프로필"), scheduledTime,
-                                PlaceInfo.of(Region1Depth.SEOUL.getLabel(), "망원", 37.5, 127.0),
-                                ShootingDurationOption.TEN_MINUTES, message);
-                em.persist(reservation);
-
-                em.flush();
-                em.clear();
-
-                ReservationSearchCondition condition = ReservationSearchCondition.builder().build();
-
-                // when
-                Page<ReservationSummaryDto> result = queryRepository.searchReservations(condition,
-                                null, 10);
-
-                // then
-                assertThat(result.getTotalElements()).isEqualTo(1);
-                List<String> actualStyles = result.getContent().get(0).photoStyleSnapshot();
-
-                assertThat(actualStyles).hasSize(3);
-                assertThat(actualStyles.get(0)).isEqualTo(StyleName.SNS_UPLOAD.name());
-                assertThat(actualStyles.get(1)).isEqualTo("SYRUP_10");
-                assertThat(actualStyles.get(2)).isEqualTo("DAILY");
-        }
-
-        @Test
         @DisplayName("내가 지원한 예약 목록을 커서 페이징하여 조회할 수 있다.")
         void getMyAppliedReservations() {
                 // given

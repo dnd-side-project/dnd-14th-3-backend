@@ -45,7 +45,6 @@ class ReservationQueryServiceTest {
 
                 ReservationSummaryDto dto = new ReservationSummaryDto(
                                 1L, "테스트 제목", scheduledAt, Region1Depth.SEOUL, "장소", ShootingDurationOption.TEN_MINUTES,
-                                List.of(), 50,
                                 ReservationStatus.RECRUITING, 1L, "nick", Gender.MALE,
                                 "url");
                 Page<ReservationSummaryDto> page = new PageImpl<>(List.of(dto), PageRequest.of(0, 10), 1);
@@ -70,7 +69,6 @@ class ReservationQueryServiceTest {
 
                 ReservationSummaryDto dto = new ReservationSummaryDto(
                                 1L, "테스트 제목", scheduledAt, Region1Depth.SEOUL, "장소", ShootingDurationOption.TEN_MINUTES,
-                                List.of(), 50,
                                 ReservationStatus.RECRUITING, 1L, "nick", Gender.MALE,
                                 "url");
                 Page<ReservationSummaryDto> page = new PageImpl<>(List.of(dto), PageRequest.of(0, 10), 1);

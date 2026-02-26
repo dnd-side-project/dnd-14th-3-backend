@@ -41,7 +41,7 @@ public class ReservationService {
                                 user.getPhotoStyles().stream()
                                                 .map(UserPhotoStyle::getPhotoStyle)
                                                 .map(PhotoStyle::getName)
-                                                .map(Enum::name)
+                                                .map(com.dnd.jjigeojulge.user.domain.StyleName::getLabel)
                                                 .toList());
 
                 ReservationTitle title = ReservationTitle.from(command.title());

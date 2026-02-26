@@ -68,7 +68,9 @@ class ReservationServiceTest {
                 // then
                 verify(reservationRepository).save(argThat(reservation -> {
                         return reservation.getOwnerInfo().getPhotoStyleSnapshot()
-                                        .containsAll(List.of("SNS_UPLOAD", "FULL_BODY")) &&
+                                        .containsAll(List.of(StyleName.SNS_UPLOAD.getLabel(),
+                                                        StyleName.FULL_BODY.getLabel()))
+                                        &&
                                         reservation.getOwnerInfo().getUserId().equals(userId);
                 }));
         }
