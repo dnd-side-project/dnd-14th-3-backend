@@ -21,13 +21,14 @@ class CookieUtilsTest {
         CookieUtils.addCookie(response, "test-cookie", "test-value", 3600);
 
         // then
-        Cookie cookie = response.getCookie("test-cookie");
-        assertThat(cookie).isNotNull();
-        assertThat(cookie.getValue()).isEqualTo("test-value");
-        assertThat(cookie.getMaxAge()).isEqualTo(3600);
-        assertThat(cookie.getPath()).isEqualTo("/");
-        assertThat(cookie.isHttpOnly()).isTrue();
-        assertThat(cookie.getSecure()).isTrue();
+        String setCookieHeader = response.getHeader("Set-Cookie");
+        assertThat(setCookieHeader).isNotNull();
+        assertThat(setCookieHeader).contains("test-cookie=test-value");
+        assertThat(setCookieHeader).contains("Max-Age=3600");
+        assertThat(setCookieHeader).contains("Path=/");
+        assertThat(setCookieHeader).contains("HttpOnly");
+        assertThat(setCookieHeader).contains("Secure");
+        assertThat(setCookieHeader).contains("SameSite=None");
     }
 
     @Test
@@ -64,20 +65,15 @@ class CookieUtilsTest {
     @DisplayName("쿠키를 삭제(만료시간 0)할 수 있다.")
     void deleteCookie() {
         // given
-        MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();
 
-        Cookie cookie = new Cookie("test-cookie", "test-value");
-        request.setCookies(cookie);
-
         // when
-        CookieUtils.deleteCookie(request, response, "test-cookie");
+        CookieUtils.deleteCookie(response, "test-cookie");
 
         // then
-        Cookie deletedCookie = response.getCookie("test-cookie");
-        assertThat(deletedCookie).isNotNull();
-        assertThat(deletedCookie.getValue()).isEqualTo("");
-        assertThat(deletedCookie.getMaxAge()).isEqualTo(0);
-        assertThat(deletedCookie.getPath()).isEqualTo("/");
+        String setCookieHeader = response.getHeader("Set-Cookie");
+        assertThat(setCookieHeader).isNotNull();
+        assertThat(setCookieHeader).contains("test-cookie=");
+        assertThat(setCookieHeader).contains("Max-Age=0");
     }
 }

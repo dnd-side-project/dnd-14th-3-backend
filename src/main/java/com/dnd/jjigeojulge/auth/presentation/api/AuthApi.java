@@ -29,7 +29,7 @@ public interface AuthApi {
 
 	@Operation(summary = "카카오 로그인", description = """
 			카카오 인가 코드를 받아 로그인 또는 회원가입 필요 여부를 반환합니다.
-			- `isNewUser: false` -> 기존 회원 (Access/Refresh Token 포함)
+			- `isNewUser: false` -> 기존 회원 (AccessToken 포함, Refresh 토큰은 쿠키 발급)
 			- `isNewUser: true` -> 신규 회원 (Register Token 포함, 회원가입 필요)
 			""")
 	@ApiResponses(value = {

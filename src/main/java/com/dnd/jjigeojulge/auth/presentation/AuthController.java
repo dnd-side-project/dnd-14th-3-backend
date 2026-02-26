@@ -38,6 +38,7 @@ public class AuthController implements AuthApi {
 
 		LoginResponse loginResponse;
 		if (result.isNewUser()) {
+			CookieUtils.deleteCookie(response, "refresh_token");
 			loginResponse = LoginResponse.registerNeeded(result.registerToken());
 		} else {
 			setRefreshTokenCookie(response, result.refreshToken());
