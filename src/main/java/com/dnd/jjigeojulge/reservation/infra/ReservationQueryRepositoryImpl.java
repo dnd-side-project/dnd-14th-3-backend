@@ -189,6 +189,8 @@ public class ReservationQueryRepositoryImpl implements ReservationQueryRepositor
 						user.nickname,
 						user.profileImageUrl,
 						user.gender,
+						user.ageGroup,
+						user.introduction.value,
 						JPAExpressions.select(applicant.count().intValue())
 								.from(applicant)
 								.where(applicant.reservation.id.eq(reservation.id)),
@@ -208,9 +210,11 @@ public class ReservationQueryRepositoryImpl implements ReservationQueryRepositor
 		String nickname = tuple.get(user.nickname);
 		String profileImageUrl = tuple.get(user.profileImageUrl);
 		Gender gender = tuple.get(user.gender);
+		com.dnd.jjigeojulge.user.domain.AgeGroup ageGroup = tuple.get(user.ageGroup);
+		String introduction = tuple.get(user.introduction.value);
 
-		Integer applicantCount = tuple.get(4, Integer.class);
-		Integer commentCount = tuple.get(5, Integer.class);
+		Integer applicantCount = tuple.get(6, Integer.class);
+		Integer commentCount = tuple.get(7, Integer.class);
 
 		ReservationDetailDto detail = new ReservationDetailDto(
 				r.getId(),
@@ -221,6 +225,8 @@ public class ReservationQueryRepositoryImpl implements ReservationQueryRepositor
 				nickname,
 				profileImageUrl,
 				gender,
+				ageGroup,
+				introduction,
 				r.getTitle().getValue(),
 				r.getScheduledTime().getTime(),
 				r.getPlaceInfo().getRegion1Depth(),

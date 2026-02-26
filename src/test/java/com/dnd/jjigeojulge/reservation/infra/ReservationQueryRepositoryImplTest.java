@@ -373,4 +373,39 @@ class ReservationQueryRepositoryImplTest {
                 assertThat(result.applicants().get(1).nickname()).isEqualTo("app2");
                 assertThat(result.applicants().get(1).gender()).isEqualTo(Gender.MALE);
         }
+
+        @Test
+        @DisplayName("특정 예약의 상세 정보(작성자의 나이대, 한줄 소개 포함)를 조회할 수 있다.")
+        void getReservationDetail() {
+                // given
+                User owner = User.create(new OAuthInfo("111", OAuthProvider.KAKAO), "detailUser", Gender.MALE,
+                                com.dnd.jjigeojulge.user.domain.AgeGroup.THIRTIES,
+                                com.dnd.jjigeojulge.user.domain.Introduction.from("반갑습니다! 30대 남자입니다."), "url", null);
+                em.persist(owner);
+
+                OwnerInfo ownerInfo = OwnerInfo.of(owner.getId(),
+                                new ArrayList<>(List.of(StyleName.SNS_UPLOAD.name())));
+                LocalDateTime startTime = LocalDateTime.now().plusDays(1).withMinute(0).withSecond(0).withNano(0);
+                ScheduledTime scheduledTime = ScheduledTime.of(startTime, startTime.minusDays(1));
+                PlaceInfo placeInfo = PlaceInfo.of(Region1Depth.SEOUL.getLabel(), "서울숲", 37.5, 127.0);
+
+                Reservation reservation = Reservation.create(ownerInfo, ReservationTitle.from("상세보기 예약"), scheduledTime,
+                                placeInfo, ShootingDurationOption.TEN_MINUTES, RequestMessage.from("상세요청"));
+                em.persist(reservation);
+
+                em.flush();
+                em.clear();
+
+                // when
+                java.util.Optional<com.dnd.jjigeojulge.reservation.application.dto.query.ReservationDetailDto> result = queryRepository
+                                .getReservationDetail(reservation.getId());
+
+                // then
+                assertThat(result).isPresent();
+                com.dnd.jjigeojulge.reservation.application.dto.query.ReservationDetailDto detail = result.get();
+                assertThat(detail.title()).isEqualTo("상세보기 예약");
+                assertThat(detail.ownerNickname()).isEqualTo("detailUser");
+                assertThat(detail.ownerAgeGroup()).isEqualTo(com.dnd.jjigeojulge.user.domain.AgeGroup.THIRTIES);
+                assertThat(detail.ownerIntroduction()).isEqualTo("반갑습니다! 30대 남자입니다.");
+        }
 }
