@@ -125,7 +125,6 @@ class ReservationQueryRepositoryImplTest {
                 ReservationSearchCondition condition = ReservationSearchCondition.builder()
                                 .region1Depth(Region1Depth.SEOUL)
                                 .date(null)
-                                .photoStyle(null)
                                 .gender(null)
                                 .keyword(null)
                                 .build();

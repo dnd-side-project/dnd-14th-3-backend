@@ -33,7 +33,6 @@ import com.dnd.jjigeojulge.reservation.domain.ReservationStatus;
 import com.dnd.jjigeojulge.reservation.domain.repository.ReservationQueryRepository;
 import com.dnd.jjigeojulge.reservation.domain.vo.Region1Depth;
 import com.dnd.jjigeojulge.user.domain.Gender;
-import com.dnd.jjigeojulge.user.domain.PhotoStyle;
 import com.querydsl.core.Tuple;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -58,7 +57,6 @@ public class ReservationQueryRepositoryImpl implements ReservationQueryRepositor
 				.where(
 						region1DepthEq(condition.region1Depth()),
 						scheduledAtEq(condition.date()),
-						photoStyleContains(condition.photoStyle()),
 						genderEq(condition.gender()),
 						keywordContains(condition.keyword()),
 						reservation.status.in(ReservationStatus.RECRUITING, ReservationStatus.CONFIRMED),
@@ -93,7 +91,6 @@ public class ReservationQueryRepositoryImpl implements ReservationQueryRepositor
 				.where(
 						region1DepthEq(condition.region1Depth()),
 						scheduledAtEq(condition.date()),
-						photoStyleContains(condition.photoStyle()),
 						genderEq(condition.gender()),
 						keywordContains(condition.keyword()),
 						reservation.status.in(ReservationStatus.RECRUITING, ReservationStatus.CONFIRMED))
@@ -298,11 +295,6 @@ public class ReservationQueryRepositoryImpl implements ReservationQueryRepositor
 					date.plusDays(1).atStartOfDay().minusNanos(1));
 		}
 		return null;
-	}
-
-	private BooleanExpression photoStyleContains(PhotoStyle photoStyle) {
-		return photoStyle != null ? reservation.ownerInfo.photoStyleSnapshot.contains(photoStyle.getName().name())
-				: null;
 	}
 
 	private BooleanExpression genderEq(com.dnd.jjigeojulge.user.domain.Gender gender) {
