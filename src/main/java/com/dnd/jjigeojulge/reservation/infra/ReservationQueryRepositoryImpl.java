@@ -78,8 +78,6 @@ public class ReservationQueryRepositoryImpl implements ReservationQueryRepositor
 					r.getPlaceInfo().getRegion1Depth(),
 					r.getPlaceInfo().getSpecificPlace(),
 					r.getShootingDuration(),
-					r.getOwnerInfo().getPhotoStyleSnapshot(), // ElementCollection List<String>
-					0,
 					r.getStatus(),
 					r.getOwnerInfo().getUserId(),
 					nickname,
@@ -233,7 +231,6 @@ public class ReservationQueryRepositoryImpl implements ReservationQueryRepositor
 				r.getOwnerInfo().getUserId(),
 				nickname,
 				profileImageUrl,
-				0, // ownerTrustScore
 				gender,
 				r.getTitle().getValue(),
 				r.getScheduledTime().getTime(),

@@ -14,6 +14,9 @@ import com.dnd.jjigeojulge.global.common.response.ApiResponse;
 import com.dnd.jjigeojulge.global.common.response.PageResponse;
 import com.dnd.jjigeojulge.reservation.application.dto.query.AppliedReservationListDto;
 import com.dnd.jjigeojulge.reservation.application.dto.query.CreatedReservationListDto;
+import com.dnd.jjigeojulge.reservation.application.dto.query.ReservationCommentDto;
+import com.dnd.jjigeojulge.reservation.application.dto.query.ReservationDetailDto;
+import com.dnd.jjigeojulge.reservation.application.dto.query.ReservationSummaryDto;
 import com.dnd.jjigeojulge.reservation.presentation.api.ReservationApi;
 import com.dnd.jjigeojulge.reservation.presentation.data.ReservationDto;
 import com.dnd.jjigeojulge.reservation.presentation.request.ReservationCreateRequest;
@@ -28,7 +31,7 @@ public class ReservationController implements ReservationApi {
 
 	@Override
 	@GetMapping
-	public ResponseEntity<ApiResponse<PageResponse<ReservationDto>>> getList(
+	public ResponseEntity<ApiResponse<PageResponse<ReservationSummaryDto>>> getList(
 			@RequestParam(value = "cursor", required = false) Long cursor,
 			@RequestParam(defaultValue = "10") int limit) {
 		return ResponseEntity.ok(ApiResponse.success(null));
@@ -36,7 +39,7 @@ public class ReservationController implements ReservationApi {
 
 	@Override
 	@GetMapping("/{reservationId}")
-	public ResponseEntity<ApiResponse<ReservationDto>> getDetail(@PathVariable Long reservationId) {
+	public ResponseEntity<ApiResponse<ReservationDetailDto>> getDetail(@PathVariable Long reservationId) {
 		return ResponseEntity.ok(ApiResponse.success(null));
 	}
 
@@ -61,6 +64,22 @@ public class ReservationController implements ReservationApi {
 			Long currentUserId,
 			@RequestParam(required = false) Long cursor,
 			@RequestParam(defaultValue = "10") int limit) {
+		return ResponseEntity.ok(ApiResponse.success(null));
+	}
+
+	@Override
+	@GetMapping("/{reservationId}/comments")
+	public ResponseEntity<ApiResponse<PageResponse<ReservationCommentDto>>> getComments(
+			@PathVariable Long reservationId,
+			@RequestParam(value = "cursor", required = false) Long cursor,
+			@RequestParam(defaultValue = "10") int limit) {
+		return ResponseEntity.ok(ApiResponse.success(null));
+	}
+
+	@Override
+	@GetMapping("/{reservationId}/applicants")
+	public ResponseEntity<ApiResponse<java.util.List<com.dnd.jjigeojulge.reservation.application.dto.query.ApplicantDto>>> getApplicants(
+			@PathVariable Long reservationId) {
 		return ResponseEntity.ok(ApiResponse.success(null));
 	}
 }

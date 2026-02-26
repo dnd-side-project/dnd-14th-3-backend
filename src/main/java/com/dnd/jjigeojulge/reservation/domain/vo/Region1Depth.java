@@ -2,10 +2,11 @@ package com.dnd.jjigeojulge.reservation.domain.vo;
 
 import java.util.Arrays;
 
-import lombok.Getter;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+
 import lombok.RequiredArgsConstructor;
 
-@Getter
 @RequiredArgsConstructor
 public enum Region1Depth {
         SEOUL("서울특별시"),
@@ -28,10 +29,16 @@ public enum Region1Depth {
 
         private final String label;
 
+        @JsonValue
+        public String getLabel() {
+                return this.label;
+        }
+
+        @JsonCreator
         public static Region1Depth fromLabel(String label) {
                 return Arrays.stream(values())
-                        .filter(region -> region.label.equals(label))
-                        .findFirst()
-                        .orElseThrow(() -> new IllegalArgumentException("지원하지 않는 지역입니다: " + label));
+                                .filter(region -> region.label.equals(label))
+                                .findFirst()
+                                .orElseThrow(() -> new IllegalArgumentException("지원하지 않는 지역입니다: " + label));
         }
 }
