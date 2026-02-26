@@ -23,28 +23,35 @@ public class GlobalExceptionHandler {
 
 	@ExceptionHandler(MethodArgumentTypeMismatchException.class)
 	public ResponseEntity<ApiResponse<Object>> handleMethodArgumentTypeMismatchException(
-		MethodArgumentTypeMismatchException exception) {
+			MethodArgumentTypeMismatchException exception) {
 		log.warn("Method argument type mismatch", exception);
 		return buildResponseEntity(ErrorCode.INVALID_PARAMETER);
 	}
 
 	@ExceptionHandler(ConstraintViolationException.class)
 	public ResponseEntity<ApiResponse<Object>> handleConstraintViolationException(
-		ConstraintViolationException exception) {
+			ConstraintViolationException exception) {
 		log.warn("Constraint violation occurred", exception);
 		return buildResponseEntity(ErrorCode.CONSTRAINT_VIOLATION);
 	}
 
 	@ExceptionHandler(MissingServletRequestParameterException.class)
 	public ResponseEntity<ApiResponse<Object>> handleMissingServletRequestParameterException(
-		MissingServletRequestParameterException exception) {
+			MissingServletRequestParameterException exception) {
 		log.warn("Missing required query parameter", exception);
 		return buildResponseEntity(ErrorCode.MISSING_PARAMETER);
 	}
 
+	@ExceptionHandler(org.springframework.web.bind.MissingRequestCookieException.class)
+	public ResponseEntity<ApiResponse<Object>> handleMissingRequestCookieException(
+			org.springframework.web.bind.MissingRequestCookieException exception) {
+		log.warn("Missing required cookie", exception);
+		return buildResponseEntity(ErrorCode.UNAUTHORIZED);
+	}
+
 	@ExceptionHandler(HttpRequestMethodNotSupportedException.class)
 	public ResponseEntity<ApiResponse<Object>> handleHttpRequestMethodNotSupportedException(
-		HttpRequestMethodNotSupportedException exception) {
+			HttpRequestMethodNotSupportedException exception) {
 		String method = exception.getMethod();
 		log.warn("HTTP Request method '{}' is not supported", method);
 		return buildResponseEntity(ErrorCode.METHOD_NOT_ALLOWED);
@@ -52,7 +59,7 @@ public class GlobalExceptionHandler {
 
 	@ExceptionHandler(HttpMediaTypeNotSupportedException.class)
 	public ResponseEntity<ApiResponse<Object>> handleHttpMediaTypeNotSupportedException(
-		HttpMediaTypeNotSupportedException exception) {
+			HttpMediaTypeNotSupportedException exception) {
 		log.warn("Unsupported media type", exception);
 		return buildResponseEntity(ErrorCode.UNSUPPORTED_MEDIA_TYPE);
 	}
@@ -67,13 +74,13 @@ public class GlobalExceptionHandler {
 	public ResponseEntity<ApiResponse<Object>> handleValidationException(MethodArgumentNotValidException exception) {
 		log.warn("Validation failed for method argument", exception);
 		List<ValidationErrorResponse.FieldErrorItem> fieldErrors = exception.getBindingResult()
-			.getFieldErrors()
-			.stream()
-			.map(ValidationErrorResponse.FieldErrorItem::from)
-			.toList();
+				.getFieldErrors()
+				.stream()
+				.map(ValidationErrorResponse.FieldErrorItem::from)
+				.toList();
 		ValidationErrorResponse validationErrorResponse = new ValidationErrorResponse(fieldErrors);
 		return ResponseEntity.status(ErrorCode.VALIDATION_FAILED.getStatus())
-			.body(ApiResponse.failure(ErrorCode.VALIDATION_FAILED, validationErrorResponse));
+				.body(ApiResponse.failure(ErrorCode.VALIDATION_FAILED, validationErrorResponse));
 	}
 
 	@ExceptionHandler(BusinessException.class)
