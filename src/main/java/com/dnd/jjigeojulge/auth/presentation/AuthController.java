@@ -12,12 +12,17 @@ import com.dnd.jjigeojulge.auth.application.dto.AuthResult;
 import com.dnd.jjigeojulge.auth.application.dto.SignupCommand;
 import com.dnd.jjigeojulge.auth.presentation.api.AuthApi;
 import com.dnd.jjigeojulge.auth.presentation.request.SignupRequest;
+import org.springframework.web.bind.annotation.CookieValue;
 import com.dnd.jjigeojulge.auth.presentation.response.LoginResponse;
 import com.dnd.jjigeojulge.auth.presentation.response.TokenResponse;
 import com.dnd.jjigeojulge.global.common.response.ApiResponse;
 
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+
+import com.dnd.jjigeojulge.auth.infra.jwt.JwtProperties;
+import com.dnd.jjigeojulge.global.util.CookieUtils;
 
 @RestController
 @RequiredArgsConstructor
@@ -25,52 +30,54 @@ import lombok.RequiredArgsConstructor;
 public class AuthController implements AuthApi {
 
 	private final AuthService authService;
+	private final JwtProperties jwtProperties;
 
 	@Override
-	public ResponseEntity<ApiResponse<LoginResponse>> login(@RequestParam String code) {
+	public ResponseEntity<ApiResponse<LoginResponse>> login(@RequestParam String code, HttpServletResponse response) {
 		AuthResult result = authService.login(code);
 
-		LoginResponse response;
+		LoginResponse loginResponse;
 		if (result.isNewUser()) {
-			response = LoginResponse.registerNeeded(result.registerToken());
+			loginResponse = LoginResponse.registerNeeded(result.registerToken());
 		} else {
-			response = LoginResponse.loginSuccess(
-				TokenResponse.of(result.accessToken(), result.refreshToken())
-			);
+			CookieUtils.addCookie(response, "refresh_token", result.refreshToken(),
+					(int) (jwtProperties.refreshTokenExpire() / 1000));
+			loginResponse = LoginResponse.loginSuccess(
+					TokenResponse.of(result.accessToken()));
 		}
 
 		return ResponseEntity.ok(ApiResponse.success(
-			result.isNewUser() ? "회원가입이 필요합니다." : "로그인 성공",
-			response
-		));
+				result.isNewUser() ? "회원가입이 필요합니다." : "로그인 성공",
+				loginResponse));
 	}
 
 	@Override
 	public ResponseEntity<ApiResponse<TokenResponse>> signup(
-		@RequestHeader("Register-Token") String registerToken,
-		@Valid @RequestBody SignupRequest request
-	) {
+			@RequestHeader("Register-Token") String registerToken,
+			@Valid @RequestBody SignupRequest request,
+			HttpServletResponse response) {
 		SignupCommand command = request.toCommand(registerToken);
 		AuthResult result = authService.signup(command);
 
+		CookieUtils.addCookie(response, "refresh_token", result.refreshToken(),
+				(int) (jwtProperties.refreshTokenExpire() / 1000));
+
 		return ResponseEntity.ok(ApiResponse.success(
-			"회원가입 성공",
-			TokenResponse.of(result.accessToken(), result.refreshToken())
-		));
+				"회원가입 성공",
+				TokenResponse.of(result.accessToken())));
 	}
 
 	@Override
 	public ResponseEntity<ApiResponse<TokenResponse>> refresh(
-		@RequestHeader("Authorization") String refreshToken
-	) {
-		String token = refreshToken;
-		if (refreshToken.startsWith("Bearer ")) {
-			token = refreshToken.substring(7);
-		}
-		AuthResult result = authService.refresh(token);
+			@CookieValue(name = "refresh_token") String refreshToken,
+			HttpServletResponse response) {
+		AuthResult result = authService.refresh(refreshToken);
+
+		CookieUtils.addCookie(response, "refresh_token", result.refreshToken(),
+				(int) (jwtProperties.refreshTokenExpire() / 1000));
+
 		return ResponseEntity.ok(ApiResponse.success(
-			"토큰 재발급 성공",
-			TokenResponse.of(result.accessToken(), result.refreshToken())
-		));
+				"토큰 재발급 성공",
+				TokenResponse.of(result.accessToken())));
 	}
 }
