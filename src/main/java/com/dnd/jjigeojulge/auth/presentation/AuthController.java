@@ -80,4 +80,10 @@ public class AuthController implements AuthApi {
 				"토큰 재발급 성공",
 				TokenResponse.of(result.accessToken())));
 	}
+
+	@Override
+	public ResponseEntity<ApiResponse<Void>> verifySession() {
+		// JwtAuthenticationFilter를 무사히 통과했다면 유효한 세션이므로 200 OK를 반환
+		return ResponseEntity.ok(ApiResponse.success("유효한 세션입니다.", null));
+	}
 }

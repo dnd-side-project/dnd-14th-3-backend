@@ -120,4 +120,12 @@ public interface AuthApi {
 	ResponseEntity<ApiResponse<TokenResponse>> refresh(
 			@Parameter(description = "Refresh Token 쿠키", required = true) @CookieValue(name = "refresh_token") String refreshToken,
 			HttpServletResponse response);
+
+	@Operation(summary = "세션 검증", description = "현재 사용자의 Access Token이 유효한지 검증합니다.")
+	@ApiResponses(value = {
+			@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "세션 유효 기간 정상 (인증됨)"),
+			@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "인증 실패 (만료되거나 유효하지 않은 Access Token)")
+	})
+	@GetMapping("/verify")
+	ResponseEntity<ApiResponse<Void>> verifySession();
 }
