@@ -40,8 +40,7 @@ public class AuthController implements AuthApi {
 		if (result.isNewUser()) {
 			loginResponse = LoginResponse.registerNeeded(result.registerToken());
 		} else {
-			CookieUtils.addCookie(response, "refresh_token", result.refreshToken(),
-					(int) (jwtProperties.refreshTokenExpire() / 1000));
+			setRefreshTokenCookie(response, result.refreshToken());
 			loginResponse = LoginResponse.loginSuccess(
 					TokenResponse.of(result.accessToken()));
 		}
@@ -59,8 +58,7 @@ public class AuthController implements AuthApi {
 		SignupCommand command = request.toCommand(registerToken);
 		AuthResult result = authService.signup(command);
 
-		CookieUtils.addCookie(response, "refresh_token", result.refreshToken(),
-				(int) (jwtProperties.refreshTokenExpire() / 1000));
+		setRefreshTokenCookie(response, result.refreshToken());
 
 		return ResponseEntity.ok(ApiResponse.success(
 				"회원가입 성공",
@@ -73,8 +71,7 @@ public class AuthController implements AuthApi {
 			HttpServletResponse response) {
 		AuthResult result = authService.refresh(refreshToken);
 
-		CookieUtils.addCookie(response, "refresh_token", result.refreshToken(),
-				(int) (jwtProperties.refreshTokenExpire() / 1000));
+		setRefreshTokenCookie(response, result.refreshToken());
 
 		return ResponseEntity.ok(ApiResponse.success(
 				"토큰 재발급 성공",
@@ -85,5 +82,10 @@ public class AuthController implements AuthApi {
 	public ResponseEntity<ApiResponse<Void>> verifySession() {
 		// JwtAuthenticationFilter를 무사히 통과했다면 유효한 세션이므로 200 OK를 반환
 		return ResponseEntity.ok(ApiResponse.success("유효한 세션입니다.", null));
+	}
+
+	private void setRefreshTokenCookie(HttpServletResponse response, String refreshToken) {
+		CookieUtils.addCookie(response, "refresh_token", refreshToken,
+				(int) (jwtProperties.refreshTokenExpire() / 1000));
 	}
 }
