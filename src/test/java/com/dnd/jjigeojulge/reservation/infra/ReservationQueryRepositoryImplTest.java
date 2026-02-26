@@ -276,4 +276,79 @@ class ReservationQueryRepositoryImplTest {
                 assertThat(result.getContent().get(1).title()).isEqualTo("예약1");
                 assertThat(result.getContent().get(0).applicantCount()).isEqualTo(1L);
         }
+
+        @Test
+        @DisplayName("예약 ID와 방장 ID로 권한이 있는지 확인할 수 있다.")
+        void existsByIdAndOwnerId() {
+                // given
+                User owner = User.create(new OAuthInfo("111", OAuthProvider.KAKAO), "owner", Gender.MALE, "url", null);
+                em.persist(owner);
+
+                OwnerInfo ownerInfo = OwnerInfo.of(owner.getId(), new ArrayList<>(List.of(StyleName.SNS_UPLOAD.name())));
+                LocalDateTime startTime = LocalDateTime.now().plusDays(1).withMinute(0).withSecond(0).withNano(0);
+                ScheduledTime scheduledTime = ScheduledTime.of(startTime, startTime.minusDays(1));
+                PlaceInfo placeInfo = PlaceInfo.of(Region1Depth.SEOUL.getLabel(), "서울숲", 37.5, 127.0);
+
+                Reservation reservation = Reservation.create(ownerInfo, ReservationTitle.from("예약1"), scheduledTime,
+                                placeInfo, ShootingDurationOption.THIRTY_PLUS_MINUTES, RequestMessage.from("요청"));
+                em.persist(reservation);
+
+                em.flush();
+                em.clear();
+
+                // when
+                boolean isOwner = queryRepository.existsByIdAndOwnerId(reservation.getId(), owner.getId());
+                boolean isNotOwner = queryRepository.existsByIdAndOwnerId(reservation.getId(), 999L);
+
+                // then
+                assertThat(isOwner).isTrue();
+                assertThat(isNotOwner).isFalse();
+        }
+
+        @Test
+        @DisplayName("특정 예약에 지원한 지원자 목록을 조회할 수 있다.")
+        void getApplicants() {
+                // given
+                User owner = User.create(new OAuthInfo("111", OAuthProvider.KAKAO), "owner", Gender.MALE, "url", null);
+                User applicant1 = User.create(new OAuthInfo("222", OAuthProvider.KAKAO), "app1", Gender.FEMALE, "url1",
+                                null);
+                User applicant2 = User.create(new OAuthInfo("333", OAuthProvider.KAKAO), "app2", Gender.MALE, "url2",
+                                null);
+                em.persist(owner);
+                em.persist(applicant1);
+                em.persist(applicant2);
+
+                OwnerInfo ownerInfo = OwnerInfo.of(owner.getId(),
+                                new ArrayList<>(List.of(StyleName.SNS_UPLOAD.name())));
+                LocalDateTime startTime = LocalDateTime.now().plusDays(1).withMinute(0).withSecond(0).withNano(0);
+                ScheduledTime scheduledTime = ScheduledTime.of(startTime, startTime.minusDays(1));
+                PlaceInfo placeInfo = PlaceInfo.of(Region1Depth.SEOUL.getLabel(), "서울숲", 37.5, 127.0);
+
+                Reservation reservation = Reservation.create(ownerInfo, ReservationTitle.from("예약1"), scheduledTime,
+                                placeInfo, ShootingDurationOption.TEN_MINUTES, RequestMessage.from("요청"));
+                em.persist(reservation);
+
+                com.dnd.jjigeojulge.reservation.domain.Applicant a1 = com.dnd.jjigeojulge.reservation.domain.Applicant
+                                .create(reservation, applicant1.getId());
+                com.dnd.jjigeojulge.reservation.domain.Applicant a2 = com.dnd.jjigeojulge.reservation.domain.Applicant
+                                .create(reservation, applicant2.getId());
+
+                reservation.apply(a1, LocalDateTime.now());
+                reservation.apply(a2, LocalDateTime.now());
+
+                em.flush();
+                em.clear();
+
+                // when
+                com.dnd.jjigeojulge.reservation.application.dto.query.ApplicantListResponseDto result = queryRepository
+                                .getApplicants(reservation.getId());
+
+                // then
+                assertThat(result.totalCount()).isEqualTo(2);
+                assertThat(result.applicants()).hasSize(2);
+                assertThat(result.applicants().get(0).nickname()).isEqualTo("app1");
+                assertThat(result.applicants().get(0).gender()).isEqualTo(Gender.FEMALE);
+                assertThat(result.applicants().get(1).nickname()).isEqualTo("app2");
+                assertThat(result.applicants().get(1).gender()).isEqualTo(Gender.MALE);
+        }
 }

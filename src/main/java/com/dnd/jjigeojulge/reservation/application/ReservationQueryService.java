@@ -10,7 +10,6 @@ import com.dnd.jjigeojulge.reservation.application.dto.query.ReservationCommentD
 import com.dnd.jjigeojulge.reservation.application.dto.query.ReservationDetailDto;
 import com.dnd.jjigeojulge.reservation.application.dto.query.ReservationListResponseDto;
 import com.dnd.jjigeojulge.reservation.application.dto.query.ReservationSearchCondition;
-import com.dnd.jjigeojulge.reservation.application.dto.query.ReservationSummaryDto;
 import com.dnd.jjigeojulge.reservation.domain.repository.ReservationCommentQueryRepository;
 import com.dnd.jjigeojulge.reservation.domain.repository.ReservationQueryRepository;
 

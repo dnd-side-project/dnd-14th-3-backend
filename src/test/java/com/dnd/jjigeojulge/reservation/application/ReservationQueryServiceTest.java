@@ -107,5 +107,46 @@ class ReservationQueryServiceTest {
                 // then
                 assertThat(result.getContent()).hasSize(1);
                 assertThat(result.getContent().get(0).title()).isEqualTo("테스트");
+
+        }
+
+        @Test
+        @DisplayName("방장이 지원자 목록을 조회하면 성공한다.")
+        void getApplicants_Success() {
+                // given
+                Long reservationId = 1L;
+                Long currentUserId = 100L;
+                
+                com.dnd.jjigeojulge.reservation.application.dto.query.ApplicantDto applicantDto = com.dnd.jjigeojulge.reservation.application.dto.query.ApplicantDto.builder()
+                                .applicantId(10L)
+                                .userId(200L)
+                                .nickname("지원자")
+                                .gender(Gender.FEMALE)
+                                .build();
+                com.dnd.jjigeojulge.reservation.application.dto.query.ApplicantListResponseDto responseDto = new com.dnd.jjigeojulge.reservation.application.dto.query.ApplicantListResponseDto(1, List.of(applicantDto));
+
+                given(reservationQueryRepository.existsByIdAndOwnerId(reservationId, currentUserId)).willReturn(true);
+                given(reservationQueryRepository.getApplicants(reservationId)).willReturn(responseDto);
+
+                // when
+                com.dnd.jjigeojulge.reservation.application.dto.query.ApplicantListResponseDto result = reservationQueryService.getApplicants(reservationId, currentUserId);
+
+                // then
+                assertThat(result.totalCount()).isEqualTo(1);
+                assertThat(result.applicants().get(0).nickname()).isEqualTo("지원자");
+        }
+
+        @Test
+        @DisplayName("방장이 아닌 사용자가 지원자 목록을 조회하면 예외가 발생한다.")
+        void getApplicants_Fail_NotOwner() {
+                // given
+                Long reservationId = 1L;
+                Long currentUserId = 999L; // Not owner
+
+                given(reservationQueryRepository.existsByIdAndOwnerId(reservationId, currentUserId)).willReturn(false);
+
+                // when & then
+                org.assertj.core.api.Assertions.assertThatThrownBy(() -> reservationQueryService.getApplicants(reservationId, currentUserId))
+                                .isInstanceOf(com.dnd.jjigeojulge.reservation.domain.exception.ReservationAccessDeniedException.class);
         }
 }
