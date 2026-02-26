@@ -29,7 +29,8 @@ public class WaitingCountScheduler {
 	@Scheduled(fixedDelay = 1500)
 	public void pushWaitingCounts() {
 		Set<Long> connectedUserIds = sseService.getConnectedUserIds();
-
+		last.keySet().removeIf(id -> !connectedUserIds.contains(id));
+		
 		for (Long userId : connectedUserIds) {
 			GeoPoint geoPoint = queueRepository.getLocation(userId).orElse(null);
 			if (geoPoint == null) {
