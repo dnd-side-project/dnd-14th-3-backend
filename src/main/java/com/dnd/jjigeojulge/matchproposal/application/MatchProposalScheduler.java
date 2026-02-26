@@ -24,6 +24,10 @@ public class MatchProposalScheduler {
 	private static final int CANDIDATE_LIMIT = 20; // 근처 후보 최대 n명
 	private static final double RADIUS_KM = 0.5;
 
+	/*
+	 * - 먼저 대기 풀에 들어온 사람 순서대로 탐색
+	 * - 가장 가까운 사람 (가장 먼저 들어온 사람 기준) 이 먼저 찾아진다.
+	 * */
 	@Scheduled(fixedDelay = 1000)
 	public void processWaitingMatchRequests() {
 		List<Long> waitingUsers = queueRepository.scanWaitingUsers(BATCH_SIZE);
@@ -39,7 +43,7 @@ public class MatchProposalScheduler {
 	private void attemptMatchForUser(Long userId) {
 		GeoPoint myLocation = queueRepository.getLocation(userId).orElse(null);
 		if (myLocation == null) {
-			// SET에는 있는데 GEO에 좌표가 없으면 불일치 -> 정리
+			// waiting user repo에는 존재하는데, 대기 풀에서 나간 user 제거
 			queueRepository.removeWaitingUser(userId);
 			log.warn("Removed waiting user without GEO location. userId={}", userId);
 			return;
@@ -55,7 +59,7 @@ public class MatchProposalScheduler {
 			return;
 		}
 
-		// 매칭 생성 전에 두 사람 간의 cancel 이 잇었는지 검사한다. 조건은 오늘 범위 안에서
+		// 매칭 생성 전에 두 사람 간의 cancel 이 있었는지 검사한다. 조건은 오늘 범위 안에서
 		// 만약 오늘 매칭이 cancel 된 적이 있다면, 다음 유저로 넘어간다.
 		// 가장 가까운 후보 1명 선택 (sortAscending이라 첫 번째가 가장 가까움)
 		for (Long otherId : candidates) {

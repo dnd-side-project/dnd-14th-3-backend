@@ -7,7 +7,9 @@ import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 import com.dnd.jjigeojulge.event.MatchConfirmedEvent;
+import com.dnd.jjigeojulge.event.MatchProposalAcceptedEvent;
 import com.dnd.jjigeojulge.event.MatchProposalCreatedEvent;
+import com.dnd.jjigeojulge.event.MatchProposalRejectedEvent;
 import com.dnd.jjigeojulge.event.MatchRequestExpiredEvent;
 import com.dnd.jjigeojulge.matchproposal.data.MatchProposalDto;
 import com.dnd.jjigeojulge.matchsession.data.MatchSessionDto;
@@ -34,7 +36,7 @@ public class SseHandler {
 			return;
 		}
 		Set<Long> receiverIds = Set.of(userAId, userBId);
-		SseMessage sseMessage = SseMessage.create(receiverIds, "match.proposal", matchProposalDto);
+		SseMessage sseMessage = SseMessage.create(receiverIds, "match.proposal.created", matchProposalDto);
 		handleMessage(sseMessage);
 	}
 
@@ -49,6 +51,28 @@ public class SseHandler {
 	@TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
 	public void handle(MatchRequestExpiredEvent event) {
 		SseMessage sseMessage = SseMessage.create(event.userId(), "match.request.expired", event);
+		handleMessage(sseMessage);
+	}
+
+	// TODO Null 체크 로직 필요
+	@TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+	public void handle(MatchProposalAcceptedEvent event) {
+		// 예: 상대방에게만 보내기 (actor가 아닌 쪽)
+		MatchProposalDto matchProposalDto = event.matchProposalDto();
+		Long actorUserId = event.actorUserId();
+		Long receiverId =
+			actorUserId.equals(matchProposalDto.userAId()) ? matchProposalDto.userBId() : matchProposalDto.userAId();
+		SseMessage sseMessage = SseMessage.create(receiverId, "match.proposal.accepted", matchProposalDto);
+		handleMessage(sseMessage);
+	}
+
+	@TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+	public void onRejected(MatchProposalRejectedEvent event) {
+		MatchProposalDto matchProposalDto = event.matchProposalDto();
+		Long actorUserId = event.actorUserId();
+		Long receiverId =
+			actorUserId.equals(matchProposalDto.userAId()) ? matchProposalDto.userBId() : matchProposalDto.userAId();
+		SseMessage sseMessage = SseMessage.create(receiverId, "match.proposal.rejected", matchProposalDto);
 		handleMessage(sseMessage);
 	}
 
