@@ -54,6 +54,7 @@ public class SseHandler {
 		handleMessage(sseMessage);
 	}
 
+	// TODO Null 체크 로직 필요
 	@TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
 	public void handle(MatchProposalAcceptedEvent event) {
 		// 예: 상대방에게만 보내기 (actor가 아닌 쪽)
@@ -71,7 +72,7 @@ public class SseHandler {
 		Long actorUserId = event.actorUserId();
 		Long receiverId =
 			actorUserId.equals(matchProposalDto.userAId()) ? matchProposalDto.userBId() : matchProposalDto.userAId();
-		SseMessage sseMessage = SseMessage.create(receiverId, "matchProposal.rejected", matchProposalDto);
+		SseMessage sseMessage = SseMessage.create(receiverId, "match.proposal.rejected", matchProposalDto);
 		handleMessage(sseMessage);
 	}
 

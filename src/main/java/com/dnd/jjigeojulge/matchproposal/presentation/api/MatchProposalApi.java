@@ -101,7 +101,7 @@ public interface MatchProposalApi {
 			
 			- 참여자 중 한 명이라도 거절하면 전체 제안 상태(`status`)는 즉시 `REJECTED`로 변경됩니다.
 			- 이미 결정이 완료된 제안에 대해서는 수정이 불가능할 수 있습니다.
-			- 거절 시 상대방에게 서버가 `matchProposal.rejected` SSE 메시지를 발송합니다.
+			- 거절 시 상대방에게 서버가 `match.proposal.rejected` SSE 메시지를 발송합니다.
 			"""
 	)
 	@ApiResponses(value = {
