@@ -74,9 +74,10 @@ class AuthServiceTest {
 		AuthResult result = authService.login(authCode);
 
 		// then
-		assertThat(result.isNewUser()).isFalse();
-		assertThat(result.accessToken()).isEqualTo("new_access_token");
-		assertThat(result.refreshToken()).isEqualTo("new_refresh_token");
+		assertThat(result).isInstanceOf(AuthResult.Success.class);
+		AuthResult.Success success = (AuthResult.Success) result;
+		assertThat(success.accessToken()).isEqualTo("new_access_token");
+		assertThat(success.refreshToken()).isEqualTo("new_refresh_token");
 	}
 
 	@Test
@@ -98,9 +99,10 @@ class AuthServiceTest {
 		AuthResult result = authService.login(authCode);
 
 		// then
-		assertThat(result.isNewUser()).isTrue();
-		assertThat(result.registerToken()).isEqualTo("register_token");
-		assertThat(result.accessToken()).isNull();
+		assertThat(result).isInstanceOf(AuthResult.RegisterNeeded.class);
+		AuthResult.RegisterNeeded needed = (AuthResult.RegisterNeeded) result;
+		assertThat(needed.registerToken()).isEqualTo("register_token");
+		assertThat(needed.profileImageUrl()).isEqualTo("http://example.com/new_profile.jpg");
 	}
 
 	@Test
@@ -130,8 +132,9 @@ class AuthServiceTest {
 		AuthResult result = authService.signup(command);
 
 		// then
-		assertThat(result.isNewUser()).isFalse();
-		assertThat(result.accessToken()).isEqualTo("access");
+		assertThat(result).isInstanceOf(AuthResult.Success.class);
+		AuthResult.Success success = (AuthResult.Success) result;
+		assertThat(success.accessToken()).isEqualTo("access");
 		verify(userRepository).save(any(User.class));
 	}
 
@@ -169,7 +172,9 @@ class AuthServiceTest {
 		AuthResult result = authService.refresh(refreshToken);
 
 		// then
-		assertThat(result.accessToken()).isEqualTo("new_access");
-		assertThat(result.refreshToken()).isEqualTo("new_refresh"); // Rotation 확인
+		assertThat(result).isInstanceOf(AuthResult.Success.class);
+		AuthResult.Success success = (AuthResult.Success) result;
+		assertThat(success.accessToken()).isEqualTo("new_access");
+		assertThat(success.refreshToken()).isEqualTo("new_refresh"); // Rotation 확인
 	}
 }
