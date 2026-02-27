@@ -6,7 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.dnd.jjigeojulge.global.common.response.PageResponse;
 import com.dnd.jjigeojulge.notification.application.dto.NotificationResponseDto;
-import com.dnd.jjigeojulge.notification.domain.repository.NotificationRepository;
+import com.dnd.jjigeojulge.notification.domain.repository.NotificationQueryRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -15,7 +15,7 @@ import lombok.RequiredArgsConstructor;
 @Transactional(readOnly = true)
 public class NotificationQueryService {
 
-    private final NotificationRepository notificationRepository;
+    private final NotificationQueryRepository notificationQueryRepository;
 
     /**
      * 로그인한 유저의 알림 목록을 커서 기반 페이징으로 조회합니다.
@@ -26,7 +26,7 @@ public class NotificationQueryService {
      * @return PageResponse 형태의 알림 목록
      */
     public PageResponse<NotificationResponseDto> getNotifications(Long receiverId, Long cursor, int limit) {
-        Page<NotificationResponseDto> page = notificationRepository.getNotifications(receiverId, cursor, limit);
+        Page<NotificationResponseDto> page = notificationQueryRepository.getNotifications(receiverId, cursor, limit);
         // NotificationResponseDto의 notificationId를 커서로 사용
         return PageResponse.fromCursor(page, NotificationResponseDto::notificationId);
     }

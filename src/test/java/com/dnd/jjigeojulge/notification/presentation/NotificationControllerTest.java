@@ -14,7 +14,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -30,13 +30,13 @@ class NotificationControllerTest {
         @Autowired
         private MockMvc mockMvc;
 
-        @MockBean
+        @MockitoBean
         private NotificationQueryService notificationQueryService;
 
-        @MockBean
+        @MockitoBean
         private NotificationCommandService notificationCommandService;
 
-        @MockBean
+        @MockitoBean
         private com.dnd.jjigeojulge.auth.infra.jwt.JwtTokenProvider jwtTokenProvider;
 
         @Test
@@ -71,7 +71,7 @@ class NotificationControllerTest {
                                 .with(org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors
                                                 .user(mockUserDetails)))
                                 .andExpect(status().isOk())
-                                .andExpect(jsonPath("$.status").value("SUCCESS"))
+                                .andExpect(jsonPath("$.success").value(true))
                                 .andExpect(jsonPath("$.data.content").isArray())
                                 .andExpect(jsonPath("$.data.content.length()").value(2))
                                 .andExpect(jsonPath("$.data.content[0].notificationId").value(14))
@@ -89,10 +89,13 @@ class NotificationControllerTest {
                                 1L, java.util.List.of());
 
                 // when & then
-                mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch("/api/v1/notifications/{id}/read", notificationId)
+                mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+                                .patch("/api/v1/notifications/{id}/read", notificationId)
+                                .with(org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors
+                                                .csrf())
                                 .with(org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors
                                                 .user(mockUserDetails)))
                                 .andExpect(status().isOk())
-                                .andExpect(jsonPath("$.status").value("SUCCESS"));
+                                .andExpect(jsonPath("$.success").value(true));
         }
 }

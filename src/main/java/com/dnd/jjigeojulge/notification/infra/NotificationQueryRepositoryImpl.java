@@ -20,32 +20,32 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class NotificationQueryRepositoryImpl implements NotificationQueryRepository {
 
-    private final JPAQueryFactory queryFactory;
+        private final JPAQueryFactory queryFactory;
 
-    @Override
-    public Page<NotificationResponseDto> getNotifications(Long receiverId, Long cursor, int limit) {
-        List<NotificationResponseDto> content = queryFactory
-                .select(new QNotificationResponseDto(
-                        notification.id,
-                        notification.type,
-                        notification.message.value,
-                        notification.relatedUrl.value,
-                        notification.isRead,
-                        notification.createdAt))
-                .from(notification)
-                .where(
-                        notification.receiverId.eq(receiverId),
-                        cursor != null ? notification.id.lt(cursor) : null)
-                .orderBy(notification.id.desc())
-                .limit(limit)
-                .fetch();
+        @Override
+        public Page<NotificationResponseDto> getNotifications(Long receiverId, Long cursor, int limit) {
+                List<NotificationResponseDto> content = queryFactory
+                                .select(new QNotificationResponseDto(
+                                                notification.id,
+                                                notification.type,
+                                                notification.message.value,
+                                                notification.relatedUrl.value,
+                                                notification.isRead,
+                                                notification.createdAt))
+                                .from(notification)
+                                .where(
+                                                notification.receiverId.eq(receiverId),
+                                                cursor != null ? notification.id.lt(cursor) : null)
+                                .orderBy(notification.id.desc())
+                                .limit(limit)
+                                .fetch();
 
-        Long totalCount = queryFactory
-                .select(notification.count())
-                .from(notification)
-                .where(notification.receiverId.eq(receiverId))
-                .fetchOne();
+                Long totalCount = queryFactory
+                                .select(notification.count())
+                                .from(notification)
+                                .where(notification.receiverId.eq(receiverId))
+                                .fetchOne();
 
-        return new PageImpl<>(content, PageRequest.of(0, limit), totalCount != null ? totalCount : 0L);
-    }
+                return new PageImpl<>(content, PageRequest.of(0, limit), totalCount != null ? totalCount : 0L);
+        }
 }

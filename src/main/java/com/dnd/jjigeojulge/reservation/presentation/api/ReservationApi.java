@@ -26,6 +26,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.Valid;
 
 @Tag(name = "동행 예약 관리", description = "동행 예약 관련 API")
 public interface ReservationApi {
@@ -89,7 +90,7 @@ public interface ReservationApi {
 	})
 	ResponseEntity<ApiResponse<Long>> create(
 			@CurrentUserId Long currentUserId,
-			@RequestBody(required = true, description = "동행 예약 생성 요청 데이터", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ReservationCreateRequest.class))) ReservationCreateRequest request);
+			@Valid @RequestBody(required = true, description = "동행 예약 생성 요청 데이터", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ReservationCreateRequest.class))) ReservationCreateRequest request);
 
 	@Operation(summary = "Reservation 부분 수정 (PATCH)", description = "방장이 예약 파라미터를 부분적으로 수정합니다. (넘기지 않은 값은 기존 값이 유지됩니다)")
 	@ApiResponses(value = {
@@ -98,7 +99,7 @@ public interface ReservationApi {
 	ResponseEntity<ApiResponse<Void>> update(
 			@Parameter(description = "예약 ID") Long reservationId,
 			@CurrentUserId Long currentUserId,
-			@RequestBody(required = true, description = "동행 예약 수정(PATCH) 요청 데이터") ReservationUpdateRequest request);
+			@Valid @RequestBody(required = true, description = "동행 예약 수정(PATCH) 요청 데이터") ReservationUpdateRequest request);
 
 	@Operation(summary = "Reservation 취소", description = "방장이 예약 방명록 자체를 취소(폭파)합니다.")
 	@ApiResponses(value = {
