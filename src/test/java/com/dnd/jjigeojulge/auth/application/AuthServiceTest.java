@@ -57,16 +57,16 @@ class AuthServiceTest {
 		String accessToken = "kakao_access_token";
 		OAuthUserProfile profile = new OAuthUserProfile("12345", OAuthProvider.KAKAO);
 		User user = User.builder()
-			.oauthInfo(new OAuthInfo("12345", OAuthProvider.KAKAO))
-			.nickname("test")
-			.gender(Gender.MALE)
-			.build();
+				.oauthInfo(new OAuthInfo("12345", OAuthProvider.KAKAO))
+				.nickname("test")
+				.gender(Gender.MALE)
+				.build();
 		// 테스트용 ID 설정을 위해 리플렉션이나 모의 객체 설정 필요하지만, 여기서는 any() 매칭 등으로 검증
 
 		given(oAuthClient.getAccessToken(authCode)).willReturn(accessToken);
 		given(oAuthClient.getUserProfile(accessToken)).willReturn(profile);
 		given(userRepository.findByOAuthInfo(profile.providerId(), profile.provider()))
-			.willReturn(Optional.of(user));
+				.willReturn(Optional.of(user));
 		given(jwtTokenProvider.createAccessToken(any())).willReturn("new_access_token");
 		given(jwtTokenProvider.createRefreshToken(any())).willReturn("new_refresh_token");
 
@@ -90,7 +90,7 @@ class AuthServiceTest {
 		given(oAuthClient.getAccessToken(authCode)).willReturn(accessToken);
 		given(oAuthClient.getUserProfile(accessToken)).willReturn(profile);
 		given(userRepository.findByOAuthInfo(profile.providerId(), profile.provider()))
-			.willReturn(Optional.empty()); // 유저 없음
+				.willReturn(Optional.empty()); // 유저 없음
 		given(jwtTokenProvider.createRegisterToken(profile.providerId())).willReturn("register_token");
 
 		// when
@@ -108,15 +108,15 @@ class AuthServiceTest {
 		// given
 		String registerToken = "valid_register_token";
 		SignupCommand command = new SignupCommand(
-			registerToken, "nickname", Gender.MALE, "url", List.of(StyleName.FULL_BODY)
-		);
+				registerToken, "nickname", Gender.MALE, com.dnd.jjigeojulge.user.domain.AgeGroup.TWENTIES, "자기소개입니다",
+				"url", List.of(StyleName.FULL_BODY));
 		String providerId = "kakao_123";
 
 		willDoNothing().given(jwtTokenProvider).validateRegisterToken(registerToken);
 		given(jwtTokenProvider.getPayload(registerToken)).willReturn(providerId);
 		given(userRepository.existsByNickname(command.nickname())).willReturn(false); // 중복 아님
 		given(photoStyleRepository.findAllByNameIn(anyList()))
-			.willReturn(Set.of(new PhotoStyle(StyleName.FULL_BODY))); // 스타일 존재
+				.willReturn(Set.of(new PhotoStyle(StyleName.FULL_BODY))); // 스타일 존재
 		given(userRepository.save(any(User.class))).willAnswer(invocation -> {
 			User u = invocation.getArgument(0);
 			ReflectionTestUtils.setField(u, "id", 1L); // ID 설정
@@ -139,8 +139,8 @@ class AuthServiceTest {
 	void signupNicknameDuplicate() {
 		// given
 		SignupCommand command = new SignupCommand(
-			"token", "dup_nick", Gender.MALE, "url", List.of()
-		);
+				"token", "dup_nick", Gender.MALE, com.dnd.jjigeojulge.user.domain.AgeGroup.TWENTIES, "자기소개입니다", "url",
+				List.of());
 
 		willDoNothing().given(jwtTokenProvider).validateRegisterToken(anyString());
 		given(jwtTokenProvider.getPayload(anyString())).willReturn("id");
@@ -148,8 +148,8 @@ class AuthServiceTest {
 
 		// when & then
 		assertThatThrownBy(() -> authService.signup(command))
-			.isInstanceOf(BusinessException.class)
-			.hasFieldOrPropertyWithValue("errorCode", ErrorCode.CONFLICT);
+				.isInstanceOf(BusinessException.class)
+				.hasFieldOrPropertyWithValue("errorCode", ErrorCode.CONFLICT);
 	}
 
 	@Test

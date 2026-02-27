@@ -13,6 +13,7 @@ import com.dnd.jjigeojulge.auth.infra.jwt.JwtTokenProvider;
 import com.dnd.jjigeojulge.global.common.enums.OAuthProvider;
 import com.dnd.jjigeojulge.global.exception.BusinessException;
 import com.dnd.jjigeojulge.global.exception.ErrorCode;
+import com.dnd.jjigeojulge.user.domain.Introduction;
 import com.dnd.jjigeojulge.user.domain.OAuthInfo;
 import com.dnd.jjigeojulge.user.domain.PhotoStyle;
 import com.dnd.jjigeojulge.user.domain.User;
@@ -37,15 +38,15 @@ public class AuthService {
 		OAuthUserProfile userProfile = oAuthClient.getUserProfile(accessToken);
 
 		return userRepository.findByOAuthInfo(userProfile.providerId(), userProfile.provider())
-			.map(user -> {
-				String access = jwtTokenProvider.createAccessToken(user.getId());
-				String refresh = jwtTokenProvider.createRefreshToken(user.getId());
-				return AuthResult.success(access, refresh);
-			})
-			.orElseGet(() -> {
-				String registerToken = jwtTokenProvider.createRegisterToken(userProfile.providerId());
-				return AuthResult.registerNeeded(registerToken);
-			});
+				.map(user -> {
+					String access = jwtTokenProvider.createAccessToken(user.getId());
+					String refresh = jwtTokenProvider.createRefreshToken(user.getId());
+					return AuthResult.success(access, refresh);
+				})
+				.orElseGet(() -> {
+					String registerToken = jwtTokenProvider.createRegisterToken(userProfile.providerId());
+					return AuthResult.registerNeeded(registerToken);
+				});
 	}
 
 	public AuthResult signup(SignupCommand command) {
@@ -62,12 +63,13 @@ public class AuthService {
 		}
 
 		User user = User.create(
-			new OAuthInfo(providerId, OAuthProvider.KAKAO),
-			command.nickname(),
-			command.gender(),
-			command.profileImageUrl(),
-			photoStyles
-		);
+				new OAuthInfo(providerId, OAuthProvider.KAKAO),
+				command.nickname(),
+				command.gender(),
+				command.ageGroup(),
+				Introduction.from(command.introduction()),
+				command.profileImageUrl(),
+				photoStyles);
 
 		// TODO: [Refactor] AuthService에서 유저 관리를 직접 하지 않고, UserService나 Port로 위임 필요
 		User savedUser = userRepository.save(user);
