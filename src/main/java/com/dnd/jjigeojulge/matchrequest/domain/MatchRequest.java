@@ -76,6 +76,10 @@ public class MatchRequest extends BaseUpdatableEntity {
 		this.status = MatchRequestStatus.EXPIRED;
 	}
 
+	public void match() {
+		this.status = MatchRequestStatus.MATCHED;
+	}
+
 	public boolean isExpired(LocalDateTime now) {
 		// 이미 최종 상태(매칭 완료, 취소 등)라면 만료 대상이 아님
 		if (this.status == MatchRequestStatus.CANCELLED || this.status == MatchRequestStatus.MATCHED) {

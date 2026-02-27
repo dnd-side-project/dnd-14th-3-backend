@@ -27,12 +27,14 @@ public enum ErrorCode {
 	// ===== 403 Forbidden =====
 	NOT_MATCH_REQUEST_OWNER(HttpStatus.FORBIDDEN, "본인의 매칭 요청만 조작할 수 있습니다."),
 	MATCH_PROPOSAL_NOT_PARTICIPANT(HttpStatus.FORBIDDEN, "해당 매칭 제안에 참여한 유저가 아닙니다."),
+	MATCH_SESSION_NOT_PARTICIPANT(HttpStatus.FORBIDDEN, "해당 매칭 세션의 참여자가 아닙니다."),
 
 	// ===== 404 Not Found =====
 	RESOURCE_NOT_FOUND(HttpStatus.NOT_FOUND, "요청한 리소스를 찾을 수 없습니다."),
 	USER_NOT_FOUND(HttpStatus.NOT_FOUND, "User를 찾을 수 없습니다."),
 	MATCH_PROPOSAL_NOT_FOUND(HttpStatus.NOT_FOUND, "매칭 제안을 찾을 수 없습니다."),
 	MATCH_REQUEST_NOT_FOUND(HttpStatus.NOT_FOUND, "매칭 요청을 찾을 수 없습니다."),
+	MATCH_SESSION_NOT_FOUND(HttpStatus.NOT_FOUND, "매칭 세션을 찾을 수 없습니다."),
 
 	// ===== 405 Method Not Allowed =====
 	METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "지원하지 않는 HTTP 메서드입니다."),

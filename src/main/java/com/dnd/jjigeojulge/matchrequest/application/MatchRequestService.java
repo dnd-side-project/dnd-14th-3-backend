@@ -85,7 +85,7 @@ public class MatchRequestService {
 
 	@Transactional
 	public void cancel(Long userId) {
-		matchRequestRepository.findByUserIdAndStatus(userId, MatchRequestStatus.WAITING)
+		matchRequestRepository.findByUserIdAndStatusFetchUser(userId, MatchRequestStatus.WAITING)
 			.ifPresent(matchRequest -> {
 				matchRequest.cancel();
 				matchGeoQueueRepository.removeWaitingUser(userId);
@@ -103,7 +103,7 @@ public class MatchRequestService {
 		}
 
 		// 바꾸고자 하는 match-request 외에 waiting인 상태의 다른 요청이 있다면 예외
-		matchRequestRepository.findByUserIdAndStatus(userId, MatchRequestStatus.WAITING)
+		matchRequestRepository.findByUserIdAndStatusFetchUser(userId, MatchRequestStatus.WAITING)
 			.filter(match -> !match.getId().equals(matchRequestId))
 			.ifPresent(match -> {
 				throw new MatchRequestAlreadyProcessedException();

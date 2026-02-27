@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import com.dnd.jjigeojulge.global.common.entity.BaseUpdatableEntity;
+import com.dnd.jjigeojulge.matchrequest.domain.MatchRequest;
 import com.dnd.jjigeojulge.user.domain.User;
 
 import jakarta.persistence.Column;
@@ -13,6 +14,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -55,10 +57,18 @@ public class MatchSession extends BaseUpdatableEntity {
 	@JoinColumn(name = "user_b_id", nullable = false)
 	private User userB;
 
+	@OneToOne(fetch = FetchType.LAZY) // 1:1 관계 (하나의 요청은 하나의 세션에만 속함)
+	@JoinColumn(name = "user_a_match_request_id", nullable = false)
+	private MatchRequest userAMatchRequest;
+
+	@OneToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "user_b_match_request_id", nullable = false)
+	private MatchRequest userBMatchRequest;
+
 	@Builder
 	public MatchSession(MatchSessionStatus status, BigDecimal destLatitude, BigDecimal destLongitude,
 		LocalDateTime matchedAt, LocalDateTime endedAt, boolean isArrivedA, boolean isArrivedB, User userA,
-		User userB) {
+		User userB, MatchRequest userAMatchRequest, MatchRequest userBMatchRequest) {
 		this.status = status;
 		this.destLatitude = destLatitude;
 		this.destLongitude = destLongitude;
@@ -68,13 +78,19 @@ public class MatchSession extends BaseUpdatableEntity {
 		this.isArrivedB = isArrivedB;
 		this.userA = userA;
 		this.userB = userB;
+		this.userAMatchRequest = userAMatchRequest;
+		this.userBMatchRequest = userBMatchRequest;
 	}
 
-	public static MatchSession create(User userA, User userB, BigDecimal lat, BigDecimal lon) {
+	public static MatchSession create(User userA, User userB, MatchRequest userAMatchRequest,
+		MatchRequest userBMatchRequest, BigDecimal lat,
+		BigDecimal lon) {
 		return MatchSession.builder()
 			.status(MatchSessionStatus.ACTIVE)
 			.userA(userA)
 			.userB(userB)
+			.userAMatchRequest(userAMatchRequest)
+			.userBMatchRequest(userBMatchRequest)
 			.destLatitude(lat)
 			.destLongitude(lon)
 			.matchedAt(LocalDateTime.now())

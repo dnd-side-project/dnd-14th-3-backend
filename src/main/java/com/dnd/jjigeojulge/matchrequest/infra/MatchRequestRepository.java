@@ -28,7 +28,17 @@ public interface MatchRequestRepository extends JpaRepository<MatchRequest, Long
 
 	boolean existsByUserIdAndStatus(Long userId, MatchRequestStatus status);
 
-	Optional<MatchRequest> findByUserIdAndStatus(Long userId, MatchRequestStatus status);
+	@Query("""
+		  select mr
+		  from MatchRequest mr
+		  join fetch mr.user u
+		  where u.id = :userId
+		    and mr.status = :status
+		""")
+	Optional<MatchRequest> findByUserIdAndStatusFetchUser(
+		@Param("userId") Long userId,
+		@Param("status") MatchRequestStatus status
+	);
 
 	@Query("""
 		select m from MatchRequest m

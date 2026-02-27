@@ -25,7 +25,6 @@ import com.dnd.jjigeojulge.matchsession.data.MatchSessionDto;
 import com.dnd.jjigeojulge.matchsession.domain.MatchSession;
 import com.dnd.jjigeojulge.matchsession.infra.MatchSessionRepository;
 import com.dnd.jjigeojulge.user.domain.User;
-import com.dnd.jjigeojulge.user.exception.UserNotFoundException;
 import com.dnd.jjigeojulge.user.infra.UserRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -71,7 +70,6 @@ public class MatchProposalService {
 		MatchProposal matchProposal = matchProposalRepository.findById(proposalId)
 			.orElseThrow(MatchProposalNotFoundException::new);
 
-		// TODO 고려 사항 : 이미 다른 유저가 거절을 하였을 경우에 막아야함.
 		// TODO 고려 사항 : 동시에 두 유저가 상태를 변경할 경우, Lock 고려해야함.
 		matchProposal.accept(userId);
 		MatchProposalDto matchProposalDto = toDto(matchProposal);
@@ -79,15 +77,27 @@ public class MatchProposalService {
 
 		// 두 유저 모두 제안을 수락했을 경우
 		if (matchProposal.isProposalAccepted()) {
-			User userA = userRepository.findById(matchProposal.getUserAId())
-				.orElseThrow(UserNotFoundException::new);
-			User userB = userRepository.findById(matchProposal.getUserBId())
-				.orElseThrow(UserNotFoundException::new);
+			MatchRequest matchRequestA =
+				matchRequestRepository.findByUserIdAndStatusFetchUser(matchProposal.getUserAId(),
+						MatchRequestStatus.WAITING)
+					.orElseThrow(MatchRequestNotFoundException::new);
+			matchRequestA.match();
+			User userA = matchRequestA.getUser();
 
-			MatchRequest matchRequest = matchRequestRepository.findByUserIdAndStatus(userId, MatchRequestStatus.WAITING)
-				.orElseThrow(MatchRequestNotFoundException::new);
-			MatchSession matchSession = MatchSession.create(userA, userB, matchRequest.getLatitude(),
-				matchRequest.getLongitude());
+			MatchRequest matchRequestB =
+				matchRequestRepository.findByUserIdAndStatusFetchUser(matchProposal.getUserBId(),
+						MatchRequestStatus.WAITING)
+					.orElseThrow(MatchRequestNotFoundException::new);
+			matchRequestB.match();
+			User userB = matchRequestB.getUser();
+
+			MatchSession matchSession = MatchSession.create(
+				userA, userB,
+				matchRequestA,
+				matchRequestB,
+				matchRequestA.getLatitude(),
+				matchRequestA.getLongitude()
+			);
 			MatchSession saved = matchSessionRepository.save(matchSession);
 			eventPublisher.publishEvent(
 				new MatchConfirmedEvent(new MatchSessionDto(saved.getId(), userA.getId(), userB.getId())));
