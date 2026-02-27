@@ -8,7 +8,7 @@ public final class NicknamePolicy {
 	}
 
 	public static final int MIN_LENGTH = 2;
-	public static final int MAX_LENGTH = 10;
+	public static final int MAX_LENGTH = 15;
 
 	/**
 	 * 한글(가-힣), 영문(a-zA-Z), 숫자(0-9)만 허용

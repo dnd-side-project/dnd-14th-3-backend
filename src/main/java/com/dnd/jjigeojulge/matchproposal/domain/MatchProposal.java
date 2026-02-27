@@ -60,6 +60,10 @@ public class MatchProposal extends BaseUpdatableEntity {
 		return new MatchProposal(userAId, userBId);
 	}
 
+	public Long getOtherUserId(Long loginUserId) {
+		return this.userAId.equals(loginUserId) ? userBId : userAId;
+	}
+
 	public void accept(Long userId) {
 		validateCanAccept(userId);
 
