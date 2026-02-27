@@ -41,8 +41,19 @@ public class ReservationQueryRepositoryImpl implements ReservationQueryRepositor
 	@Override
 	public Page<ReservationSummaryDto> searchReservations(ReservationSearchCondition condition, Long cursor,
 			int limit) {
-		List<Tuple> results = queryFactory
-				.select(reservation, user.nickname, user.gender, user.profileImageUrl)
+		List<ReservationSummaryDto> content = queryFactory
+				.select(new com.dnd.jjigeojulge.reservation.application.dto.query.QReservationSummaryDto(
+						reservation.id,
+						reservation.title.value,
+						reservation.scheduledTime.time,
+						reservation.placeInfo.region1Depth,
+						reservation.placeInfo.specificPlace,
+						reservation.shootingDuration,
+						reservation.status,
+						reservation.ownerInfo.userId,
+						user.nickname,
+						user.gender,
+						user.profileImageUrl))
 				.from(reservation)
 				.leftJoin(user).on(reservation.ownerInfo.userId.eq(user.id))
 				.where(
@@ -55,25 +66,6 @@ public class ReservationQueryRepositoryImpl implements ReservationQueryRepositor
 				.orderBy(reservation.id.desc())
 				.limit(limit)
 				.fetch();
-
-		List<ReservationSummaryDto> content = results.stream().map(tuple -> {
-			Reservation r = tuple.get(reservation);
-			String nickname = tuple.get(user.nickname);
-			com.dnd.jjigeojulge.user.domain.Gender userGender = tuple.get(user.gender);
-			String profileImageUrl = tuple.get(user.profileImageUrl);
-			return new ReservationSummaryDto(
-					r.getId(),
-					r.getTitle().getValue(),
-					r.getScheduledTime().getTime(), // ScheduledTime 객체의 time 필드
-					r.getPlaceInfo().getRegion1Depth(),
-					r.getPlaceInfo().getSpecificPlace(),
-					r.getShootingDuration(),
-					r.getStatus(),
-					r.getOwnerInfo().getUserId(),
-					nickname,
-					userGender,
-					profileImageUrl);
-		}).toList();
 
 		Long totalCount = queryFactory
 				.select(reservation.count())
@@ -253,35 +245,21 @@ public class ReservationQueryRepositoryImpl implements ReservationQueryRepositor
 	@Override
 	public com.dnd.jjigeojulge.reservation.application.dto.query.ApplicantListResponseDto getApplicants(
 			Long reservationId) {
-		List<Tuple> results = queryFactory
-				.select(applicant, user.nickname, user.profileImageUrl, user.gender, user.ageGroup,
-						user.introduction.value)
+		List<com.dnd.jjigeojulge.reservation.application.dto.query.ApplicantDto> applicantDtos = queryFactory
+				.select(new com.dnd.jjigeojulge.reservation.application.dto.query.QApplicantDto(
+						applicant.id,
+						applicant.userId,
+						user.nickname,
+						user.profileImageUrl,
+						user.gender,
+						user.ageGroup,
+						user.introduction.value,
+						applicant.createdAt))
 				.from(applicant)
 				.leftJoin(user).on(applicant.userId.eq(user.id))
 				.where(applicant.reservation.id.eq(reservationId))
 				.orderBy(applicant.createdAt.asc())
 				.fetch();
-
-		List<com.dnd.jjigeojulge.reservation.application.dto.query.ApplicantDto> applicantDtos = results.stream()
-				.map(tuple -> {
-					com.dnd.jjigeojulge.reservation.domain.Applicant a = tuple.get(applicant);
-					String nickname = tuple.get(user.nickname);
-					String profileImg = tuple.get(user.profileImageUrl);
-					Gender gender = tuple.get(user.gender);
-					com.dnd.jjigeojulge.user.domain.AgeGroup ageGroup = tuple.get(user.ageGroup);
-					String introduction = tuple.get(user.introduction.value);
-
-					return com.dnd.jjigeojulge.reservation.application.dto.query.ApplicantDto.builder()
-							.applicantId(a.getId())
-							.userId(a.getUserId())
-							.nickname(nickname)
-							.profileImageUrl(profileImg)
-							.gender(gender)
-							.ageGroup(ageGroup)
-							.introduction(introduction)
-							.appliedAt(a.getCreatedAt())
-							.build();
-				}).toList();
 
 		return new com.dnd.jjigeojulge.reservation.application.dto.query.ApplicantListResponseDto(applicantDtos.size(),
 				applicantDtos);
