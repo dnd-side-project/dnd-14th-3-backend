@@ -2,8 +2,10 @@ package com.dnd.jjigeojulge.reservation.application.dto.query;
 
 import java.time.LocalDateTime;
 
+import com.dnd.jjigeojulge.user.domain.AgeGroup;
 import com.dnd.jjigeojulge.user.domain.Gender;
 
+import com.querydsl.core.annotations.QueryProjection;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
@@ -20,5 +22,13 @@ public record ApplicantDto(
 
         @Schema(description = "성별 (MALE, FEMALE)", example = "MALE") Gender gender,
 
+        @Schema(description = "지원자 연령대 (기존 가입자의 경우 null일 수 있음)", nullable = true, example = "TWENTIES") AgeGroup ageGroup,
+
+        @Schema(description = "지원자 한줄 소개 (선택 항목)", nullable = true, example = "사진 찍는 걸 좋아합니다.") String introduction,
+
         @Schema(description = "지원한 일시", example = "2024-05-12T15:30:00") LocalDateTime appliedAt) {
+
+    @QueryProjection
+    public ApplicantDto {
+    }
 }

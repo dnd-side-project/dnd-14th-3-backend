@@ -53,7 +53,8 @@ public interface AuthApi {
 					  "code": "",
 					  "data": {
 					    "isNewUser": true,
-					    "registerToken": "eyJhbGciOiJIUzI1NiJ9..."
+					    "registerToken": "eyJhbGciOiJIUzI1NiJ9...",
+					    "profileImageUrl": "http://img1.kakaocdn.net/thumb/123456789.jpg"
 					  }
 					}
 					"""))),
