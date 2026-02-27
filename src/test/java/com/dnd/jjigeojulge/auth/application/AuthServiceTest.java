@@ -55,7 +55,7 @@ class AuthServiceTest {
 		// given
 		String authCode = "kakao_auth_code";
 		String accessToken = "kakao_access_token";
-		OAuthUserProfile profile = new OAuthUserProfile("12345", OAuthProvider.KAKAO);
+		OAuthUserProfile profile = new OAuthUserProfile("12345", OAuthProvider.KAKAO, "http://example.com/profile.jpg");
 		User user = User.builder()
 				.oauthInfo(new OAuthInfo("12345", OAuthProvider.KAKAO))
 				.nickname("test")
@@ -83,9 +83,10 @@ class AuthServiceTest {
 	@DisplayName("로그인 - 신규 유저는 회원가입용 임시 토큰(RegisterToken)을 발급받는다.")
 	void loginNewUser() {
 		// given
-		String authCode = "kakao_auth_code";
-		String accessToken = "kakao_access_token";
-		OAuthUserProfile profile = new OAuthUserProfile("new_user_123", OAuthProvider.KAKAO);
+		String authCode = "valid_auth_code";
+		String accessToken = "valid_access_token";
+		OAuthUserProfile profile = new OAuthUserProfile("new_user_123", OAuthProvider.KAKAO,
+				"http://example.com/new_profile.jpg");
 
 		given(oAuthClient.getAccessToken(authCode)).willReturn(accessToken);
 		given(oAuthClient.getUserProfile(accessToken)).willReturn(profile);
