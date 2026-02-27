@@ -34,6 +34,9 @@ public enum ErrorCode {
 	USER_NOT_FOUND(HttpStatus.NOT_FOUND, "User를 찾을 수 없습니다."),
 	MATCH_PROPOSAL_NOT_FOUND(HttpStatus.NOT_FOUND, "매칭 제안을 찾을 수 없습니다."),
 	MATCH_REQUEST_NOT_FOUND(HttpStatus.NOT_FOUND, "매칭 요청을 찾을 수 없습니다."),
+	RESERVATION_NOT_FOUND(HttpStatus.NOT_FOUND, "예약 정보를 찾을 수 없습니다."),
+	COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "댓글 정보를 찾을 수 없습니다."),
+	RESERVATION_VALIDATION_FAILED(HttpStatus.BAD_REQUEST, "예약 처리 중 검증에 실패했습니다."),
 	MATCH_SESSION_NOT_FOUND(HttpStatus.NOT_FOUND, "매칭 세션을 찾을 수 없습니다."),
 
 	// ===== 405 Method Not Allowed =====

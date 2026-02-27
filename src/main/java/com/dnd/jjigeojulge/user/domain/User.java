@@ -36,6 +36,13 @@ public class User extends BaseUpdatableEntity {
 	@Column(nullable = false, length = 10)
 	private Gender gender;
 
+	@Enumerated(EnumType.STRING)
+	@Column(name = "age_group", length = 30)
+	private AgeGroup ageGroup;
+
+	@Embedded
+	private Introduction introduction;
+
 	@Column(length = 512)
 	private String profileImageUrl;
 
@@ -46,20 +53,26 @@ public class User extends BaseUpdatableEntity {
 	private Set<UserPhotoStyle> photoStyles = new HashSet<>();
 
 	@Builder
-	public User(OAuthInfo oauthInfo, String nickname, Gender gender, String profileImageUrl) {
+	public User(OAuthInfo oauthInfo, String nickname, Gender gender, AgeGroup ageGroup, Introduction introduction,
+			String profileImageUrl) {
 		this.oauthInfo = oauthInfo;
 		this.nickname = nickname;
 		this.gender = gender;
+		this.ageGroup = ageGroup;
+		this.introduction = introduction;
 		this.profileImageUrl = profileImageUrl;
 	}
 
-	public static User create(OAuthInfo oauthInfo, String nickname, Gender gender, String profileImageUrl, Set<PhotoStyle> styles) {
+	public static User create(OAuthInfo oauthInfo, String nickname, Gender gender, AgeGroup ageGroup,
+			Introduction introduction, String profileImageUrl, Set<PhotoStyle> styles) {
 		User user = User.builder()
-			.oauthInfo(oauthInfo)
-			.nickname(nickname)
-			.gender(gender)
-			.profileImageUrl(profileImageUrl)
-			.build();
+				.oauthInfo(oauthInfo)
+				.nickname(nickname)
+				.gender(gender)
+				.ageGroup(ageGroup)
+				.introduction(introduction)
+				.profileImageUrl(profileImageUrl)
+				.build();
 
 		if (styles != null) {
 			styles.forEach(user::addPhotoStyle);
@@ -76,25 +89,32 @@ public class User extends BaseUpdatableEntity {
 		}
 	}
 
-	public void update(String newNickname, Gender newGender, Set<PhotoStyle> newPhotoStyles) {
+	public void update(String newNickname, Gender newGender, AgeGroup newAgeGroup, Introduction newIntroduction,
+			Set<PhotoStyle> newPhotoStyles) {
 		if (newNickname != null && !newNickname.equals(this.nickname)) {
 			this.nickname = newNickname;
 		}
 		if (newGender != null && !newGender.equals(this.gender)) {
 			this.gender = newGender;
 		}
+		if (newAgeGroup != null && !newAgeGroup.equals(this.ageGroup)) {
+			this.ageGroup = newAgeGroup;
+		}
+		if (newIntroduction != null && !newIntroduction.equals(this.introduction)) {
+			this.introduction = newIntroduction;
+		}
 
 		this.photoStyles.removeIf(ups -> !newPhotoStyles.contains(ups.getPhotoStyle()));
 
 		// 현재 유저가 유지하고 있는 PhotoStyle 목록 추출
 		Set<PhotoStyle> currentStyles = this.photoStyles.stream()
-			.map(UserPhotoStyle::getPhotoStyle)
-			.collect(Collectors.toSet());
+				.map(UserPhotoStyle::getPhotoStyle)
+				.collect(Collectors.toSet());
 
 		// 새로운 목록 중 기존에 없는 것만 추가
 		newPhotoStyles.stream()
-			.filter(ps -> !currentStyles.contains(ps))
-			.forEach(this::addPhotoStyle);
+				.filter(ps -> !currentStyles.contains(ps))
+				.forEach(this::addPhotoStyle);
 	}
 
 	private void addPhotoStyle(PhotoStyle photoStyle) {

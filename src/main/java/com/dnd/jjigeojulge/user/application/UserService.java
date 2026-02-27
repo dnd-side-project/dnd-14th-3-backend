@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.dnd.jjigeojulge.global.exception.ErrorCode;
+import com.dnd.jjigeojulge.user.domain.Introduction;
 import com.dnd.jjigeojulge.user.domain.PhotoStyle;
 import com.dnd.jjigeojulge.user.domain.User;
 import com.dnd.jjigeojulge.user.domain.UserSetting;
@@ -40,38 +41,39 @@ public class UserService {
 	@Transactional(readOnly = true)
 	public ProfileDto getProfile(Long userId) {
 		User user = userRepository.findByIdWithPhotoStyles(userId)
-			.orElseThrow(UserNotFoundException::new);
+				.orElseThrow(UserNotFoundException::new);
 		return toDto(user);
 	}
 
 	@Transactional
 	public ProfileDto updateProfile(
-		Long userId,
-		UserUpdateRequest request,
-		MultipartFile profileImage    //TODO  프로필 이미지 업데이트 향후 구현
+			Long userId,
+			UserUpdateRequest request,
+			MultipartFile profileImage // TODO 프로필 이미지 업데이트 향후 구현
 	) {
 		User user = userRepository.findByIdWithPhotoStyles(userId)
-			.orElseThrow(UserNotFoundException::new);
+				.orElseThrow(UserNotFoundException::new);
 
 		Set<PhotoStyle> photoStyles = photoStyleRepository.findAllByNameIn(request.preferredStyles());
 		if (photoStyles.size() != request.preferredStyles().size()) {
 			throw new InvalidPhotoStyleException(ErrorCode.INVALID_PHOTO_STYLE);
 		}
-		user.update(request.newUsername(), request.gender(), photoStyles);
+		user.update(request.newUsername(), request.gender(), request.ageGroup(),
+				Introduction.from(request.introduction()), photoStyles);
 		return toDto(user);
 	}
 
 	@Transactional(readOnly = true)
 	public ConsentDto getConsent(Long userId) {
 		User user = userRepository.findByUserIdWithUserSetting(userId)
-			.orElseThrow(UserNotFoundException::new);
+				.orElseThrow(UserNotFoundException::new);
 		return toDto(user.getUserSetting());
 	}
 
 	@Transactional
 	public ConsentDto updateConsent(Long userId, UserConsentUpdateRequest request) {
 		User user = userRepository.findByUserIdWithUserSetting(userId)
-			.orElseThrow(UserNotFoundException::new);
+				.orElseThrow(UserNotFoundException::new);
 		UserSetting userSetting = getOrCreateUserSetting(user);
 		userSetting.updateSettings(request.notificationAllowed(), request.locationAllowed());
 		return toDto(userSetting);
@@ -83,9 +85,9 @@ public class UserService {
 			return userSetting;
 		}
 		UserSetting defaultSetting = UserSetting.builder()
-			.notificationEnabled(false)
-			.locationSharingEnabled(false)
-			.build();
+				.notificationEnabled(false)
+				.locationSharingEnabled(false)
+				.build();
 		user.setUserSetting(defaultSetting);
 		log.warn("UserSetting missing. Creating default setting. userId={}", user.getId());
 		return defaultSetting;
