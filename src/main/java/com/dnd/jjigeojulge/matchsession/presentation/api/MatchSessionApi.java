@@ -46,8 +46,24 @@ public interface MatchSessionApi {
 		),
 
 		@io.swagger.v3.oas.annotations.responses.ApiResponse(
+			responseCode = "403",
+			description = "참가하지 않은 유저",
+			content = @Content(
+				mediaType = "application/json",
+				examples = @ExampleObject(value = """
+					{
+					  "success": false,
+					  "message": "해당 매칭 세션의 참여자가 아닙니다.",
+					  "code": "MATCH_SESSION_NOT_PARTICIPANT",
+					  "data": null
+					}
+					""")
+			)
+		),
+
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(
 			responseCode = "404",
-			description = "매칭 요청을 찾을 수 없음",
+			description = "매칭 세션 요청을 찾을 수 없음",
 			content = @Content(
 				mediaType = "application/json",
 				examples = @ExampleObject(value = """
@@ -64,6 +80,53 @@ public interface MatchSessionApi {
 	})
 	ResponseEntity<ApiResponse<SessionDto>> getMatchSession(
 		@Parameter(description = "조회할 매칭 세션 ID", required = true, example = "12") Long sessionId,
+		@Parameter(hidden = true) CustomUserDetails userDetails
+	);
+
+	@Operation(summary = "도착 완료 처리",
+		description = """
+				현재 로그인 사용자의 도착 상태를 완료로 변경합니다.
+				두 사용자 모두 도착하면 세션 상태가 ARRIVED로 변경됩니다.
+				세션 연결된 웹소켓으로 메시지를 브로드캐스트 합니다.
+			""")
+	@ApiResponses({
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(
+			responseCode = "204", description = "도착 처리 성공"
+		),
+
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(
+			responseCode = "403",
+			description = "참가하지 않은 유저",
+			content = @Content(
+				mediaType = "application/json",
+				examples = @ExampleObject(value = """
+					{
+					  "success": false,
+					  "message": "해당 매칭 세션의 참여자가 아닙니다.",
+					  "code": "MATCH_SESSION_NOT_PARTICIPANT",
+					  "data": null
+					}
+					""")
+			)
+		),
+
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(
+			responseCode = "404",
+			description = "매칭 요청을 찾을 수 없음",
+			content = @Content(
+				mediaType = "application/json",
+				examples = @ExampleObject(value = """
+					{
+					  "success": false,
+					  "message": "매칭 세션을 찾을 수 없습니다.",
+					  "code": "MATCH_SESSION_NOT_FOUND",
+					  "data": null
+					}
+					""")
+			))
+	})
+	ResponseEntity<Void> arrive(
+		@Parameter(description = "매칭 세션 ID", required = true, example = "12") Long sessionId,
 		@Parameter(hidden = true) CustomUserDetails userDetails
 	);
 }

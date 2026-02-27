@@ -1,8 +1,11 @@
 package com.dnd.jjigeojulge.matchsession.application;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.dnd.jjigeojulge.event.MatchSessionReadyEvent;
+import com.dnd.jjigeojulge.event.MatchSessionUserArrivedEvent;
 import com.dnd.jjigeojulge.global.common.dto.GeoPoint;
 import com.dnd.jjigeojulge.matchrequest.domain.MatchRequest;
 import com.dnd.jjigeojulge.matchsession.domain.MatchSession;
@@ -21,6 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 public class MatchSessionService {
 
 	private final MatchSessionRepository matchSessionRepository;
+	private final ApplicationEventPublisher eventPublisher;
 
 	@Transactional(readOnly = true)
 	public SessionDto getSessionDetail(Long currentUserId, Long sessionId) {
@@ -31,6 +35,20 @@ public class MatchSessionService {
 			throw new MatchSessionNotParticipantException();
 		}
 		return toDto(matchSession, currentUserId);
+	}
+
+	@Transactional
+	public void arrive(Long sessionId, Long currentUserId) {
+		MatchSession matchSession = matchSessionRepository.findById(sessionId)
+			.orElseThrow(MatchSessionNotFoundException::new);
+
+		matchSession.arrive(currentUserId);
+		// 이벤트 발행 분기 처리 (마지막에 도착한 유저의 이벤트가 중복될 수 있어 UI가 복잡해지는 문제를 해결하기 위한 분기처리)
+		if (matchSession.isEveryParticipantArrived()) {
+			eventPublisher.publishEvent(new MatchSessionReadyEvent(sessionId, matchSession.getStatus()));
+		} else {
+			eventPublisher.publishEvent(new MatchSessionUserArrivedEvent(sessionId, currentUserId));
+		}
 	}
 
 	private SessionDto toDto(MatchSession matchSession, Long currentUserId) {

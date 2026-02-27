@@ -3,6 +3,7 @@ package com.dnd.jjigeojulge.matchsession.presentation;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -33,5 +34,15 @@ public class MatchSessionController implements MatchSessionApi {
 		Long userId = userDetails.id();
 		SessionDto sessionDetail = matchSessionService.getSessionDetail(userId, sessionId);
 		return ResponseEntity.ok(ApiResponse.success(sessionDetail));
+	}
+
+	@Override
+	@PatchMapping("{sessionId}/arrive")
+	public ResponseEntity<Void> arrive(
+		@PathVariable Long sessionId,
+		@AuthenticationPrincipal CustomUserDetails userDetails
+	) {
+		matchSessionService.arrive(sessionId, userDetails.id());
+		return ResponseEntity.noContent().build();
 	}
 }

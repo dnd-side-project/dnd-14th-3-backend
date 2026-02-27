@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 
 import com.dnd.jjigeojulge.global.common.entity.BaseUpdatableEntity;
 import com.dnd.jjigeojulge.matchrequest.domain.MatchRequest;
+import com.dnd.jjigeojulge.matchsession.exception.MatchSessionNotParticipantException;
 import com.dnd.jjigeojulge.user.domain.User;
 
 import jakarta.persistence.Column;
@@ -108,7 +109,7 @@ public class MatchSession extends BaseUpdatableEntity {
 		} else if (userB.getId().equals(userId)) {
 			isArrivedB = true;
 		} else {
-			throw new IllegalArgumentException("세션 참가자가 아님");
+			throw new MatchSessionNotParticipantException();
 		}
 
 		if (isArrivedA && isArrivedB) {
@@ -126,5 +127,9 @@ public class MatchSession extends BaseUpdatableEntity {
 
 	public boolean isParticipant(Long userId) {
 		return userA.getId().equals(userId) || userB.getId().equals(userId);
+	}
+
+	public boolean isEveryParticipantArrived() {
+		return status == MatchSessionStatus.ARRIVED;
 	}
 }
