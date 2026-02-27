@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 
 import com.dnd.jjigeojulge.notification.domain.Notification;
 import com.dnd.jjigeojulge.notification.domain.NotificationType;
+import com.querydsl.core.annotations.QueryProjection;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -20,6 +21,10 @@ public record NotificationResponseDto(
         @Schema(description = "읽음 여부", example = "false") boolean isRead,
 
         @Schema(description = "알림 발생 시각") LocalDateTime createdAt) {
+    @QueryProjection
+    public NotificationResponseDto {
+    }
+
     public static NotificationResponseDto from(Notification notification) {
         return new NotificationResponseDto(
                 notification.getId(),
