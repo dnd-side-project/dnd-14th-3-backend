@@ -115,6 +115,15 @@ public class MatchProposalService {
 		matchProposal.reject(userId);
 		MatchProposalDto matchProposalDto = toDto(matchProposal);
 
+		// 상대방은 다시 대기 큐에 들어가게 해야함.
+		// TODO 임시 방편으로 TTL 시간을 늘렸습니다. 로직 리팩토링이 필요합니다.
+		Long otherUserId = matchProposal.getOtherUserId(userId);
+		MatchRequest matchRequest =
+			matchRequestRepository.findByUserIdAndStatusFetchUser(otherUserId, MatchRequestStatus.WAITING)
+				.orElseThrow(MatchRequestNotFoundException::new);
+		matchRequest.extendExpiration();
+		queueRepository.addWaitingUser(otherUserId, matchRequest.toGeoPoint());
+
 		eventPublisher.publishEvent(new MatchProposalRejectedEvent(userId, matchProposalDto));
 		return matchProposalDto;
 	}

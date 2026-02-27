@@ -105,4 +105,8 @@ public class MatchRequest extends BaseUpdatableEntity {
 			this.longitude.doubleValue()
 		);
 	}
+
+	public void extendExpiration() {
+		this.expiresAt = this.expiresAt.plusMinutes(5L);
+	}
 }
