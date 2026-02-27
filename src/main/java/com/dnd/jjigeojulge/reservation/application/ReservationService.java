@@ -116,7 +116,7 @@ public class ReservationService {
 
                 Applicant applicant = Applicant.create(reservation, userId);
                 reservation.apply(applicant, LocalDateTime.now());
-                // TODO: 예약 작성자에게 지원 알림 발송 (Event Publisher 활용 권장)
+                reservationRepository.save(reservation);
         }
 
         public void cancelApplicationToReservation(Long reservationId, Long userId) {
@@ -128,21 +128,21 @@ public class ReservationService {
                 Reservation reservation = findReservationById(reservationId);
 
                 reservation.acceptApplicant(ownerId, applicantId, LocalDateTime.now());
-                // TODO: 양쪽 사용자에게 매칭 확정 푸시 알림 발송 (명세서 2번)
+                reservationRepository.save(reservation);
         }
 
         public void rejectApplicant(Long reservationId, Long ownerId, Long applicantId) {
                 Reservation reservation = findReservationById(reservationId);
 
                 reservation.rejectApplicant(ownerId, applicantId, LocalDateTime.now());
-                // TODO: 거절된 지원자에게 알림 발송 필요 여부 검토
+                reservationRepository.save(reservation);
         }
 
         public void cancelReservation(Long reservationId, Long userId) {
                 Reservation reservation = findReservationById(reservationId);
 
                 reservation.cancel(userId, LocalDateTime.now());
-                // TODO: 매칭이 확정된 상태였다면 상대방에게 취소 알림 발송
+                reservationRepository.save(reservation);
         }
 
         /**

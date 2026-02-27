@@ -2,6 +2,7 @@ package com.dnd.jjigeojulge.reservation.domain;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.dnd.jjigeojulge.global.common.entity.BaseUpdatableEntity;
@@ -12,6 +13,13 @@ import com.dnd.jjigeojulge.reservation.domain.vo.RequestMessage;
 import com.dnd.jjigeojulge.reservation.domain.vo.ReservationTitle;
 import com.dnd.jjigeojulge.reservation.domain.vo.ScheduledTime;
 import com.dnd.jjigeojulge.reservation.domain.exception.ReservationValidationException;
+import com.dnd.jjigeojulge.reservation.domain.event.ApplicantAddedEvent;
+import com.dnd.jjigeojulge.reservation.domain.event.ReservationAcceptedEvent;
+import com.dnd.jjigeojulge.reservation.domain.event.ReservationCanceledEvent;
+import com.dnd.jjigeojulge.reservation.domain.event.ReservationRejectedEvent;
+
+import org.springframework.data.domain.AfterDomainEventPublication;
+import org.springframework.data.domain.DomainEvents;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
@@ -20,6 +28,7 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -29,6 +38,9 @@ import lombok.NoArgsConstructor;
 @Table(name = "reservation")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Reservation extends BaseUpdatableEntity {
+
+        @Transient
+        private final List<Object> domainEvents = new ArrayList<>();
 
         @Embedded
         private OwnerInfo ownerInfo;
@@ -128,6 +140,7 @@ public class Reservation extends BaseUpdatableEntity {
         public void apply(Applicant applicant, LocalDateTime now) {
                 validateApply(applicant, now);
                 this.applicants.add(applicant);
+                registerEvent(new ApplicantAddedEvent(this.getId(), this.ownerInfo.getUserId(), applicant.getUserId()));
         }
 
         public ReservationStatus getVirtualStatus(LocalDateTime now) {
@@ -187,6 +200,8 @@ public class Reservation extends BaseUpdatableEntity {
 
                 rejectAllExcept(selectedApplicant);
                 this.status = ReservationStatus.CONFIRMED;
+
+                registerEvent(new ReservationAcceptedEvent(this.getId(), selectedApplicant.getUserId()));
         }
 
         private void validateAcceptApplicant(Long ownerId, LocalDateTime now) {
@@ -254,8 +269,18 @@ public class Reservation extends BaseUpdatableEntity {
 
         public void cancel(Long requesterId, LocalDateTime now) {
                 validateCancel(requesterId, now);
+
+                List<Long> appliedUserIds = this.applicants.stream()
+                                .filter(a -> a.getStatus() == ApplicantStatus.APPLIED)
+                                .map(Applicant::getUserId)
+                                .toList();
+
                 cancelApplicants();
                 this.status = ReservationStatus.CANCELED;
+
+                if (!appliedUserIds.isEmpty()) {
+                        registerEvent(new ReservationCanceledEvent(this.getId(), appliedUserIds));
+                }
         }
 
         private void validateCancel(Long requesterId, LocalDateTime now) {
@@ -293,6 +318,8 @@ public class Reservation extends BaseUpdatableEntity {
 
                 Applicant rejectedApplicant = findApplicantById(applicantId);
                 rejectedApplicant.markAsRejected();
+
+                registerEvent(new ReservationRejectedEvent(this.getId(), rejectedApplicant.getUserId()));
         }
 
         private void validateRejectApplicant(Long ownerId, LocalDateTime now) {
@@ -302,5 +329,19 @@ public class Reservation extends BaseUpdatableEntity {
                 if (!this.status.isRecruiting()) {
                         throw new ReservationValidationException("모집 중(RECRUITING)인 상태에서만 지원자를 거절할 수 있습니다.");
                 }
+        }
+
+        @DomainEvents
+        public List<Object> domainEvents() {
+                return Collections.unmodifiableList(domainEvents);
+        }
+
+        @AfterDomainEventPublication
+        public void clearDomainEvents() {
+                domainEvents.clear();
+        }
+
+        protected void registerEvent(Object event) {
+                this.domainEvents.add(event);
         }
 }

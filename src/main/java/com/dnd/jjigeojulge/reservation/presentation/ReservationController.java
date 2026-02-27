@@ -59,7 +59,7 @@ public class ReservationController implements ReservationApi {
 	@PostMapping
 	public ResponseEntity<ApiResponse<Long>> create(
 			@CurrentUserId Long currentUserId,
-			@RequestBody @Valid ReservationCreateRequest request) {
+			@RequestBody ReservationCreateRequest request) {
 		Long reservationId = reservationService.createReservation(request.toCommand(currentUserId));
 		return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(reservationId));
 	}
@@ -69,7 +69,7 @@ public class ReservationController implements ReservationApi {
 	public ResponseEntity<ApiResponse<Void>> update(
 			@PathVariable Long reservationId,
 			@CurrentUserId Long currentUserId,
-			@RequestBody @Valid ReservationUpdateRequest request) {
+			@RequestBody ReservationUpdateRequest request) {
 		reservationService.updateReservation(request.toCommand(reservationId, currentUserId));
 		return ResponseEntity.ok(ApiResponse.success(null));
 	}
