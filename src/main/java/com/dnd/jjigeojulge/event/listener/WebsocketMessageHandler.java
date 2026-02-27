@@ -6,6 +6,7 @@ import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 import com.dnd.jjigeojulge.event.MatchSessionReadyEvent;
+import com.dnd.jjigeojulge.event.MatchSessionStartedEvent;
 import com.dnd.jjigeojulge.event.MatchSessionUserArrivedEvent;
 import com.dnd.jjigeojulge.matchsession.domain.MatchSessionStatus;
 import com.dnd.jjigeojulge.websocket.data.ArrivalData;
@@ -41,6 +42,18 @@ public class WebsocketMessageHandler {
 			event.sessionId(),
 			event.userId(),
 			new ArrivalData(true)
+		);
+		String destination = String.format("/sub/sessions/%s/location", event.sessionId());
+		messagingTemplate.convertAndSend(destination, messageDto);
+	}
+
+	@TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+	public void handleMessage(MatchSessionStartedEvent event) {
+		MatchSessionMessageDto<MatchSessionStatus> messageDto = MatchSessionMessageDto.of(
+			MatchSessionMessageType.SESSION_END,
+			event.sessionId(),
+			event.userId(),
+			event.status()
 		);
 		String destination = String.format("/sub/sessions/%s/location", event.sessionId());
 		messagingTemplate.convertAndSend(destination, messageDto);

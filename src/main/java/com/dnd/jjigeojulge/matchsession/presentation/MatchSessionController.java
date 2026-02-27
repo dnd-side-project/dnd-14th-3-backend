@@ -45,4 +45,14 @@ public class MatchSessionController implements MatchSessionApi {
 		matchSessionService.arrive(sessionId, userDetails.id());
 		return ResponseEntity.noContent().build();
 	}
+
+	@Override
+	@PatchMapping("{sessionId}/start-meeting")
+	public ResponseEntity<Void> startMeeting(
+		@PathVariable Long sessionId,
+		@AuthenticationPrincipal CustomUserDetails userDetails
+	) {
+		matchSessionService.startMeeting(sessionId, userDetails.id());
+		return ResponseEntity.noContent().build();
+	}
 }

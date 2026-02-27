@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.dnd.jjigeojulge.event.MatchSessionReadyEvent;
+import com.dnd.jjigeojulge.event.MatchSessionStartedEvent;
 import com.dnd.jjigeojulge.event.MatchSessionUserArrivedEvent;
 import com.dnd.jjigeojulge.global.common.dto.GeoPoint;
 import com.dnd.jjigeojulge.matchrequest.domain.MatchRequest;
@@ -42,6 +43,10 @@ public class MatchSessionService {
 		MatchSession matchSession = matchSessionRepository.findById(sessionId)
 			.orElseThrow(MatchSessionNotFoundException::new);
 
+		if (!matchSession.isParticipant(currentUserId)) {
+			throw new MatchSessionNotParticipantException();
+		}
+
 		matchSession.arrive(currentUserId);
 		// 이벤트 발행 분기 처리 (마지막에 도착한 유저의 이벤트가 중복될 수 있어 UI가 복잡해지는 문제를 해결하기 위한 분기처리)
 		if (matchSession.isEveryParticipantArrived()) {
@@ -49,6 +54,20 @@ public class MatchSessionService {
 		} else {
 			eventPublisher.publishEvent(new MatchSessionUserArrivedEvent(sessionId, currentUserId));
 		}
+	}
+
+	@Transactional
+	public void startMeeting(Long sessionId, Long currentUserId) {
+		MatchSession matchSession = matchSessionRepository.findById(sessionId)
+			.orElseThrow(MatchSessionNotFoundException::new);
+		
+		if (!matchSession.isParticipant(currentUserId)) {
+			throw new MatchSessionNotParticipantException();
+		}
+
+		matchSession.end();
+
+		eventPublisher.publishEvent(new MatchSessionStartedEvent(sessionId, currentUserId, matchSession.getStatus()));
 	}
 
 	private SessionDto toDto(MatchSession matchSession, Long currentUserId) {

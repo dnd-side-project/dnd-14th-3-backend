@@ -145,4 +145,69 @@ public interface MatchSessionApi {
 		@Parameter(description = "매칭 세션 ID", required = true, example = "12") Long sessionId,
 		@Parameter(hidden = true) CustomUserDetails userDetails
 	);
+
+	@Operation(
+		summary = "만남 시작 완료 (위치 공유 종료)",
+		description = """
+			두 유저가 실제로 만났을 때 호출합니다. 이 API 호출 성공 후 웹소켓 연결을 해제하세요.
+			성공 시 웹소켓 구독 주소로 브로드 캐스트 합니다.
+			
+			"""
+	)
+	@ApiResponses({
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(
+			responseCode = "204", description = "만남 종료"
+		),
+
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(
+			responseCode = "401", description = "인증 실패(토큰 누락/만료)",
+			content = @Content(
+				mediaType = "application/json",
+				schema = @Schema(implementation = ApiResponse.class),
+				examples = @ExampleObject(value = """
+					{
+					  "success": false,
+					  "message": "인증이 필요합니다.",
+					  "code": "UNAUTHORIZED",
+					  "data": null
+					}
+					""")
+			)
+		),
+
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(
+			responseCode = "403",
+			description = "참가하지 않은 유저",
+			content = @Content(
+				mediaType = "application/json",
+				examples = @ExampleObject(value = """
+					{
+					  "success": false,
+					  "message": "해당 매칭 세션의 참여자가 아닙니다.",
+					  "code": "MATCH_SESSION_NOT_PARTICIPANT",
+					  "data": null
+					}
+					""")
+			)
+		),
+
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(
+			responseCode = "404",
+			description = "매칭 세션을 찾을 수 없음",
+			content = @Content(
+				mediaType = "application/json",
+				examples = @ExampleObject(value = """
+					{
+					  "success": false,
+					  "message": "매칭 세션을 찾을 수 없습니다.",
+					  "code": "MATCH_SESSION_NOT_FOUND",
+					  "data": null
+					}
+					""")
+			))
+	})
+	ResponseEntity<Void> startMeeting(
+		@Parameter(description = "매칭 세션 ID", required = true, example = "12") Long sessionId,
+		@Parameter(hidden = true) CustomUserDetails userDetails
+	);
 }
