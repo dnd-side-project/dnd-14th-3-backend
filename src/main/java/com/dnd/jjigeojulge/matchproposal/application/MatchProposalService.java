@@ -91,6 +91,8 @@ public class MatchProposalService {
 			matchRequestB.match();
 			User userB = matchRequestB.getUser();
 
+			// MVP 세션 목적지는 제안 작성자(userA)의 위치로 설정
+			// TODO 계산된 목적지 좌표 설정 기능
 			MatchSession matchSession = MatchSession.create(
 				userA, userB,
 				matchRequestA,

@@ -6,6 +6,7 @@ import com.dnd.jjigeojulge.global.common.dto.GeoPoint;
 import com.dnd.jjigeojulge.global.common.enums.ShootingDurationOption;
 import com.dnd.jjigeojulge.matchrequest.domain.MatchRequestStatus;
 import com.dnd.jjigeojulge.matchsession.domain.MatchSessionStatus;
+import com.dnd.jjigeojulge.user.domain.AgeGroup;
 import com.dnd.jjigeojulge.user.domain.Gender;
 
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -49,8 +50,11 @@ public record SessionDto(
 		boolean arrived,
 
 		@Schema(description = "해당 유저의 매칭 요청 요약 정보")
-		MatchRequestSummaryDto request
+		MatchRequestSummaryDto request,
 		// TODO 나이, 점수 추가
+
+		@Schema(description = "나이대", example = "TEENS")
+		AgeGroup ageGroup
 	) {
 	}
 

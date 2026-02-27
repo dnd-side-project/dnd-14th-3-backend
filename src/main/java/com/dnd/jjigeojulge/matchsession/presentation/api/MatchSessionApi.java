@@ -63,7 +63,7 @@ public interface MatchSessionApi {
 
 		@io.swagger.v3.oas.annotations.responses.ApiResponse(
 			responseCode = "404",
-			description = "매칭 세션 요청을 찾을 수 없음",
+			description = "매칭 세션을 찾을 수 없음",
 			content = @Content(
 				mediaType = "application/json",
 				examples = @ExampleObject(value = """
@@ -95,6 +95,22 @@ public interface MatchSessionApi {
 		),
 
 		@io.swagger.v3.oas.annotations.responses.ApiResponse(
+			responseCode = "401", description = "인증 실패(토큰 누락/만료)",
+			content = @Content(
+				mediaType = "application/json",
+				schema = @Schema(implementation = ApiResponse.class),
+				examples = @ExampleObject(value = """
+					{
+					  "success": false,
+					  "message": "인증이 필요합니다.",
+					  "code": "UNAUTHORIZED",
+					  "data": null
+					}
+					""")
+			)
+		),
+
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(
 			responseCode = "403",
 			description = "참가하지 않은 유저",
 			content = @Content(
@@ -112,7 +128,7 @@ public interface MatchSessionApi {
 
 		@io.swagger.v3.oas.annotations.responses.ApiResponse(
 			responseCode = "404",
-			description = "매칭 요청을 찾을 수 없음",
+			description = "매칭 세션을 찾을 수 없음",
 			content = @Content(
 				mediaType = "application/json",
 				examples = @ExampleObject(value = """

@@ -9,6 +9,6 @@ public class MatchSessionNotFoundException extends MatchSessionException {
 	}
 
 	public MatchSessionNotFoundException(Throwable throwable) {
-		super(ErrorCode.MATCH_PROPOSAL_NOT_FOUND, throwable);
+		super(ErrorCode.MATCH_SESSION_NOT_FOUND, throwable);
 	}
 }

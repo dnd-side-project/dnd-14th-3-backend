@@ -88,7 +88,8 @@ public class MatchSessionService {
 				request.getSpecificPlace(),
 				request.getRequestMessage(),
 				request.getExpectedDuration()
-			)
+			),
+			user.getAgeGroup()
 		);
 	}
 }
