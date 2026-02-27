@@ -6,6 +6,7 @@ import java.util.List;
 import com.dnd.jjigeojulge.global.common.enums.ShootingDurationOption;
 import com.dnd.jjigeojulge.reservation.domain.ReservationStatus;
 import com.dnd.jjigeojulge.reservation.domain.vo.Region1Depth;
+import com.dnd.jjigeojulge.user.domain.AgeGroup;
 import com.dnd.jjigeojulge.user.domain.Gender;
 
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -20,6 +21,8 @@ public record ReservationDetailDto(
                 @Schema(description = "작성자 닉네임", example = "춘식이짱") String ownerNickname,
                 @Schema(description = "작성자 프로필 이미지 URL", example = "https://example.com/profile.jpg") String ownerProfileImageUrl,
                 @Schema(description = "작성자 성별 (MALE, FEMALE)", example = "MALE") Gender ownerGender,
+                @Schema(description = "작성자 연령대 (기존 가입자의 경우 null일 수 있음)", nullable = true, example = "TWENTIES") AgeGroup ownerAgeGroup,
+                @Schema(description = "작성자 한줄 소개 (선택 항목)", nullable = true, example = "사진 찍는 걸 좋아합니다.") String ownerIntroduction,
                 @Schema(description = "예약 게시글 제목", example = "이번 주 일요일 카페 창가자리 스냅") String title,
                 @Schema(description = "약속 예약 날짜 및 시간", example = "2026-03-01T14:30:00") LocalDateTime scheduledAt,
                 @Schema(description = "지역 1Depth (예: 서울특별시, 경기도, 인천광역시 등)", example = "서울특별시") Region1Depth region1Depth,

@@ -26,7 +26,10 @@ import com.dnd.jjigeojulge.reservation.domain.repository.ReservationQueryReposit
 import com.dnd.jjigeojulge.reservation.domain.vo.Region1Depth;
 import com.dnd.jjigeojulge.user.domain.Gender;
 import com.querydsl.core.Tuple;
+import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.core.types.dsl.NumberPath;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
@@ -41,8 +44,19 @@ public class ReservationQueryRepositoryImpl implements ReservationQueryRepositor
 	@Override
 	public Page<ReservationSummaryDto> searchReservations(ReservationSearchCondition condition, Long cursor,
 			int limit) {
-		List<Tuple> results = queryFactory
-				.select(reservation, user.nickname, user.gender, user.profileImageUrl)
+		List<ReservationSummaryDto> content = queryFactory
+				.select(new com.dnd.jjigeojulge.reservation.application.dto.query.QReservationSummaryDto(
+						reservation.id,
+						reservation.title.value,
+						reservation.scheduledTime.time,
+						reservation.placeInfo.region1Depth,
+						reservation.placeInfo.specificPlace,
+						reservation.shootingDuration,
+						reservation.status,
+						reservation.ownerInfo.userId,
+						user.nickname,
+						user.gender,
+						user.profileImageUrl))
 				.from(reservation)
 				.leftJoin(user).on(reservation.ownerInfo.userId.eq(user.id))
 				.where(
@@ -55,25 +69,6 @@ public class ReservationQueryRepositoryImpl implements ReservationQueryRepositor
 				.orderBy(reservation.id.desc())
 				.limit(limit)
 				.fetch();
-
-		List<ReservationSummaryDto> content = results.stream().map(tuple -> {
-			Reservation r = tuple.get(reservation);
-			String nickname = tuple.get(user.nickname);
-			com.dnd.jjigeojulge.user.domain.Gender userGender = tuple.get(user.gender);
-			String profileImageUrl = tuple.get(user.profileImageUrl);
-			return new ReservationSummaryDto(
-					r.getId(),
-					r.getTitle().getValue(),
-					r.getScheduledTime().getTime(), // ScheduledTime 객체의 time 필드
-					r.getPlaceInfo().getRegion1Depth(),
-					r.getPlaceInfo().getSpecificPlace(),
-					r.getShootingDuration(),
-					r.getStatus(),
-					r.getOwnerInfo().getUserId(),
-					nickname,
-					userGender,
-					profileImageUrl);
-		}).toList();
 
 		Long totalCount = queryFactory
 				.select(reservation.count())
@@ -93,13 +88,14 @@ public class ReservationQueryRepositoryImpl implements ReservationQueryRepositor
 	@Override
 	public Page<CreatedReservationListDto> getMyCreatedReservations(Long ownerId, Long cursor, int limit) {
 		LocalDateTime now = LocalDateTime.now();
+		NumberPath<Long> applicantCountPath = Expressions.numberPath(Long.class, "applicantCount");
 
 		List<Tuple> results = queryFactory
 				.select(
 						reservation,
-						JPAExpressions.select(applicant.count())
+						ExpressionUtils.as(JPAExpressions.select(applicant.count())
 								.from(applicant)
-								.where(applicant.reservation.id.eq(reservation.id)))
+								.where(applicant.reservation.id.eq(reservation.id)), applicantCountPath))
 				.from(reservation)
 				.where(
 						reservation.ownerInfo.userId.eq(ownerId),
@@ -110,7 +106,7 @@ public class ReservationQueryRepositoryImpl implements ReservationQueryRepositor
 
 		List<CreatedReservationListDto> content = results.stream().map(tuple -> {
 			Reservation r = tuple.get(reservation);
-			Long applicantCount = tuple.get(1, Long.class);
+			Long applicantCount = tuple.get(applicantCountPath);
 
 			ReservationStatus virtualStatus = r.getVirtualStatus(now);
 
@@ -137,14 +133,15 @@ public class ReservationQueryRepositoryImpl implements ReservationQueryRepositor
 	@Override
 	public Page<AppliedReservationListDto> getMyAppliedReservations(Long applicantId, Long cursor, int limit) {
 		LocalDateTime now = LocalDateTime.now();
+		NumberPath<Long> applicantCountPath = Expressions.numberPath(Long.class, "applicantCount");
 
 		List<Tuple> results = queryFactory
 				.select(
 						reservation,
 						applicant.status,
-						JPAExpressions.select(applicant.count())
+						ExpressionUtils.as(JPAExpressions.select(applicant.count())
 								.from(applicant)
-								.where(applicant.reservation.id.eq(reservation.id)))
+								.where(applicant.reservation.id.eq(reservation.id)), applicantCountPath))
 				.from(applicant)
 				.join(applicant.reservation, reservation)
 				.where(
@@ -157,7 +154,7 @@ public class ReservationQueryRepositoryImpl implements ReservationQueryRepositor
 		List<AppliedReservationListDto> content = results.stream().map(tuple -> {
 			Reservation r = tuple.get(reservation);
 			com.dnd.jjigeojulge.reservation.domain.ApplicantStatus applicantStatus = tuple.get(applicant.status);
-			Long currentApplicantCount = tuple.get(2, Long.class);
+			Long currentApplicantCount = tuple.get(applicantCountPath);
 
 			return AppliedReservationListDto.of(
 					r.getId(),
@@ -183,18 +180,23 @@ public class ReservationQueryRepositoryImpl implements ReservationQueryRepositor
 
 	@Override
 	public Optional<ReservationDetailDto> getReservationDetail(Long reservationId) {
+		NumberPath<Integer> applicantCountPath = Expressions.numberPath(Integer.class, "applicantCount");
+		NumberPath<Integer> commentCountPath = Expressions.numberPath(Integer.class, "commentCount");
+
 		Tuple tuple = queryFactory
 				.select(
 						reservation,
 						user.nickname,
 						user.profileImageUrl,
 						user.gender,
-						JPAExpressions.select(applicant.count().intValue())
+						user.ageGroup,
+						user.introduction.value,
+						ExpressionUtils.as(JPAExpressions.select(applicant.count().intValue())
 								.from(applicant)
-								.where(applicant.reservation.id.eq(reservation.id)),
-						JPAExpressions.select(reservationComment.count().intValue())
+								.where(applicant.reservation.id.eq(reservation.id)), applicantCountPath),
+						ExpressionUtils.as(JPAExpressions.select(reservationComment.count().intValue())
 								.from(reservationComment)
-								.where(reservationComment.reservationId.eq(reservation.id)))
+								.where(reservationComment.reservationId.eq(reservation.id)), commentCountPath))
 				.from(reservation)
 				.leftJoin(user).on(reservation.ownerInfo.userId.eq(user.id))
 				.where(reservation.id.eq(reservationId))
@@ -208,9 +210,11 @@ public class ReservationQueryRepositoryImpl implements ReservationQueryRepositor
 		String nickname = tuple.get(user.nickname);
 		String profileImageUrl = tuple.get(user.profileImageUrl);
 		Gender gender = tuple.get(user.gender);
+		com.dnd.jjigeojulge.user.domain.AgeGroup ageGroup = tuple.get(user.ageGroup);
+		String introduction = tuple.get(user.introduction.value);
 
-		Integer applicantCount = tuple.get(4, Integer.class);
-		Integer commentCount = tuple.get(5, Integer.class);
+		Integer applicantCount = tuple.get(applicantCountPath);
+		Integer commentCount = tuple.get(commentCountPath);
 
 		ReservationDetailDto detail = new ReservationDetailDto(
 				r.getId(),
@@ -221,6 +225,8 @@ public class ReservationQueryRepositoryImpl implements ReservationQueryRepositor
 				nickname,
 				profileImageUrl,
 				gender,
+				ageGroup,
+				introduction,
 				r.getTitle().getValue(),
 				r.getScheduledTime().getTime(),
 				r.getPlaceInfo().getRegion1Depth(),
@@ -247,30 +253,21 @@ public class ReservationQueryRepositoryImpl implements ReservationQueryRepositor
 	@Override
 	public com.dnd.jjigeojulge.reservation.application.dto.query.ApplicantListResponseDto getApplicants(
 			Long reservationId) {
-		List<Tuple> results = queryFactory
-				.select(applicant, user.nickname, user.profileImageUrl, user.gender)
+		List<com.dnd.jjigeojulge.reservation.application.dto.query.ApplicantDto> applicantDtos = queryFactory
+				.select(new com.dnd.jjigeojulge.reservation.application.dto.query.QApplicantDto(
+						applicant.id,
+						applicant.userId,
+						user.nickname,
+						user.profileImageUrl,
+						user.gender,
+						user.ageGroup,
+						user.introduction.value,
+						applicant.createdAt))
 				.from(applicant)
 				.leftJoin(user).on(applicant.userId.eq(user.id))
 				.where(applicant.reservation.id.eq(reservationId))
 				.orderBy(applicant.createdAt.asc())
 				.fetch();
-
-		List<com.dnd.jjigeojulge.reservation.application.dto.query.ApplicantDto> applicantDtos = results.stream()
-				.map(tuple -> {
-					com.dnd.jjigeojulge.reservation.domain.Applicant a = tuple.get(applicant);
-					String nickname = tuple.get(user.nickname);
-					String profileImg = tuple.get(user.profileImageUrl);
-					Gender gender = tuple.get(user.gender);
-
-					return com.dnd.jjigeojulge.reservation.application.dto.query.ApplicantDto.builder()
-							.applicantId(a.getId())
-							.userId(a.getUserId())
-							.nickname(nickname)
-							.profileImageUrl(profileImg)
-							.gender(gender)
-							.appliedAt(a.getCreatedAt())
-							.build();
-				}).toList();
 
 		return new com.dnd.jjigeojulge.reservation.application.dto.query.ApplicantListResponseDto(applicantDtos.size(),
 				applicantDtos);
