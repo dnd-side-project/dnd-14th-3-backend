@@ -9,6 +9,8 @@ import org.springframework.stereotype.Controller;
 
 import com.dnd.jjigeojulge.auth.infra.security.CustomUserDetails;
 import com.dnd.jjigeojulge.global.common.dto.GeoPoint;
+import com.dnd.jjigeojulge.websocket.data.MatchSessionMessageDto;
+import com.dnd.jjigeojulge.websocket.data.MatchSessionMessageType;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,13 +24,18 @@ public class LocationWebsocketController {
 
 	@MessageMapping("/sessions/{sessionId}/location")
 	public void handleLocationUpdate(
-		@DestinationVariable String sessionId,
+		@DestinationVariable Long sessionId,
 		@Payload GeoPoint payload,
 		@AuthenticationPrincipal CustomUserDetails userDetails
 	) {
 		Long userId = userDetails.id();
-		LocationDto locationDto = LocationDto.of(userId, payload.latitude(), payload.longitude());
+		MatchSessionMessageDto<GeoPoint> responseDto = MatchSessionMessageDto.of(
+			MatchSessionMessageType.LOCATION,
+			sessionId,
+			userId,
+			payload
+		);
 		String destination = String.format("/sub/sessions/%s/location", sessionId);
-		messagingTemplate.convertAndSend(destination, locationDto);
+		messagingTemplate.convertAndSend(destination, responseDto);
 	}
 }

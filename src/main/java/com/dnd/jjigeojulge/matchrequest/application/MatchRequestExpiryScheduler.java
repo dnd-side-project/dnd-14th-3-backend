@@ -46,7 +46,7 @@ public class MatchRequestExpiryScheduler {
 		}
 
 		for (Long userId : expiredUserIds) {
-			matchRequestRepository.findByUserIdAndStatus(userId, MatchRequestStatus.WAITING)
+			matchRequestRepository.findByUserIdAndStatusFetchUser(userId, MatchRequestStatus.WAITING)
 				.ifPresent(matchRequest -> {
 					// 상태 전이
 					matchRequest.expire();
