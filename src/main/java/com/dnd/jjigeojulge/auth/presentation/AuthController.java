@@ -34,21 +34,25 @@ public class AuthController implements AuthApi {
 
 	@Override
 	public ResponseEntity<ApiResponse<LoginResponse>> login(@RequestParam String code, HttpServletResponse response) {
-		AuthResult result = authService.login(code);
+		AuthResult authResult = authService.login(code);
 
 		LoginResponse loginResponse;
-		if (result.isNewUser()) {
+		String message;
+
+		if (authResult instanceof AuthResult.RegisterNeeded needed) {
 			CookieUtils.deleteCookie(response, "refresh_token");
-			loginResponse = LoginResponse.registerNeeded(result.registerToken());
-		} else {
-			setRefreshTokenCookie(response, result.refreshToken());
+			loginResponse = LoginResponse.registerNeeded(needed.registerToken(), needed.profileImageUrl());
+			message = "회원가입이 필요합니다.";
+		} else if (authResult instanceof AuthResult.Success success) {
+			setRefreshTokenCookie(response, success.refreshToken());
 			loginResponse = LoginResponse.loginSuccess(
-					TokenResponse.of(result.accessToken()));
+					TokenResponse.of(success.accessToken()));
+			message = "로그인 성공";
+		} else {
+			throw new IllegalStateException("Unexpected AuthResult type");
 		}
 
-		return ResponseEntity.ok(ApiResponse.success(
-				result.isNewUser() ? "회원가입이 필요합니다." : "로그인 성공",
-				loginResponse));
+		return ResponseEntity.ok(ApiResponse.success(message, loginResponse));
 	}
 
 	@Override
@@ -59,11 +63,13 @@ public class AuthController implements AuthApi {
 		SignupCommand command = request.toCommand(registerToken);
 		AuthResult result = authService.signup(command);
 
-		setRefreshTokenCookie(response, result.refreshToken());
-
-		return ResponseEntity.ok(ApiResponse.success(
-				"회원가입 성공",
-				TokenResponse.of(result.accessToken())));
+		if (result instanceof AuthResult.Success success) {
+			setRefreshTokenCookie(response, success.refreshToken());
+			return ResponseEntity.ok(ApiResponse.success(
+					"회원가입 성공",
+					TokenResponse.of(success.accessToken())));
+		}
+		throw new IllegalStateException("Signup must return Success");
 	}
 
 	@Override
@@ -72,11 +78,13 @@ public class AuthController implements AuthApi {
 			HttpServletResponse response) {
 		AuthResult result = authService.refresh(refreshToken);
 
-		setRefreshTokenCookie(response, result.refreshToken());
-
-		return ResponseEntity.ok(ApiResponse.success(
-				"토큰 재발급 성공",
-				TokenResponse.of(result.accessToken())));
+		if (result instanceof AuthResult.Success success) {
+			setRefreshTokenCookie(response, success.refreshToken());
+			return ResponseEntity.ok(ApiResponse.success(
+					"토큰 재발급 성공",
+					TokenResponse.of(success.accessToken())));
+		}
+		throw new IllegalStateException("Refresh must return Success");
 	}
 
 	@Override

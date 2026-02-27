@@ -38,14 +38,14 @@ public class AuthService {
 		OAuthUserProfile userProfile = oAuthClient.getUserProfile(accessToken);
 
 		return userRepository.findByOAuthInfo(userProfile.providerId(), userProfile.provider())
-				.map(user -> {
+				.<AuthResult>map(user -> {
 					String access = jwtTokenProvider.createAccessToken(user.getId());
 					String refresh = jwtTokenProvider.createRefreshToken(user.getId());
-					return AuthResult.success(access, refresh);
+					return new AuthResult.Success(access, refresh);
 				})
 				.orElseGet(() -> {
 					String registerToken = jwtTokenProvider.createRegisterToken(userProfile.providerId());
-					return AuthResult.registerNeeded(registerToken);
+					return new AuthResult.RegisterNeeded(registerToken, userProfile.profileImageUrl());
 				});
 	}
 
@@ -77,7 +77,7 @@ public class AuthService {
 		String access = jwtTokenProvider.createAccessToken(savedUser.getId());
 		String refresh = jwtTokenProvider.createRefreshToken(savedUser.getId());
 
-		return AuthResult.success(access, refresh);
+		return new AuthResult.Success(access, refresh);
 	}
 
 	public AuthResult refresh(String refreshToken) {
@@ -88,6 +88,6 @@ public class AuthService {
 		String newAccessToken = jwtTokenProvider.createAccessToken(id);
 		String newRefreshToken = jwtTokenProvider.createRefreshToken(id);
 
-		return AuthResult.success(newAccessToken, newRefreshToken);
+		return new AuthResult.Success(newAccessToken, newRefreshToken);
 	}
 }

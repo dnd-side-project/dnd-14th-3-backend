@@ -55,7 +55,7 @@ class AuthServiceTest {
 		// given
 		String authCode = "kakao_auth_code";
 		String accessToken = "kakao_access_token";
-		OAuthUserProfile profile = new OAuthUserProfile("12345", OAuthProvider.KAKAO);
+		OAuthUserProfile profile = new OAuthUserProfile("12345", OAuthProvider.KAKAO, "http://example.com/profile.jpg");
 		User user = User.builder()
 				.oauthInfo(new OAuthInfo("12345", OAuthProvider.KAKAO))
 				.nickname("test")
@@ -74,18 +74,20 @@ class AuthServiceTest {
 		AuthResult result = authService.login(authCode);
 
 		// then
-		assertThat(result.isNewUser()).isFalse();
-		assertThat(result.accessToken()).isEqualTo("new_access_token");
-		assertThat(result.refreshToken()).isEqualTo("new_refresh_token");
+		assertThat(result).isInstanceOf(AuthResult.Success.class);
+		AuthResult.Success success = (AuthResult.Success) result;
+		assertThat(success.accessToken()).isEqualTo("new_access_token");
+		assertThat(success.refreshToken()).isEqualTo("new_refresh_token");
 	}
 
 	@Test
 	@DisplayName("로그인 - 신규 유저는 회원가입용 임시 토큰(RegisterToken)을 발급받는다.")
 	void loginNewUser() {
 		// given
-		String authCode = "kakao_auth_code";
-		String accessToken = "kakao_access_token";
-		OAuthUserProfile profile = new OAuthUserProfile("new_user_123", OAuthProvider.KAKAO);
+		String authCode = "valid_auth_code";
+		String accessToken = "valid_access_token";
+		OAuthUserProfile profile = new OAuthUserProfile("new_user_123", OAuthProvider.KAKAO,
+				"http://example.com/new_profile.jpg");
 
 		given(oAuthClient.getAccessToken(authCode)).willReturn(accessToken);
 		given(oAuthClient.getUserProfile(accessToken)).willReturn(profile);
@@ -97,9 +99,10 @@ class AuthServiceTest {
 		AuthResult result = authService.login(authCode);
 
 		// then
-		assertThat(result.isNewUser()).isTrue();
-		assertThat(result.registerToken()).isEqualTo("register_token");
-		assertThat(result.accessToken()).isNull();
+		assertThat(result).isInstanceOf(AuthResult.RegisterNeeded.class);
+		AuthResult.RegisterNeeded needed = (AuthResult.RegisterNeeded) result;
+		assertThat(needed.registerToken()).isEqualTo("register_token");
+		assertThat(needed.profileImageUrl()).isEqualTo("http://example.com/new_profile.jpg");
 	}
 
 	@Test
@@ -129,8 +132,9 @@ class AuthServiceTest {
 		AuthResult result = authService.signup(command);
 
 		// then
-		assertThat(result.isNewUser()).isFalse();
-		assertThat(result.accessToken()).isEqualTo("access");
+		assertThat(result).isInstanceOf(AuthResult.Success.class);
+		AuthResult.Success success = (AuthResult.Success) result;
+		assertThat(success.accessToken()).isEqualTo("access");
 		verify(userRepository).save(any(User.class));
 	}
 
@@ -168,7 +172,9 @@ class AuthServiceTest {
 		AuthResult result = authService.refresh(refreshToken);
 
 		// then
-		assertThat(result.accessToken()).isEqualTo("new_access");
-		assertThat(result.refreshToken()).isEqualTo("new_refresh"); // Rotation 확인
+		assertThat(result).isInstanceOf(AuthResult.Success.class);
+		AuthResult.Success success = (AuthResult.Success) result;
+		assertThat(success.accessToken()).isEqualTo("new_access");
+		assertThat(success.refreshToken()).isEqualTo("new_refresh"); // Rotation 확인
 	}
 }
