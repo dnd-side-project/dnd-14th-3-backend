@@ -18,10 +18,10 @@ import org.springframework.test.util.ReflectionTestUtils;
 import com.dnd.jjigeojulge.global.exception.BusinessException;
 import com.dnd.jjigeojulge.global.exception.ErrorCode;
 import com.dnd.jjigeojulge.notification.domain.Notification;
-import com.dnd.jjigeojulge.notification.domain.NotificationMessage;
 import com.dnd.jjigeojulge.notification.domain.NotificationType;
-import com.dnd.jjigeojulge.notification.domain.RelatedUrl;
 import com.dnd.jjigeojulge.notification.domain.repository.NotificationRepository;
+import com.dnd.jjigeojulge.notification.domain.vo.NotificationMessage;
+import com.dnd.jjigeojulge.notification.domain.vo.RelatedUrl;
 
 @ExtendWith(MockitoExtension.class)
 class NotificationCommandServiceTest {
@@ -84,11 +84,10 @@ class NotificationCommandServiceTest {
     }
 
     private Notification createNotification(Long receiverId) {
-        return Notification.builder()
-                .receiverId(receiverId)
-                .type(NotificationType.RESERVATION_APPLIED)
-                .message(NotificationMessage.from("메시지"))
-                .relatedUrl(RelatedUrl.from("/test"))
-                .build();
+        return Notification.create(
+                receiverId,
+                NotificationType.RESERVATION_APPLIED,
+                NotificationMessage.from("메시지"),
+                RelatedUrl.from("/test"));
     }
 }
