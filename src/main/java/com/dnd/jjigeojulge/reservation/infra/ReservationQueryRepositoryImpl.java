@@ -199,6 +199,7 @@ public class ReservationQueryRepositoryImpl implements ReservationQueryRepositor
 								.where(reservationComment.reservationId.eq(reservation.id)), commentCountPath))
 				.from(reservation)
 				.leftJoin(user).on(reservation.ownerInfo.userId.eq(user.id))
+				.leftJoin(reservation.ownerInfo.photoStyleSnapshot).fetchJoin()
 				.where(reservation.id.eq(reservationId))
 				.fetchOne();
 
