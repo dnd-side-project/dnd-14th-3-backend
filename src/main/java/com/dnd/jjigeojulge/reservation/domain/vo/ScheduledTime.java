@@ -32,9 +32,6 @@ public class ScheduledTime {
 		if (time.isBefore(now)) {
 			throw new IllegalArgumentException("과거 시간으로 예약할 수 없습니다.");
 		}
-		if (time.getMinute() % 30 != 0 || time.getSecond() != 0) {
-			throw new IllegalArgumentException("예약 시간은 30분 단위여야 합니다.");
-		}
 	}
 
 	public boolean isExpired(LocalDateTime now) {
