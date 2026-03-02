@@ -1,3 +1,5 @@
+<a id="readme-top"></a>
+
 # dnd-14th-3-backend
 
 <!-- PROJECT LOGO -->
@@ -72,6 +74,8 @@
 - 매칭 및 예약 이력 확인
 - 예약 일정 관리
 
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
 ## 🛠 Tech Stack
 
 ### Backend
@@ -96,6 +100,77 @@
 ### CI/CD
 
 ![GitHub Actions][GitHubActions]
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+## Contribute
+
+<a href="https://github.com/dnd-side-project/dnd-14th-3-backend/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=dnd-side-project/dnd-14th-3-backend" alt="contrib.rocks image" />
+</a>
+
+### Team
+
+<table>
+  <tr>
+    <td align="center">
+      <a href="https://github.com/jaewoo9797">
+        <img src="https://avatars.githubusercontent.com/u/157946706?v=4" width="100px;" alt="백엔드"/>
+        <br />
+        <sub><b>백재우</b></sub>
+      </a>
+      <br />
+      Backend
+    </td>
+    <td align="center">
+      <a href="https://github.com/jihwan38">
+        <img src="https://avatars.githubusercontent.com/u/180384783?v=4" width="100px;" alt="백엔드"/>
+        <br />
+        <sub><b>김지환</b></sub>
+      </a>
+      <br />
+      Backend
+    </td>
+    <td align="center">
+      <a href="https://github.com/minseonkkim">
+        <img src="https://avatars.githubusercontent.com/u/76653033?v=4" width="100px;" alt="프론트엔드"/>
+        <br />
+        <sub><b>김민선</b></sub>
+      </a>
+      <br />
+      Frontend
+    </td>
+    <td align="center">
+      <a href="https://github.com/Wide-Pants">
+        <img src="https://avatars.githubusercontent.com/u/35173697?v=4" width="100px;" alt="프론트엔드"/>
+        <br />
+        <sub><b>강윤호</b></sub>
+      </a>
+      <br />
+      Frontend
+    </td>
+    <td align="center">
+      <a href="디자이너_포트폴리오_링크">
+        <img src="https://github.com/identicons/designer.png" width="100px;" alt="신하연"/>
+        <br />
+        <sub><b>신하연</b></sub>
+      </a>
+      <br />
+      Product Design
+    </td>
+    <td align="center">
+      <a href="디자이너_포트폴리오_링크">
+        <img src="https://github.com/identicons/designer.png" width="100px;" alt="양지혜"/>
+        <br />
+        <sub><b>양지혜</b></sub>
+      </a>
+      <br />
+      Product Design
+    </td>
+  </tr>
+</table>
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- MARKDOWN LINKS & IMAGES -->
 
@@ -134,3 +209,5 @@
 [Cloudflare]: https://img.shields.io/badge/Cloudflare-F38020?style=flat&logo=cloudflare&logoColor=white
 
 [GitHubActions]: https://img.shields.io/badge/GitHub_Actions-2088FF?style=flat&logo=githubactions&logoColor=white
+
+
