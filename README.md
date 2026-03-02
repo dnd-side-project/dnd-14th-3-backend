@@ -4,13 +4,13 @@
 <br />
 <div align="center">
   <a href="https://github.com/othneildrew/Best-README-Template">
-    <img src="images/logo.png" alt="Logo" width="80" height="80">
+    <img src="images/logo.png" alt="Logo">
   </a>
 
 <h3 align="center">찍어줄게</h3>
 
   <p align="center">
-    혼자여도, <b>기록은 함께</b>
+    혼자여도, 기록은 함께
     <br />
     <a href="https://github.com/dnd-side-project/dnd-14th-3-backend/wiki"><strong>Explore the docs »</strong></a>
     <br />
@@ -28,6 +28,7 @@
 ## About The Project
 
 [![찍어줄게 서비스][product-screenshot]](https://example.com)
+<img align="right" src="images/screenshot.png" alt="찍어줄게 서비스" width="600"/>
 
 
 <!-- MARKDOWN LINKS & IMAGES -->
