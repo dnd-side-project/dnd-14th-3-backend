@@ -31,22 +31,8 @@
 
 <br/>
 
-<img align="right" src="images/screenshot.png" alt="찍어줄게 서비스" width="1000"/>
+<img src="images/screenshot.png" alt="찍어줄게 서비스" width="700"/>
 
-✨ <br/>
-지금 바로, 나와 가까운 상대와 사진 동행을 매칭해요 </br>
-
-<br/>
-
-🃏 <br/>
-내 스케줄에 맞는 상대와 동행을 미리 예약해요 </br>
-
-<br/>
-
-🎞 <br/>
-촬영 스타일을 미리 확인하고 나와 맞는 동행을 구해요.
-
-<br/>
 
 <!-- MARKDOWN LINKS & IMAGES -->
 
