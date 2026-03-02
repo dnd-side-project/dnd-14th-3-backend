@@ -72,6 +72,31 @@
 - 매칭 및 예약 이력 확인
 - 예약 일정 관리
 
+## 🛠 Tech Stack
+
+### Backend
+
+![Java][Java]
+![Spring Boot][Spring Boot]
+![Spring Security][Spring Security]
+![Hibernate][Hibernate]
+
+### Database
+
+![PostgreSQL][PostgreSQL]
+![Redis][Redis]
+
+### Infra
+
+![AWS][AWS]
+![Docker][Docker]
+![Nginx][Nginx]
+![Cloudflare][Cloudflare]
+
+### CI/CD
+
+![GitHub Actions][GitHubActions]
+
 <!-- MARKDOWN LINKS & IMAGES -->
 
 [product-screenshot]: https://github.com/user-attachments/assets/5ac5335e-467a-4dc9-ac25-78efa19e0938
@@ -85,3 +110,27 @@
 [feat-matching-live]: images/features/feat_matching_live.png
 
 [feat-profile]: images/features/feat_mypage_profile.png
+
+<!-- BADGES -->
+
+[Java]: https://img.shields.io/badge/Java_17-ED8B00?style=flat&logo=openjdk&logoColor=white
+
+[Spring Boot]: https://img.shields.io/badge/Spring_Boot-6DB33F?style=flat&logo=springboot&logoColor=white
+
+[Spring Security]: https://img.shields.io/badge/Spring_Security-6DB33F?style=flat&logo=springsecurity&logoColor=white
+
+[Hibernate]: https://img.shields.io/badge/JPA_(Hibernate)-59666C?style=flat&logo=hibernate&logoColor=white
+
+[PostgreSQL]: https://img.shields.io/badge/PostgreSQL-4169E1?style=flat&logo=postgresql&logoColor=white
+
+[Redis]: https://img.shields.io/badge/Redis-DC382D?style=flat&logo=redis&logoColor=white
+
+[AWS]: https://img.shields.io/badge/AWS_Cloud-FF9900?style=flat&logo=amazonaws&logoColor=white
+
+[Docker]: https://img.shields.io/badge/Docker-2496ED?style=flat&logo=docker&logoColor=white
+
+[Nginx]: https://img.shields.io/badge/Nginx-009639?style=flat&logo=nginx&logoColor=white
+
+[Cloudflare]: https://img.shields.io/badge/Cloudflare-F38020?style=flat&logo=cloudflare&logoColor=white
+
+[GitHubActions]: https://img.shields.io/badge/GitHub_Actions-2088FF?style=flat&logo=githubactions&logoColor=white
