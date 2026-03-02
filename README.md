@@ -2,7 +2,8 @@
 
 <!-- PROJECT LOGO -->
 <br />
-<img align="left" src="images/logo.png" alt="Logo">
+<div align="center">
+<img src="images/logo.png" alt="Logo">
 
 <h3 align="center">찍어줄게</h3>
 
@@ -18,6 +19,7 @@
     &middot;
     <a href="https://github.com/dnd-side-project/dnd-14th-3-backend/issues/new?template=feature_request.md">Request Feature</a>
   </p>
+</div>
 
 <!-- ABOUT THE PROJECT -->
 
@@ -29,7 +31,7 @@
 
 <br/>
 
-<img align="right" src="images/screenshot.png" alt="찍어줄게 서비스" width="350"/>
+<img align="right" src="images/screenshot.png" alt="찍어줄게 서비스" width="1000"/>
 
 ✨ <br/>
 지금 바로, 나와 가까운 상대와 사진 동행을 매칭해요 </br>
