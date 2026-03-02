@@ -2,10 +2,7 @@
 
 <!-- PROJECT LOGO -->
 <br />
-<div align="center">
-  <a href="https://github.com/othneildrew/Best-README-Template">
-    <img src="images/logo.png" alt="Logo">
-  </a>
+<img align="left" src="images/logo.png" alt="Logo">
 
 <h3 align="center">찍어줄게</h3>
 
@@ -21,7 +18,6 @@
     &middot;
     <a href="https://github.com/dnd-side-project/dnd-14th-3-backend/issues/new?template=feature_request.md">Request Feature</a>
   </p>
-</div>
 
 <!-- ABOUT THE PROJECT -->
 
@@ -33,9 +29,22 @@
 
 <br/>
 
-[![찍어줄게 서비스][product-screenshot]](https://example.com)
-<img align="right" src="images/screenshot.png" alt="찍어줄게 서비스" width="600"/>
+<img align="right" src="images/screenshot.png" alt="찍어줄게 서비스" width="350"/>
 
+✨ <br/>
+지금 바로, 나와 가까운 상대와 사진 동행을 매칭해요 </br>
+
+<br/>
+
+🃏 <br/>
+내 스케줄에 맞는 상대와 동행을 미리 예약해요 </br>
+
+<br/>
+
+🎞 <br/>
+촬영 스타일을 미리 확인하고 나와 맞는 동행을 구해요.
+
+<br/>
 
 <!-- MARKDOWN LINKS & IMAGES -->
 
