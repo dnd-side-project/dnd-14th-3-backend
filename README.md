@@ -172,6 +172,19 @@
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+## Background
+
+![overview][OVERVIEW]
+"찍어줄게" 서비스의 전체적인 컨셉과 핵심 가치를 정의한 오버뷰입니다.
+![background1][BACKGROUND1]
+![background2][BACKGROUND2]
+1인 활동 인구의 증가와 함께 '혼자일 때 사진 촬영의 어려움'이라는 실제 사용자 페인 포인트(Pain Point)를 분석했습니다.
+![user-research1][USER_RESEARCH1]
+![user-research2][USER_RESEARCH2]
+설문조사와 인터뷰를 통해 타겟 사용자의 행동 패턴을 파악하고, 실시간 매칭과 예약 시스템의 필요성을 검증했습니다.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
 <!-- MARKDOWN LINKS & IMAGES -->
 
 [product-screenshot]: https://github.com/user-attachments/assets/5ac5335e-467a-4dc9-ac25-78efa19e0938
@@ -210,4 +223,14 @@
 
 [GitHubActions]: https://img.shields.io/badge/GitHub_Actions-2088FF?style=flat&logo=githubactions&logoColor=white
 
+<!-- BACKGROUND -->
 
+[OVERVIEW]: images/background/1.png
+
+[BACKGROUND1]: images/background/2.png
+
+[BACKGROUND2]: images/background/3.png
+
+[USER_RESEARCH1]: images/background/4.png
+
+[USER_RESEARCH2]: images/background/5.png
