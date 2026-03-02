@@ -25,13 +25,12 @@
 
 ## About The Project
 
+![product-screenshot][product-screenshot]
+
+
 > 내 사진은 남기고 싶은데.. 혼자 활동하는 편이라 난감한 적 있으시죠? <br/>
 > 찍어줄게는 사진을 찍어주는 동행을 연결하는 서비스입니다. <br/>
 > 말을 걸지 않아도, 부담을 느끼지 않아도, 같은 장소, 같은 시간에 있는 사람과 자연스럽게 매칭됩니다.
-
-<br/>
-
-<img src="images/screenshot.png" alt="찍어줄게 서비스" width="700"/>
 
 
 <!-- MARKDOWN LINKS & IMAGES -->
