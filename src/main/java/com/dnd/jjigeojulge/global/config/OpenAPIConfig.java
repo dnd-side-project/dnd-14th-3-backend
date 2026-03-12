@@ -1,4 +1,4 @@
-package com.dnd.jjigeojulge.config;
+package com.dnd.jjigeojulge.global.config;
 
 import java.util.List;
 
@@ -21,8 +21,7 @@ public class OpenAPIConfig {
 	public OpenAPI openAPI() {
 		return new OpenAPI()
 			.servers(List.of(
-				new Server().url("http://localhost:8080").description("로컬 서버"),
-				new Server().url("https://api.snapforyou.cloud").description("프로덕션 서버")
+				new Server().url("http://localhost:8080").description("로컬 서버")
 			))
 			.components(new Components()
 				.addSecuritySchemes("bearer-key",

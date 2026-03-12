@@ -190,6 +190,14 @@
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+
+<!-- ACKNOWLEDGMENTS -->
+
+## Acknowledgments
+
+DND 14기 사이드 프로젝트를 통해  
+함께 고민하고 협업해준 팀원들에게 감사드립니다.
+
 <!-- MARKDOWN LINKS & IMAGES -->
 
 [product-screenshot]: https://github.com/user-attachments/assets/5ac5335e-467a-4dc9-ac25-78efa19e0938
