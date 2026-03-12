@@ -1,4 +1,249 @@
+<a id="readme-top"></a>
+
 # dnd-14th-3-backend
 
-DND 14기 3팀 백엔드 프로젝트 (Java, Spring 기반)
+<!-- PROJECT LOGO -->
+<br />
+<div align="center">
+<img src="images/logo.png" alt="Logo">
 
+<h3 align="center">찍어줄게</h3>
+
+  <p align="center">
+    혼자여도, 기록은 함께
+    <br />
+    <a href="https://github.com/dnd-side-project/dnd-14th-3-backend/wiki"><strong>Explore the docs »</strong></a>
+    <br />
+    <br />
+    <a href="https://app.snapforyou.cloud/">View Demo</a>
+    &middot;
+    <a href="https://github.com/dnd-side-project/dnd-14th-3-backend/issues/new?labels=bug&template=bug_report.md">Report Bug</a>
+    &middot;
+    <a href="https://github.com/dnd-side-project/dnd-14th-3-backend/issues/new?template=feature_request.md">Request Feature</a>
+  </p>
+</div>
+
+<!-- ABOUT THE PROJECT -->
+
+## About The Project
+
+> 내 사진은 남기고 싶은데.. 혼자 활동하는 편이라 난감한 적 있으시죠? <br/>
+> 찍어줄게는 사진을 찍어주는 동행을 연결하는 서비스입니다. <br/>
+> 말을 걸지 않아도, 부담을 느끼지 않아도, 같은 장소, 같은 시간에 있는 사람과 자연스럽게 매칭됩니다.
+
+![product-screenshot]
+
+## 🚀 Features
+
+### 1. 온보딩
+
+![feat-onboarding]
+
+- 사용자 목적 기반 첫 진입 화면
+- 촬영 스타일 선택 및 프로필 설정
+- 사용자 정보 초기 세팅
+
+---
+
+### 2. 예약 매칭
+
+![feat-booking-request]
+![feat-booking-list]
+
+- 일정 기반 예약 요청 생성
+- 지원자 목록 확인 및 선택
+- 예약 상태 변경 시 알림 제공
+
+---
+
+### 3. 실시간 매칭
+
+![feat-matching-live]
+
+- 현재 위치 기준 500m 반경 내 사용자와 즉시 매칭 탐색
+- 대기 중인 사용자와 자동 매칭 제안
+- 매칭 성사 시 서로의 실시간 위치 공유
+
+---
+
+### 4. 마이페이지
+
+![feat-profile]
+
+- 프로필 정보 조회 및 수정
+- 매칭 및 예약 이력 확인
+- 예약 일정 관리
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+## 🛠 Tech Stack
+
+### Backend
+
+![Java][Java]
+![Spring Boot][Spring Boot]
+![Spring Security][Spring Security]
+![Hibernate][Hibernate]
+
+### Database
+
+![PostgreSQL][PostgreSQL]
+![Redis][Redis]
+
+### Infra
+
+![AWS][AWS]
+![Docker][Docker]
+![Nginx][Nginx]
+![Cloudflare][Cloudflare]
+
+### CI/CD
+
+![GitHub Actions][GitHubActions]
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+## Contribute
+
+<a href="https://github.com/dnd-side-project/dnd-14th-3-backend/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=dnd-side-project/dnd-14th-3-backend" alt="contrib.rocks image" />
+</a>
+
+### Team
+
+<table>
+  <tr>
+    <td align="center">
+      <a href="https://github.com/jaewoo9797">
+        <img src="https://avatars.githubusercontent.com/u/157946706?v=4" width="100px;" alt="백엔드"/>
+        <br />
+        <sub><b>백재우</b></sub>
+      </a>
+      <br />
+      Backend
+    </td>
+    <td align="center">
+      <a href="https://github.com/jihwan38">
+        <img src="https://avatars.githubusercontent.com/u/180384783?v=4" width="100px;" alt="백엔드"/>
+        <br />
+        <sub><b>김지환</b></sub>
+      </a>
+      <br />
+      Backend
+    </td>
+    <td align="center">
+      <a href="https://github.com/minseonkkim">
+        <img src="https://avatars.githubusercontent.com/u/76653033?v=4" width="100px;" alt="프론트엔드"/>
+        <br />
+        <sub><b>김민선</b></sub>
+      </a>
+      <br />
+      Frontend
+    </td>
+    <td align="center">
+      <a href="https://github.com/Wide-Pants">
+        <img src="https://avatars.githubusercontent.com/u/35173697?v=4" width="100px;" alt="프론트엔드"/>
+        <br />
+        <sub><b>강윤호</b></sub>
+      </a>
+      <br />
+      Frontend
+    </td>
+    <td align="center">
+      <a href="디자이너_포트폴리오_링크">
+        <img src="https://github.com/identicons/designer.png" width="100px;" alt="신하연"/>
+        <br />
+        <sub><b>신하연</b></sub>
+      </a>
+      <br />
+      Product Design
+    </td>
+    <td align="center">
+      <a href="디자이너_포트폴리오_링크">
+        <img src="https://github.com/identicons/designer.png" width="100px;" alt="양지혜"/>
+        <br />
+        <sub><b>양지혜</b></sub>
+      </a>
+      <br />
+      Product Design
+    </td>
+  </tr>
+</table>
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+## Background
+
+![overview][OVERVIEW]
+
+- "찍어줄게" 서비스의 전체적인 컨셉과 핵심 가치를 정의한 오버뷰입니다.
+
+![background1][BACKGROUND1]
+![background2][BACKGROUND2]
+
+- 1인 활동 인구의 증가와 함께 '혼자일 때 사진 촬영의 어려움'이라는 실제 사용자 페인 포인트(Pain Point)를 분석했습니다.
+
+![user-research1][USER_RESEARCH1]
+![user-research2][USER_RESEARCH2]
+
+- 설문조사와 인터뷰를 통해 타겟 사용자의 행동 패턴을 파악하고, 실시간 매칭과 예약 시스템의 필요성을 검증했습니다.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+<!-- ACKNOWLEDGMENTS -->
+
+## Acknowledgments
+
+DND 14기 사이드 프로젝트를 통해  
+함께 고민하고 협업해준 팀원들에게 감사드립니다.
+
+<!-- MARKDOWN LINKS & IMAGES -->
+
+[product-screenshot]: https://github.com/user-attachments/assets/5ac5335e-467a-4dc9-ac25-78efa19e0938
+
+[feat-onboarding]: images/features/feat_onboarding_intro.png
+
+[feat-booking-list]: images/features/feat_booking_list.png
+
+[feat-booking-request]: images/features/feat_booking_request.png
+
+[feat-matching-live]: images/features/feat_matching_live.png
+
+[feat-profile]: images/features/feat_mypage_profile.png
+
+<!-- BADGES -->
+
+[Java]: https://img.shields.io/badge/Java_17-ED8B00?style=flat&logo=openjdk&logoColor=white
+
+[Spring Boot]: https://img.shields.io/badge/Spring_Boot-6DB33F?style=flat&logo=springboot&logoColor=white
+
+[Spring Security]: https://img.shields.io/badge/Spring_Security-6DB33F?style=flat&logo=springsecurity&logoColor=white
+
+[Hibernate]: https://img.shields.io/badge/JPA_(Hibernate)-59666C?style=flat&logo=hibernate&logoColor=white
+
+[PostgreSQL]: https://img.shields.io/badge/PostgreSQL-4169E1?style=flat&logo=postgresql&logoColor=white
+
+[Redis]: https://img.shields.io/badge/Redis-DC382D?style=flat&logo=redis&logoColor=white
+
+[AWS]: https://img.shields.io/badge/AWS_Cloud-FF9900?style=flat&logo=amazonaws&logoColor=white
+
+[Docker]: https://img.shields.io/badge/Docker-2496ED?style=flat&logo=docker&logoColor=white
+
+[Nginx]: https://img.shields.io/badge/Nginx-009639?style=flat&logo=nginx&logoColor=white
+
+[Cloudflare]: https://img.shields.io/badge/Cloudflare-F38020?style=flat&logo=cloudflare&logoColor=white
+
+[GitHubActions]: https://img.shields.io/badge/GitHub_Actions-2088FF?style=flat&logo=githubactions&logoColor=white
+
+<!-- BACKGROUND -->
+
+[OVERVIEW]: images/background/1.png
+
+[BACKGROUND1]: images/background/2.png
+
+[BACKGROUND2]: images/background/3.png
+
+[USER_RESEARCH1]: images/background/4.png
+
+[USER_RESEARCH2]: images/background/5.png
