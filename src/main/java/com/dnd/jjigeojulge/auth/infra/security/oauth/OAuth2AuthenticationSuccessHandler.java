@@ -6,18 +6,28 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
+import org.springframework.web.util.UriComponentsBuilder;
+
+import com.dnd.jjigeojulge.auth.infra.jwt.JwtProperties;
+import com.dnd.jjigeojulge.auth.infra.jwt.JwtTokenProvider;
+import com.dnd.jjigeojulge.global.util.CookieUtils;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 
 	@Value("${app.frontendUrl}")
 	private String frontendUrl;
+
+	private final JwtTokenProvider jwtTokenProvider;
+	private final JwtProperties jwtProperties;
 
 	@Override
 	public void onAuthenticationSuccess(
@@ -34,18 +44,20 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
 		log.info("OAuth2 login success. userId={}, onboardingRequired={}", principal.getUserId(),
 			principal.isOnboardingRequired());
 		// 3. 상태에 따른 리다이렉트 경로 결정
-		if (principal.isOnboardingRequired()) {
-			response.sendRedirect(frontendUrl + "onboarding");
-			// 온보딩 처리를 할 수 있도록 프론트와 협의 필요
-			return;
-		}
+		// if (principal.isOnboardingRequired()) {
+		// 	response.sendRedirect(frontendUrl + "onboarding");
+		// 	// 온보딩 처리를 할 수 있도록 프론트와 협의 필요
+		// 	return;
+		// }
 		// 4. JWT 토큰 발급 및 쿼리 파라미터 추가
-		// String token = tokenProvider.createToken(authentication);
-		// targetUrl = UriComponentsBuilder.fromUriString(targetUrl)
-		//            .queryParam("token", token)
-		//            .build().toUriString();
+		String accessToken = jwtTokenProvider.createAccessToken(principal.getUserId());
+		String refreshToken = jwtTokenProvider.createRefreshToken(principal.getUserId());
+		CookieUtils.addCookie(response, "refresh_token", refreshToken,
+			(int)(jwtProperties.refreshTokenExpire() / 1000));
+		String targetUrl = UriComponentsBuilder.fromUriString(frontendUrl)
+			.queryParam("token", accessToken)
+			.build().toUriString();
 
-		// 5. 리다이렉트 실행
-		response.sendRedirect(frontendUrl);
+		response.sendRedirect(targetUrl);
 	}
 }
