@@ -17,6 +17,9 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.dnd.jjigeojulge.auth.infra.security.CustomAuthenticationEntryPoint;
+import com.dnd.jjigeojulge.auth.infra.security.oauth.CustomOAuth2UserService;
+import com.dnd.jjigeojulge.auth.infra.security.oauth.OAuth2AuthenticationFailureHandler;
+import com.dnd.jjigeojulge.auth.infra.security.oauth.OAuth2AuthenticationSuccessHandler;
 import com.dnd.jjigeojulge.auth.presentation.filter.JwtAuthenticationFilter;
 
 import lombok.RequiredArgsConstructor;
@@ -28,6 +31,9 @@ public class SecurityConfig {
 
 	private final JwtAuthenticationFilter jwtAuthenticationFilter;
 	private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+	private final CustomOAuth2UserService customOAuth2UserService;
+	private final OAuth2AuthenticationSuccessHandler customOAuth2SuccessHandler;
+	private final OAuth2AuthenticationFailureHandler customOAuth2FailureHandler;
 
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -57,6 +63,15 @@ public class SecurityConfig {
 				.anyRequest().authenticated())
 			.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
+		http
+			.oauth2Login((oauth2) -> oauth2
+				.userInfoEndpoint((userInfo) -> userInfo
+					.userService(customOAuth2UserService)
+				)
+				.successHandler(customOAuth2SuccessHandler)
+				.failureHandler(customOAuth2FailureHandler)
+			);
+
 		return http.build();
 	}
 
@@ -79,4 +94,5 @@ public class SecurityConfig {
 		return RoleHierarchyImpl.withDefaultRolePrefix()
 			.build();
 	}
+
 }

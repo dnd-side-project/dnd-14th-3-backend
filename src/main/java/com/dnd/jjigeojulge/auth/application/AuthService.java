@@ -17,6 +17,7 @@ import com.dnd.jjigeojulge.user.domain.Introduction;
 import com.dnd.jjigeojulge.user.domain.OAuthInfo;
 import com.dnd.jjigeojulge.user.domain.PhotoStyle;
 import com.dnd.jjigeojulge.user.domain.User;
+import com.dnd.jjigeojulge.user.domain.UserStatus;
 import com.dnd.jjigeojulge.user.exception.InvalidPhotoStyleException;
 import com.dnd.jjigeojulge.user.infra.PhotoStyleRepository;
 import com.dnd.jjigeojulge.user.infra.UserRepository;
@@ -38,15 +39,15 @@ public class AuthService {
 		OAuthUserProfile userProfile = oAuthClient.getUserProfile(accessToken);
 
 		return userRepository.findByOAuthInfo(userProfile.providerId(), userProfile.provider())
-				.<AuthResult>map(user -> {
-					String access = jwtTokenProvider.createAccessToken(user.getId());
-					String refresh = jwtTokenProvider.createRefreshToken(user.getId());
-					return new AuthResult.Success(access, refresh);
-				})
-				.orElseGet(() -> {
-					String registerToken = jwtTokenProvider.createRegisterToken(userProfile.providerId());
-					return new AuthResult.RegisterNeeded(registerToken, userProfile.profileImageUrl());
-				});
+			.<AuthResult>map(user -> {
+				String access = jwtTokenProvider.createAccessToken(user.getId());
+				String refresh = jwtTokenProvider.createRefreshToken(user.getId());
+				return new AuthResult.Success(access, refresh);
+			})
+			.orElseGet(() -> {
+				String registerToken = jwtTokenProvider.createRegisterToken(userProfile.providerId());
+				return new AuthResult.RegisterNeeded(registerToken, userProfile.profileImageUrl());
+			});
 	}
 
 	public AuthResult signup(SignupCommand command) {
@@ -63,14 +64,14 @@ public class AuthService {
 		}
 
 		User user = User.create(
-				new OAuthInfo(providerId, OAuthProvider.KAKAO),
-				command.nickname(),
-				command.gender(),
-				command.ageGroup(),
-				Introduction.from(command.introduction()),
-				command.profileImageUrl(),
-				photoStyles);
-
+			new OAuthInfo(providerId, OAuthProvider.KAKAO),
+			command.nickname(),
+			command.gender(),
+			command.ageGroup(),
+			Introduction.from(command.introduction()),
+			command.profileImageUrl(),
+			photoStyles);
+		user.setStatus(UserStatus.ACTIVE);
 		// TODO: [Refactor] AuthService에서 유저 관리를 직접 하지 않고, UserService나 Port로 위임 필요
 		User savedUser = userRepository.save(user);
 
