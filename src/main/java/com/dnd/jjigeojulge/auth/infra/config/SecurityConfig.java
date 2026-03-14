@@ -12,11 +12,17 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.dnd.jjigeojulge.auth.infra.security.CustomAuthenticationEntryPoint;
+import com.dnd.jjigeojulge.auth.infra.security.JwtLogoutHandler;
+import com.dnd.jjigeojulge.auth.infra.security.SecurityMatchers;
+import com.dnd.jjigeojulge.auth.infra.security.oauth.CustomOAuth2UserService;
+import com.dnd.jjigeojulge.auth.infra.security.oauth.OAuth2AuthenticationFailureHandler;
+import com.dnd.jjigeojulge.auth.infra.security.oauth.OAuth2AuthenticationSuccessHandler;
 import com.dnd.jjigeojulge.auth.presentation.filter.JwtAuthenticationFilter;
 
 import lombok.RequiredArgsConstructor;
@@ -28,6 +34,9 @@ public class SecurityConfig {
 
 	private final JwtAuthenticationFilter jwtAuthenticationFilter;
 	private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+	private final CustomOAuth2UserService customOAuth2UserService;
+	private final OAuth2AuthenticationSuccessHandler customOAuth2SuccessHandler;
+	private final OAuth2AuthenticationFailureHandler customOAuth2FailureHandler;
 
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -40,23 +49,26 @@ public class SecurityConfig {
 			.exceptionHandling(exception -> exception
 				.authenticationEntryPoint(customAuthenticationEntryPoint))
 			.authorizeHttpRequests(auth -> auth
-				.requestMatchers(
-					"/api/v1/auth/login/kakao",
-					"/api/v1/auth/signup",
-					"/api/v1/auth/refresh",
-					"/api/v1/users/check-nickname",
-					"/api/v1/photo-style",
-					"/health",
-					"/swagger-ui/**",
-					"/v3/api-docs/**",
-					"/v3/api-docs.yaml",
-					"/api/v1/examples/**",
-					"/ws/**"
-				)
+				.requestMatchers(SecurityMatchers.PUBLIC_MATCHERS)
 				.permitAll()
 				.anyRequest().authenticated())
 			.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
+		http
+			.oauth2Login((oauth2) -> oauth2
+				.userInfoEndpoint((userInfo) -> userInfo
+					.userService(customOAuth2UserService)
+				)
+				.successHandler(customOAuth2SuccessHandler)
+				.failureHandler(customOAuth2FailureHandler)
+			);
+
+		http
+			.logout(logout -> logout
+				.logoutRequestMatcher(SecurityMatchers.LOGOUT)
+				.logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler())
+				.addLogoutHandler(new JwtLogoutHandler())
+			);
 		return http.build();
 	}
 
@@ -79,4 +91,5 @@ public class SecurityConfig {
 		return RoleHierarchyImpl.withDefaultRolePrefix()
 			.build();
 	}
+
 }
