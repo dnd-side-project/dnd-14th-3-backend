@@ -12,11 +12,14 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.dnd.jjigeojulge.auth.infra.security.CustomAuthenticationEntryPoint;
+import com.dnd.jjigeojulge.auth.infra.security.JwtLogoutHandler;
+import com.dnd.jjigeojulge.auth.infra.security.SecurityMatchers;
 import com.dnd.jjigeojulge.auth.infra.security.oauth.CustomOAuth2UserService;
 import com.dnd.jjigeojulge.auth.infra.security.oauth.OAuth2AuthenticationFailureHandler;
 import com.dnd.jjigeojulge.auth.infra.security.oauth.OAuth2AuthenticationSuccessHandler;
@@ -46,19 +49,7 @@ public class SecurityConfig {
 			.exceptionHandling(exception -> exception
 				.authenticationEntryPoint(customAuthenticationEntryPoint))
 			.authorizeHttpRequests(auth -> auth
-				.requestMatchers(
-					"/api/v1/auth/login/kakao",
-					"/api/v1/auth/signup",
-					"/api/v1/auth/refresh",
-					"/api/v1/users/check-nickname",
-					"/api/v1/photo-style",
-					"/health",
-					"/swagger-ui/**",
-					"/v3/api-docs/**",
-					"/v3/api-docs.yaml",
-					"/api/v1/examples/**",
-					"/ws/**"
-				)
+				.requestMatchers(SecurityMatchers.PUBLIC_MATCHERS)
 				.permitAll()
 				.anyRequest().authenticated())
 			.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
@@ -72,6 +63,12 @@ public class SecurityConfig {
 				.failureHandler(customOAuth2FailureHandler)
 			);
 
+		http
+			.logout(logout -> logout
+				.logoutRequestMatcher(SecurityMatchers.LOGOUT)
+				.logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler())
+				.addLogoutHandler(new JwtLogoutHandler())
+			);
 		return http.build();
 	}
 
