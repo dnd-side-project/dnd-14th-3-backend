@@ -28,7 +28,7 @@ public class WebsocketMessageHandler {
 		MatchSessionMessageDto<MatchSessionStatus> messageDto = MatchSessionMessageDto.of(
 			MatchSessionMessageType.SESSION_READY,
 			event.sessionId(),
-			null,
+			event.senderId(),
 			event.status()
 		);
 		String destination = String.format("/sub/sessions/%s/location", event.sessionId());
