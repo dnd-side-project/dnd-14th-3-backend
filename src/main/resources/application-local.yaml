@@ -5,7 +5,7 @@ spring:
     password: ${LOCAL_DB_PASSWORD}
 
   jpa:
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
         format_sql: true
@@ -17,5 +17,14 @@ spring:
 
 logging:
   level:
-    com.dnd.jjigeojulge: debug
-    org.hibernate.type.descriptor.sql: trace  # query parameter(?) 값 추적 설정
+    # 프로젝트 로직 로그
+    com.dnd.jjigeojulge: DEBUG
+    # 시큐리티 필터 체인 및 권한 부여 흐름
+    org.springframework.security: DEBUG
+    # OAuth2 클라이언트 상세 로직
+    org.springframework.security.oauth2: DEBUG
+    # 중요: 카카오 서버와 주고받는 실제 HTTP 통신 내용 (토큰 요청 등)
+    org.springframework.web.client.RestTemplate: DEBUG
+    # DB 관련 로그 끄기
+    org.hibernate.SQL: OFF
+    org.hibernate.type.descriptor.sql: OFF
