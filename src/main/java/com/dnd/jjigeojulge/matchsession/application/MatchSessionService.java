@@ -48,11 +48,15 @@ public class MatchSessionService {
 		}
 
 		matchSession.arrive(currentUserId);
-		// 이벤트 발행 분기 처리 (마지막에 도착한 유저의 이벤트가 중복될 수 있어 UI가 복잡해지는 문제를 해결하기 위한 분기처리)
+
+		// 1. 누가 도착했는지는 항상 알린다.
+		eventPublisher.publishEvent(new MatchSessionUserArrivedEvent(sessionId, currentUserId));
+
+		// 2. 그 결과로 모두 도착 상태가 되었으면 ready도 추가 발행한다.
 		if (matchSession.isEveryParticipantArrived()) {
-			eventPublisher.publishEvent(new MatchSessionReadyEvent(sessionId, currentUserId, matchSession.getStatus()));
-		} else {
-			eventPublisher.publishEvent(new MatchSessionUserArrivedEvent(sessionId, currentUserId));
+			eventPublisher.publishEvent(
+				new MatchSessionReadyEvent(sessionId, currentUserId, matchSession.getStatus())
+			);
 		}
 	}
 
