@@ -30,13 +30,13 @@ public class LocationWebsocketController {
 	) {
 		CustomUserDetails userDetails = (CustomUserDetails)authentication.getPrincipal();
 
-		Long userId = userDetails.id();
-		log.info("메시지 보낸 유저 ID : {}", userId);
+		Long senderId = userDetails.id();
+		log.info("메시지 보낸 유저 ID : {}", senderId);
 
 		MatchSessionMessageDto<GeoPoint> responseDto = MatchSessionMessageDto.of(
 			MatchSessionMessageType.LOCATION,
 			sessionId,
-			userId,
+			senderId,
 			payload
 		);
 		String destination = String.format("/sub/sessions/%s/location", sessionId);
