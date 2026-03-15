@@ -46,10 +46,11 @@ public class SseService {
 		return emitter;
 	}
 
-	@Scheduled(fixedDelay = 30_000)
-	public void clearUp() {
+	@Scheduled(fixedRate = 25_000)
+	public void cleanUp() {
 		Set<ResponseBodyEmitter.DataWithMediaType> ping = SseEmitter.event()
 			.name("ping")
+			.data("keep-alive")
 			.build();
 
 		sseEmitterRepository.findAll().forEach(sseEmitter -> sendToEmitter(sseEmitter, ping));

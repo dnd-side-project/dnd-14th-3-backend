@@ -50,7 +50,7 @@ public class MatchSessionService {
 		matchSession.arrive(currentUserId);
 		// 이벤트 발행 분기 처리 (마지막에 도착한 유저의 이벤트가 중복될 수 있어 UI가 복잡해지는 문제를 해결하기 위한 분기처리)
 		if (matchSession.isEveryParticipantArrived()) {
-			eventPublisher.publishEvent(new MatchSessionReadyEvent(sessionId, matchSession.getStatus()));
+			eventPublisher.publishEvent(new MatchSessionReadyEvent(sessionId, currentUserId, matchSession.getStatus()));
 		} else {
 			eventPublisher.publishEvent(new MatchSessionUserArrivedEvent(sessionId, currentUserId));
 		}
@@ -60,7 +60,7 @@ public class MatchSessionService {
 	public void startMeeting(Long sessionId, Long currentUserId) {
 		MatchSession matchSession = matchSessionRepository.findById(sessionId)
 			.orElseThrow(MatchSessionNotFoundException::new);
-		
+
 		if (!matchSession.isParticipant(currentUserId)) {
 			throw new MatchSessionNotParticipantException();
 		}

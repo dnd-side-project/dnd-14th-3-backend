@@ -4,7 +4,7 @@ import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 
 import com.dnd.jjigeojulge.auth.infra.security.CustomUserDetails;
@@ -26,9 +26,13 @@ public class LocationWebsocketController {
 	public void handleLocationUpdate(
 		@DestinationVariable Long sessionId,
 		@Payload GeoPoint payload,
-		@AuthenticationPrincipal CustomUserDetails userDetails
+		Authentication authentication
 	) {
+		CustomUserDetails userDetails = (CustomUserDetails)authentication.getPrincipal();
+
 		Long userId = userDetails.id();
+		log.info("메시지 보낸 유저 ID : {}", userId);
+
 		MatchSessionMessageDto<GeoPoint> responseDto = MatchSessionMessageDto.of(
 			MatchSessionMessageType.LOCATION,
 			sessionId,
