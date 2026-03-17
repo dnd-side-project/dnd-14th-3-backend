@@ -1,6 +1,8 @@
 package com.dnd.jjigeojulge.sse;
 
+import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -20,8 +22,9 @@ public class SseService {
 	private long timeout;
 
 	private final SseEmitterRepository sseEmitterRepository;
+	private final SseMessageRepository sseMessageRepository;
 
-	public SseEmitter connect(Long receiverId) {
+	public SseEmitter connect(Long receiverId, UUID lastEventId) {
 		SseEmitter sseEmitter = new SseEmitter(timeout);
 
 		sseEmitter.onCompletion(() -> {
@@ -43,20 +46,17 @@ public class SseService {
 			.name("connect")
 			.data("connected")
 			.build());
+
+		Optional.ofNullable(lastEventId)
+			.ifPresent(id ->
+				sseMessageRepository.findAllByLastEventIdAfterAndReceiverId(id, receiverId)
+					.forEach(sseMessage -> sendToEmitter(emitter, sseMessage.toEvent()))
+			);
 		return emitter;
 	}
 
-	@Scheduled(fixedRate = 25_000)
-	public void cleanUp() {
-		Set<ResponseBodyEmitter.DataWithMediaType> ping = SseEmitter.event()
-			.name("ping")
-			.data("keep-alive")
-			.build();
-
-		sseEmitterRepository.findAll().forEach(sseEmitter -> sendToEmitter(sseEmitter, ping));
-	}
-
 	public void send(SseMessage sseMessage) {
+		sseMessageRepository.save(sseMessage);
 		Set<ResponseBodyEmitter.DataWithMediaType> event = sseMessage.toEvent();
 		sseEmitterRepository.findAllByReceiverIdIn(sseMessage.getReceiverIds())
 			.forEach(emitter -> sendToEmitter(emitter, event));
@@ -73,5 +73,15 @@ public class SseService {
 
 	public Set<Long> getConnectedUserIds() {
 		return sseEmitterRepository.getConnectedUserIds();
+	}
+
+	@Scheduled(fixedRate = 25_000)
+	public void cleanUp() {
+		Set<ResponseBodyEmitter.DataWithMediaType> ping = SseEmitter.event()
+			.name("ping")
+			.data("keep-alive")
+			.build();
+
+		sseEmitterRepository.findAll().forEach(sseEmitter -> sendToEmitter(sseEmitter, ping));
 	}
 }

@@ -48,4 +48,8 @@ public class SseMessage {
 			.data(eventData)
 			.build();
 	}
+
+	public boolean isReceivable(Long receiverId) {
+		return receiverIds.contains(receiverId);
+	}
 }
