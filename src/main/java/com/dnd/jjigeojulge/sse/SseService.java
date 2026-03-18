@@ -1,5 +1,7 @@
 package com.dnd.jjigeojulge.sse;
 
+import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -42,15 +44,25 @@ public class SseService {
 
 		SseEmitter emitter = sseEmitterRepository.save(receiverId, sseEmitter);
 
-		sendToEmitter(emitter, SseEmitter.event()
+		Set<ResponseBodyEmitter.DataWithMediaType> connect = SseEmitter.event()
 			.name("connect")
 			.data("connected")
-			.build());
+			.build();
+		try {
+			sseEmitter.send(connect);
+		} catch (IOException e) {
+			log.error(e.getMessage(), e);
+			sseEmitter.completeWithError(e);
+		}
 
 		Optional.ofNullable(lastEventId)
-			.ifPresent(id ->
-				sseMessageRepository.findAllByLastEventIdAfterAndReceiverId(id, receiverId)
-					.forEach(sseMessage -> sendToEmitter(emitter, sseMessage.toEvent()))
+			.ifPresent(id -> {
+					List<SseMessage> replayMessages =
+						sseMessageRepository.findAllByLastEventIdAfterAndReceiverId(id, receiverId);
+					log.info("SSE replay requested. receiverId={}, lastEventId={}, replayCount={}",
+						receiverId, id, replayMessages.size());
+					replayMessages.forEach(sseMessage -> sendToEmitter(emitter, sseMessage));
+				}
 			);
 		return emitter;
 	}
@@ -59,14 +71,20 @@ public class SseService {
 		sseMessageRepository.save(sseMessage);
 		Set<ResponseBodyEmitter.DataWithMediaType> event = sseMessage.toEvent();
 		sseEmitterRepository.findAllByReceiverIdIn(sseMessage.getReceiverIds())
-			.forEach(emitter -> sendToEmitter(emitter, event));
+			.forEach(emitter -> sendToEmitter(emitter, sseMessage));
 	}
 
-	private void sendToEmitter(SseEmitter emitter, Set<ResponseBodyEmitter.DataWithMediaType> event) {
+	private void sendToEmitter(SseEmitter emitter, SseMessage message) {
 		try {
-			emitter.send(event);
-		} catch (Exception e) {
-			log.error("SSE send failed", e);
+			emitter.send(message.toEvent());
+			log.info("SSE send success. eventId={}, eventName={}", message.getEventId(), message.getEventName());
+		} catch (IOException e) {
+			log.error("SSE send failed. eventId={}, eventName={}, receiverId={}, message={}",
+				message.getEventId(),
+				message.getEventName(),
+				message.getReceiverIds(),
+				message.getEventData(),
+				e);
 			emitter.completeWithError(e);
 		}
 	}
@@ -81,7 +99,15 @@ public class SseService {
 			.name("ping")
 			.data("keep-alive")
 			.build();
-
-		sseEmitterRepository.findAll().forEach(sseEmitter -> sendToEmitter(sseEmitter, ping));
+		sseEmitterRepository.findAll()
+			.forEach(sseEmitter -> {
+					try {
+						sseEmitter.send(ping);
+					} catch (IOException e) {
+						log.error(e.getMessage(), e);
+						sseEmitter.completeWithError(e);
+					}
+				}
+			);
 	}
 }
