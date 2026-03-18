@@ -2,6 +2,7 @@ package com.dnd.jjigeojulge.sse;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
@@ -33,6 +34,7 @@ public class InMemorySseMessageRepository implements SseMessageRepository {
 			.dropWhile(data -> !data.equals(lastEventId))
 			.skip(1)
 			.map(messages::get)
+			.filter(Objects::nonNull)
 			.filter(sseMessage -> sseMessage.isReceivable(receiverId))
 			.toList();
 	}
