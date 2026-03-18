@@ -104,7 +104,7 @@ public class SseService {
 					try {
 						sseEmitter.send(ping);
 					} catch (IOException e) {
-						log.error(e.getMessage(), e);
+						log.debug("SSE 연결 종료됨: {}", e.getMessage());
 						sseEmitter.completeWithError(e);
 					}
 				}
