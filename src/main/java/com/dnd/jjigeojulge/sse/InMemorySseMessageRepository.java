@@ -30,6 +30,10 @@ public class InMemorySseMessageRepository implements SseMessageRepository {
 
 	@Override
 	public List<SseMessage> findAllByLastEventIdAfterAndReceiverId(UUID lastEventId, Long receiverId) {
+		if (lastEventId == null) {
+			return List.of();
+		}
+
 		return eventIdQueue.stream()
 			.dropWhile(data -> !data.equals(lastEventId))
 			.skip(1)
