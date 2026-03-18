@@ -38,3 +38,4 @@ kakao:
 
 sse:
   timeout: 300_000
+  event-queue-capacity: 100
